@@ -2,6 +2,7 @@
 // POST /rumeno/feedback
 
 const expressAsyncHandler = require("express-async-handler");
+const feedbackModel = require("../model/feedbackModal");
 
 exports.feedback = expressAsyncHandler(async (req, res) => {
   // Validate request body

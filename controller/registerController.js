@@ -59,7 +59,8 @@ exports.userRegister = expressAsyncHandler(async (req, res) => {
       return res.status(400).json({ message: "Invalid address format" });
     }
     // Generate code based on , firstName(2) , mobile last 4 digit of mobile number
-    const code = firstName.slice(0, 2) + mobile.slice(-4);
+    let mobileString = String(mobile);
+    const code = firstName.slice(0, 2) + mobileString.slice(-4);
 
     // Hash password
     const salt = await bcrypt.genSalt(10);

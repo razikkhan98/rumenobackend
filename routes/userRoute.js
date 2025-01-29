@@ -12,6 +12,11 @@ const registerController = require("../controller/registerController");
 const forgotController = require("../controller/forgotController");
 const addToCartController = require("../controller/addToCartController");
 const feedbackController = require("../controller/feedbackController");
+const contactController = require("../controller/contactController");
+const serviceFromController = require("../controller/serviceFromController");
+const blogController = require("../controller/blogController");
+const framDetailController = require("../controller/framDetailController");
+
 
 
 // ========
@@ -19,16 +24,29 @@ const feedbackController = require("../controller/feedbackController");
 // ========
 
 // register
-router.post("/register", validateToken, registerController.userRegister);
+router.post("/user/register", registerController.userRegister);
 
 // login
-router.post("/login", loginController.userLogin);
+router.post("/user/login", loginController.userLogin);
 
 // forgot Password
-router.post("/forgotpassword", forgotController.forgotPassword);
+router.post("/user/forgotpassword", forgotController.forgotPassword);
 
 // Feedback
-router.post("/feedback", feedbackController.feedback);
+router.post("/user/feedback", validateToken,feedbackController.feedback);
+
+// Contact us
+router.post("/user/contactus", contactController.contactUs);
+
+// Service Page
+router.post("/user/service", serviceFromController.service);
+
+// Blog Comment
+router.post("/user/blog", validateToken, blogController.blogComment);
+
+// Farm Detail
+router.post("/user/farmdetail", validateToken, framDetailController.farmDetail);
+
 
 // ========
 // Add to Cart
@@ -40,8 +58,11 @@ router.post("/addtocart", validateToken, addToCartController.addToCart);
 // get cart items
 router.get("/getcartitems", validateToken, addToCartController.getCartItems);
 
-// remove item from cart
+// update cart item
+router.put("/updatecartitem/:itemId", addToCartController.updateCartItem);
 
-// router.delete("/removefromcart/:itemId", addToCartController.removeFromCart);
+// remove item from cart
+router.delete("/removefromcart/:itemId", addToCartController.deleteCartItem);
+
 
 module.exports = router;

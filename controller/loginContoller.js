@@ -1,47 +1,54 @@
 const asyncHandler = require("express-async-handler");
-const loginModel = require("../model/loginModel");;
-// const jwt = require("jsonwebtoken");
+const registerModel = require("../model/registerModel");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
-exports.userLogin =asyncHandler(async(req ,res)=> {
- const { 
-    email, 
-    mobileNumber,       
-    password
- } = req.body;
+exports.userLogin = asyncHandler(async (req, res) => {
+  // Validate request body
+  if (!req.body) {
+    return res.status(400).json({ message: "No data provided" });
+  }
+  try {
+    const { mobile, password } = req.body;
 
- // Check if email and password are provided
- if (!email && !mobileNumber && !password ) {
-   return res
-     .status(400)
-     .json({ message: "Please provide either email , mobile number and password" });
- }
+    // Validate required fields
+    if (!mobile || !password) {
+      return res.status(400).json({ message: "Please fill in all fields" });
+    }
 
- // Check if user exists  by email or phone
- const existEmail = await loginModel.findOne({email});
-if(!existEmail){
-  return res.status(400).json({message: "Email does not exist"})
-}
-//check phone number exist or not
-const existNumber = await registerModel.findOne({mobileNumber});
-if(existNumber){
-    return res.status(400).json({message: "Phone number already exist"})
-}
+    // Check if user exists
+    const user = await registerModel.findOne({ mobile });
 
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist" });
+    }
 
-// // Generate and send JWT token
-// const token = jwt.sign(
-//     { user: { email: user.email } },
-//     process.env.JWT_SECRET,
-//     { expiresIn: "1h" }
-//   );
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
 
-  // If the user is found, login is successful
-  res.status(200).json({
-    success: true,
-    message: "Login successful.",
-    // accessToken: token,
-  });
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
 
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "default_secret_key", {
+      expiresIn: "1d",
+    });
+
+    // Return response
+    res.status(200).json({
+      success: true,
+      message: "User logged in successfully",
+      user: {
+        id: user._id,
+        name: user.firstName,
+        uID: user.uid,
+      },
+      date: new Date().toISOString(), // Current timestamp
+      token,
+    });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message })
+  }
 });
-
-

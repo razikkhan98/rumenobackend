@@ -17,8 +17,15 @@ exports.feedback = expressAsyncHandler(async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+//New user
+const newFeedback = new feedbackModel({
+  product_id,
+  feedback,
+  uid
+})
+
     // Save user to the database
-    await feedbackModel.save();
+    await newFeedback.save();
     res.status(201).json({ message: "Feedback added successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });

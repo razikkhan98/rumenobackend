@@ -34,6 +34,9 @@ const registerSchema = new mongoose.Schema({
     match: [/^\d{10}$/, "Phone number must be exactly 10 digits"],
     minlength: 10,
     maxlength: 10,
+  //   otp: String,
+  // otpExpiry: Date
+
   },
   address: {
     type: String,
@@ -52,6 +55,12 @@ const registerSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true
+  },
+  otp: {
+    type:String
+  },
+  otpExpiry:{
+    type:Date
   }
   
 });

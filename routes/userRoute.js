@@ -10,6 +10,8 @@ const { validateToken } = require("../middlewares/validateTokenHandler");
 const loginController = require("../controller/loginContoller");
 const registerController = require("../controller/registerController");
 const forgotController = require("../controller/forgotController");
+const otpverifyController = require("../controller/otpverifyController");
+
 const addToCartController = require("../controller/addToCartController");
 const feedbackController = require("../controller/feedbackController");
 const contactController = require("../controller/contactController");
@@ -31,6 +33,12 @@ router.post("/user/login", loginController.userLogin);
 
 // forgot Password
 router.post("/user/forgotpassword", forgotController.forgotPassword);
+
+// verify OTP
+router.post("/user/verifyotp", otpverifyController.verifyOtp);
+
+// Rest password
+router.post("/user/resetpassword", otpverifyController.resetPassword);
 
 // Feedback
 router.post("/user/feedback", validateToken,feedbackController.feedback);

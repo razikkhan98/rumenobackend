@@ -15,9 +15,20 @@ exports.service = expressAsyncHandler(async (req, res) => {
         if (!name || !address || !bestTime || !experience || !budget || !landSize || !need) {
             return res.status(400).json({ message: "Please provide all required fields" });
         }
+
+        //new user add
+        const newService = new serviceFormModel({
+            name,
+            address,
+            bestTime,
+            experience,
+            budget,
+            landSize,
+            need
+        })
     
         // Save user to the database
-        await serviceFormModel.save();
+        await newService.save();
         res.status(201).json({ message: "Form submitted successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });

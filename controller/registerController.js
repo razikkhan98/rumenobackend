@@ -7,10 +7,12 @@ const bcrypt = require("bcrypt");
 
 // Register a new user
 exports.userRegister = expressAsyncHandler(async (req, res) => {
+
   // Validate request body
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
   }
+  console.log(req.body)
   try {
     const {
       firstName,
@@ -23,6 +25,7 @@ exports.userRegister = expressAsyncHandler(async (req, res) => {
       state,
       country,
     } = req.body;
+    console.log('firstName: ', firstName);
 
     // Validate required fields
     if (!firstName || !email || !password || !mobile || !address) {

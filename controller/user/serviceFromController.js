@@ -1,7 +1,7 @@
 //  servic Pages Data
 
 const expressAsyncHandler = require("express-async-handler");
-const serviceFormModel  = require("../model/serviceFormModel");
+const serviceFormModel  = require("../../model/user/serviceFormModel");
 
 exports.service = expressAsyncHandler(async (req, res) => {
     // Validate request body

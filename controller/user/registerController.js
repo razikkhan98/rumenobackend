@@ -2,7 +2,7 @@
 // Post /rumeno/register
 
 const expressAsyncHandler = require("express-async-handler");
-const registerModel = require("../model/registerModel");
+const registerModel = require("../../model/user/registerModel");
 const bcrypt = require("bcrypt");
 
 // Register a new user

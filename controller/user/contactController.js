@@ -3,7 +3,7 @@
 
 
 const expressAsyncHandler = require("express-async-handler");
-const contactModel = require("../model/contactModal");
+const contactModel = require("../../model/user/contactModal");
 
 exports.contactUs = expressAsyncHandler(async (req, res) => {
     // Validate request body

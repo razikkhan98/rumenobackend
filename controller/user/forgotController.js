@@ -2,7 +2,7 @@
 // Post /rumeno/forgotpassword
 
 const expressAsyncHandler = require("express-async-handler");
-const registerModel = require("../model/registerModel");
+const registerModel = require("../../model/user/registerModel");
 
 exports.forgotPassword = expressAsyncHandler(async (req, res) => {
 // Validate request body

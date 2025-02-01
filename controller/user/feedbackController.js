@@ -2,7 +2,7 @@
 // POST /rumeno/feedback
 
 const expressAsyncHandler = require("express-async-handler");
-const feedbackModel = require("../model/feedbackModal");
+const feedbackModel = require("../../model/user/feedbackModal");
 
 exports.feedback = expressAsyncHandler(async (req, res) => {
   // Validate request body
@@ -10,10 +10,10 @@ exports.feedback = expressAsyncHandler(async (req, res) => {
     return res.status(400).json({ message: "No data provided" });
   }
   try {
-    const { product_id, feedback, uid } = req.body;
+    const { productId, feedback, uid } = req.body;
 
     // Validate required fields
-    if (!product_id || !feedback || !uid) {
+    if (!productId || !feedback || !uid) {
       return res.status(400).json({ message: "All fields are required" });
     }
 

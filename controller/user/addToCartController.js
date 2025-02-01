@@ -3,7 +3,7 @@
 
 const expressAsyncHandler = require("express-async-handler");
 
-const cartModel = require("../model/addToCartModal");
+const cartModel = require("../../model/user/addToCartModal");
 
 // Add item to cart
 exports.addToCart = expressAsyncHandler(async (req, res) => {

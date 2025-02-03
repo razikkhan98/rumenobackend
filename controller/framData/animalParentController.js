@@ -75,7 +75,6 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       maleDetail,
       bodyScore,
       anyComment,
-      parentId: null, // Since it's a parent
       children: [], // No children initially
     });
 
@@ -94,5 +93,81 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       message: "Server Error. Failed to add parent animal.",
       error: error.message,
     });
+  }
+});
+
+exports.animalAllDetail = asyncHandler(async (req, res) => {
+  try {
+    const { uniqueId } = req.params;
+
+    const parents = await Animal.aggregate([
+      {
+        $match: { uniqueId: uniqueId }, // Find the parent by uniqueId
+      },
+      {
+        $lookup: {
+          from: "childanimals", // Collection name of ChildAnimal (check lowercase plural)
+          localField: "uniqueId", // The _id field of Animal (parent)
+          foreignField: "uniqueId", // The parent field in ChildAnimal referencing Animal
+          as: "children",
+        },
+      },
+    ]);
+
+    if (!parents || parents.length === 0) {
+      return res.status(404).json({ message: "No parent found" });
+    }
+
+    // Formatting response with full details
+    const parentsData = parents.map((parent) => ({
+      parentId: parent._id,
+      uniqueId: parent.uniqueId,
+      uniqueName: parent.uniqueName,
+      ageMonth: parent.ageMonth,
+      ageYear: parent.ageYear,
+      height: parent.height,
+      purchasDate: parent.purchasDate,
+      gender: parent.gender,
+      weightMonth: parent.weightMonth,
+      weightYear: parent.weightYear,
+      pregnancyDetail: parent.pregnancyDetail,
+      maleDetail: parent.maleDetail,
+      bodyScore: parent.bodyScore,
+      anyComment: parent.anyComment,
+      createdAt: parent.createdAt,
+      updatedAt: parent.updatedAt,
+      children: parent.children.map((child) => ({
+        uniqueId: child.uniqueId,
+
+        childId: child._id,
+        kiduniqueId: child.kiduniqueId,
+        kiduniqueName: child.kiduniqueName,
+        age: child.age,
+        DOB: child.DOB,
+        gender: child.gender,
+        kidCode: child.kidCode,
+        kidScore: child.kidScore,
+        BODType: child.BODType,
+        kidWeight: child.kidWeight,
+        weanDate: child.weanDate,
+        weanWeight: child.weanWeight,
+        motherWeanWeight: child.motherWeanWeight,
+        motherWeanDate: child.motherWeanDate,
+        castration: child.castration,
+        birthWeight: child.birthWeight,
+        breed: child.breed,
+        motherAge: child.motherAge,
+        comment: child.comment,
+        createdAt: child.createdAt,
+        updatedAt: child.updatedAt,
+      })),
+    }));
+
+    res.status(200).json({
+      parents: parentsData,
+    });
+  } catch (error) {
+    console.error("Error fetching parent and child data:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 });

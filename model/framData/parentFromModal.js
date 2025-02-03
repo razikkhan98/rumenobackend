@@ -21,8 +21,11 @@ const animalSchema = new mongoose.Schema(
     maleDetail: String,
     bodyScore: Number,
     anyComment: String,
-    parentId: { type: String, ref: "Animal", default: null },
-    children: [],
+
+    children: [{ type: String, ref: "ChildAnimal" }], // References Child,
+    // -----------------
+
+    
   },
   { timestamps: true }
 );

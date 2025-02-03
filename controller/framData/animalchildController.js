@@ -55,7 +55,7 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
     }
 
     // Check if Parent exists
-    const parentExists = await Animal.findOne(uniqueId);
+    const parentExists = await Animal.findOne({ uniqueId });
     console.log("parentExists: ", parentExists);
     if (!parentExists) {
       return res.status(404).json({ message: "Parent not found." });
@@ -98,25 +98,79 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
       castration,
       motherAge,
       comment,
-      uniqueId,
+      uniqueId: parentExists?.uniqueId,
       uid,
+      parent: parentExists?._id,
     };
 
+    const createChild = await ChildAnimal.create(newChild);
+    console.log("createChild: ", createChild);
+
     // Upsert Child Record in Parent
-    const updatedParent = await ChildAnimal.findOneAndUpdate(
-      { uniqueId },
-      { $push: { children: newChild } },
+    const updatedParent = await Animal.findOneAndUpdate(
+      { uniqueId: parentExists?.uniqueId },
+      { $push: { children: createChild?.uniqueId } },
       { new: true, upsert: true }
     );
 
     res.status(201).json({
       message: "Child added successfully",
-      data: updatedParent,
+      // data: updatedParent,
     });
   } catch (error) {
     res.status(500).json({
       message: "Server Error. Failed to add child animal.",
       error: error.message,
     });
+  }
+});
+
+exports.promoteChildToParent = asyncHandler(async (req, res) => {
+  try {
+    const { childId } = req.params; // ChildAnimal's `_id`
+
+    // Step 1: Find the child in the `ChildAnimal` collection
+    const child = await ChildAnimal.findById("67a0acab304d4ff860e19cf6");
+    if (!child) {
+      return res.status(404).json({ message: "Child not found" });
+    }
+
+    // Step 2: Remove the child from its current parent's `children` array
+    if (child.parent) {
+      await Animal.findByIdAndUpdate(
+        child.parent,
+        { $pull: { children: child._id } },
+        { new: true }
+      );
+    }
+
+    // Step 3: Create a new `Animal` entry (promoting child to parent)
+    const newParent = new Animal({
+      uid: `NEW-${child.kiduniqueId}`, // Generate new unique ID
+      uniqueId: child.kiduniqueId,
+      uniqueName: child.kiduniqueName,
+      ageMonth: child.age % 12,
+      ageYear: Math.floor(child.age / 12),
+      gender: child.gender.toLowerCase(),
+      children: [], // Empty initially, will be updated in Step 4
+    });
+
+    await newParent.save();
+
+    // Step 4: Update any existing children to point to the new parent
+    await ChildAnimal.updateMany(
+      { parent: child._id }, // Find children of this child
+      { parent: newParent._id } // Assign new parent ID
+    );
+
+    // Step 5: Remove child from the `ChildAnimal` collection
+    await ChildAnimal.findByIdAndDelete(child._id);
+
+    res
+      .status(200)
+      .json({ message: "Child promoted to parent successfully", newParent });
+  } catch (error) {
+    console.error("Error promoting child:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 });

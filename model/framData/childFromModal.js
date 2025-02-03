@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const childSchemanimal = new mongoose.Schema({
+const childSchema = new mongoose.Schema({
   kiduniqueId: { type: String, required: true },
   kiduniqueName: { type: String, required: true },
   age: { type: Number, required: true },
@@ -16,14 +16,13 @@ const childSchemanimal = new mongoose.Schema({
   motherWeanDate: { type: Date },
   castration: { type: Boolean, default: false },
   birthWeight: { type: Number, required: true },
-  breed: { type: String, required: true },
+  breed: { type: String },
   motherAge: { type: Number, required: true },
   comment: { type: String },
-});
 
-const childSchema = new mongoose.Schema({
   uniqueId: { type: String, required: true },
-  children: [childSchemanimal], // Embed child details within the parent document
+  parent: { type: mongoose.Schema.Types.ObjectId, ref: "Animal" }, // References Parent
+  children: [{ type: mongoose.Schema.Types.ObjectId, ref: "ChildAnimal" }], // References other Children (Recursive)
 });
 
 module.exports = mongoose.model("ChildAnimal", childSchema);

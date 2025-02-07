@@ -5,6 +5,7 @@ const asyncHandler = require("express-async-handler");
 const generateParentCode = require("../../utils/parentCode");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
+const generateUniqueldId = require("../../utils/uniqueId");
 
 // Add Parent Data
 
@@ -51,17 +52,20 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     const parentCode = generateParentCode(uniqueName);
 
     // Ensure unique parentCode by checking existing records
-    // Ensure unique parentCode by checking existing records
     let counter = 1;
     while (await Animal.findOne({ uniqueId: parentCode })) {
-      parentCode = `${generateParentCode(uniqueName)}-${counter}`;
+      parentCode = `${generateParentCode(uniqueName)}-${counter++}`;
       counter++;
     }
+
+    // Generate UniqueId
+    const uniqueId = generateUniqueldId(uniqueName);
 
     // Create new Parent Animal
     const newParent = new Animal({
       uid,
-      uniqueId: parentCode,
+      parentId: parentCode,
+      uniqueId,
       uniqueName,
       ageMonth,
       ageYear,
@@ -76,6 +80,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       bodyScore,
       anyComment,
       children: [], // No children initially
+      milk: [],
     });
 
     // Save the new Parent to the database
@@ -96,7 +101,32 @@ exports.animalDetail = asyncHandler(async (req, res) => {
   }
 });
 
+// Get all Parent Data
+
+exports.getAllParents = asyncHandler(async (req, res) => {
+  try {
+    const parents = await Animal.find({}); // Get all parents from the database
+
+    res.json({
+      message: "All parent animals fetched successfully",
+      data: parents,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to fetch parent animals.",
+      error: error.message,
+    });
+  }
+});
+
+// Get Parent Data by UniqueId
 exports.animalAllDetail = asyncHandler(async (req, res) => {
+  // Validate request body
+
+  if (!req.params) {
+    return res.status(400).json({ message: "No data provided" });
+  }
+
   try {
     const { uniqueId } = req.params;
 
@@ -107,8 +137,8 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       {
         $lookup: {
           from: "childanimals", // Collection name of ChildAnimal (check lowercase plural)
-          localField: "uniqueId", // The _id field of Animal (parent)
-          foreignField: "uniqueId", // The parent field in ChildAnimal referencing Animal
+          localField: "parentId", // The _id field of Animal (parent)
+          foreignField: "parentId", // The parent field in ChildAnimal referencing Animal
           as: "children",
         },
       },
@@ -136,11 +166,10 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       anyComment: parent.anyComment,
       createdAt: parent.createdAt,
       updatedAt: parent.updatedAt,
+      // Children
       children: parent.children.map((child) => ({
         uniqueId: child.uniqueId,
-
-        childId: child._id,
-        kiduniqueId: child.kiduniqueId,
+        kidId: child.kidId,
         kiduniqueName: child.kiduniqueName,
         age: child.age,
         DOB: child.DOB,
@@ -161,7 +190,93 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         createdAt: child.createdAt,
         updatedAt: child.updatedAt,
       })),
+      // Post Wean
+      postWean: parent.postWean.map((postWean) => ({
+        postWeanId: postWean._id,
+        weightKg: postWean.weightKg,
+        weightGm: postWean.weightGm,
+        bodyScore: postWean.bodyScore,
+        weanDate: postWean.weanDate,
+        weanComment: postWean.weanComment,
+      })),
+      // milk
+      milk: parent.milk.map((milk) => ({
+        milkId: milk._id,
+        name: milk.name,
+        milkVolume: milk.milkVolume,
+        milkDate: milk.milkDate,
+        createdAt: milk.createdAt,
+        updatedAt: milk.updatedAt,
+      })),
+      // Vaccine
+      vaccine: parent.vaccine.map((vaccine) => ({
+        vaccineId: vaccine._id,
+        name: vaccine.name,
+        date: vaccine.date,
+        createdAt: vaccine.createdAt,
+        updatedAt: vaccine.updatedAt,
+      })),
+      // Deworm
+      deworm: parent.deworm.map((deworm) => ({
+        dewormId: deworm._id,
+        report: deworm.report, // Assuming 'report' is the name of the deworming record
+        endoName: deworm.endoName, // Endoparasitic treatment name
+        ectoName: deworm.ectoName, // Ectoparasitic treatment name
+        endoDate: deworm.endoDate,
+        ectoDate: deworm.ectoDate,
+       endotype:deworm.endotype,
+       ectotype:deworm.ectotype,
+        date: deworm.date,
+        animalDate:deworm.animalDetail,
+        createdAt: deworm.createdAt,
+        updatedAt: deworm.updatedAt,
+      })),
     }));
+
+    // const formatChildData = (child) => ({
+    //   uniqueId: child.uniqueId || null,
+    //   childId: child._id || null,
+    //   kiduniqueId: child.kiduniqueId || null,
+    //   kiduniqueName: child.kiduniqueName || null,
+    //   age: child.age || null,
+    //   DOB: child.DOB || null,
+    //   gender: child.gender || null,
+    //   kidCode: child.kidCode || null,
+    //   kidScore: child.kidScore || null,
+    //   BODType: child.BODType || null,
+    //   kidWeight: child.kidWeight || null,
+    //   weanDate: child.weanDate || null,
+    //   weanWeight: child.weanWeight || null,
+    //   motherWeanWeight: child.motherWeanWeight || null,
+    //   motherWeanDate: child.motherWeanDate || null,
+    //   castration: child.castration || null,
+    //   birthWeight: child.birthWeight || null,
+    //   breed: child.breed || null,
+    //   motherAge: child.motherAge || null,
+    //   comment: child.comment || null,
+    //   createdAt: child.createdAt || null,
+    //   updatedAt: child.updatedAt || null,
+    // });
+
+    // const parentsData = parents.map((parent) => ({
+    //   parentId: parent._id || null,
+    //   uniqueId: parent.uniqueId || null,
+    //   uniqueName: parent.uniqueName || null,
+    //   ageMonth: parent.ageMonth || null,
+    //   ageYear: parent.ageYear || null,
+    //   height: parent.height || null,
+    //   purchasDate: parent.purchasDate || null,
+    //   gender: parent.gender || null,
+    //   weightMonth: parent.weightMonth || null,
+    //   weightYear: parent.weightYear || null,
+    //   pregnancyDetail: parent.pregnancyDetail || null,
+    //   maleDetail: parent.maleDetail || null,
+    //   bodyScore: parent.bodyScore || null,
+    //   anyComment: parent.anyComment || null,
+    //   createdAt: parent.createdAt || null,
+    //   updatedAt: parent.updatedAt || null,
+    //   children: (parent.children || []).map(formatChildData),
+    // }));
 
     res.status(200).json({
       parents: parentsData,

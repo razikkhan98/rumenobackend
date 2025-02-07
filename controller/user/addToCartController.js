@@ -70,17 +70,17 @@ exports.updateCartItem = expressAsyncHandler(async (req, res) => {
   }
   try {
     const { uid, name, amount } = req.body;
-
     // Validate required fields
     if (!uid || !name || !amount) {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
-
+    
     // Check if item exists in cart
     const existingItem = await cartModel.findOne({ uid, name });
     if (!existingItem) {
       return res.status(400).json({ message: "Item does not exist in cart" });
     }
+    console.log(existingItem);
 
     // Update item in cart
     await cartModel.updateOne({ uid, name }, { amount });
@@ -110,7 +110,6 @@ exports.deleteCartItem = expressAsyncHandler(async (req, res) => {
     if (!existingItem) {
       return res.status(400).json({ message: "Item does not exist in cart" });
     }
-
     // Delete item from cart
     await cartModel.deleteOne({ uid, name });
     res.status(200).json({ message: "Item deleted" });

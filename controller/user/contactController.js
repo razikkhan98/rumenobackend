@@ -12,15 +12,22 @@ exports.contactUs = expressAsyncHandler(async (req, res) => {
     }
     try {
         const { name, email, message } = req.body;
-    
+
         // Validate required fields
         if (!name || !email || !message) {
-        return res.status(400).json({ message: "All fields are required" });
+            return res.status(400).json({ message: "All fields are required" });
         }
-    
+
+        // new contact
+        const newContact = new contactModel({
+            name,
+            email,
+            message
+        })
+
         // Save user to the database
-        await contactModel.save();
-        res.status(201).json({ message: "Feedback added successfully" });
+        await newContact.save();
+        res.status(201).json({ message: "Contact added successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

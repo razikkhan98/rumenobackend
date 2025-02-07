@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-  blog_id: {
+  blogId: {
     type: Number,
     required: true,
   },

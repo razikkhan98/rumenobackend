@@ -23,7 +23,6 @@ exports.userRegister = expressAsyncHandler(async (req, res) => {
       state,
       country,
     } = req.body;
-
     // Validate required fields
     if (!firstName || !email || !password || !mobile || !address) {
       return res.status(400).json({ message: "Please fill in all fields" });
@@ -38,7 +37,7 @@ exports.userRegister = expressAsyncHandler(async (req, res) => {
     if (existingMobile) {
       return res.status(400).json({ message: "Mobile number already exists" });
     }
-
+    
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -49,10 +48,10 @@ exports.userRegister = expressAsyncHandler(async (req, res) => {
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
         message:
-          "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number",
+        "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number",
       });
     }
-
+    
     // Validate address format
     const addressRegex = /^[a-zA-Z0-9\s,'-]*$/;
     if (!addressRegex.test(address)) {
@@ -61,11 +60,11 @@ exports.userRegister = expressAsyncHandler(async (req, res) => {
     // Generate code based on , firstName(2) , mobile last 4 digit of mobile number
     let mobileString = String(mobile);
     const code = firstName.slice(0, 2) + mobileString.slice(-4);
-
+    
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
+    
     // Create new user
     const user = new registerModel({
       firstName,
@@ -79,6 +78,7 @@ exports.userRegister = expressAsyncHandler(async (req, res) => {
       country,
       uid: code,
     });
+    console.log(user);
 
     
     // Save user to the database

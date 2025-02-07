@@ -15,7 +15,6 @@ exports.animalDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
   }
-
   try {
     const {
       uid,
@@ -33,7 +32,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       bodyScore,
       anyComment,
     } = req.body;
-
+    
     // Validate required fields
     const requiredFields = { uid, uniqueName, gender };
     for (const [key, value] of Object.entries(requiredFields)) {
@@ -41,7 +40,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: `${key} is a required field.` });
       }
     }
-
+    
     // Check if UID exists in User model
     const existingUser = await User.findOne({ uid });
     if (!existingUser) {
@@ -50,17 +49,18 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 
     // Generate Parent Code
     const parentCode = generateParentCode(uniqueName);
-
+    
     // Ensure unique parentCode by checking existing records
     let counter = 1;
     while (await Animal.findOne({ uniqueId: parentCode })) {
       parentCode = `${generateParentCode(uniqueName)}-${counter++}`;
       counter++;
     }
-
+    
     // Generate UniqueId
     const uniqueId = generateUniqueldId(uniqueName);
-
+    
+    
     // Create new Parent Animal
     const newParent = new Animal({
       uid,

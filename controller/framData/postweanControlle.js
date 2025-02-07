@@ -19,7 +19,7 @@ exports.addPostWean = asyncHandler(async (req, res) => {
       weanDate,
       weanComment,
     } = req.body;
-
+    
     // Check if Parent exists
     if (parentUniqueId) {
       const parentExists = await Animal.findOne({ uniqueId: parentUniqueId });
@@ -27,7 +27,7 @@ exports.addPostWean = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Parent not found." });
       }
     }
-
+    
     // Check if Child exists
     if (childUniqueId) {
       const childExists = await ChildAnimal.findOne({
@@ -37,6 +37,7 @@ exports.addPostWean = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Child not found." });
       }
     }
+    console.log(childUniqueId);
 
     // Create new Post WEAN data
     const AnimalPostWeanData = await AnimalPostWean.create({

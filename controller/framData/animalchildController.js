@@ -45,31 +45,30 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: `${key} is a required field.` });
       }
     }
-
     // Generate UniqueId
     const uniqueId = generateUniqueldId(kiduniqueName);
-
+    
     // const parentObjectId = new mongoose.Types.ObjectId(parentId);
     // console.log('parentObjectId: ', parentObjectId);
-
+    
     // Check if UID exists in User model
     const existingUser = await User.findOne({ uid });
     if (!existingUser) {
       return res.status(400).json({ message: "UID does not exist." });
     }
-
+    
     // Check if Parent exists
     const parentExists = await Animal.findOne({ parentId });
     console.log('parentExists: ', parentExists);
-
+    
     if (!parentExists) {
       return res.status(404).json({ message: "Parent not found." });
     }
-
+    
     // Count existing children for unique kid number
     const childCount = await ChildAnimal.countDocuments({ parentId });
     const kidNumber = childCount + 1; // Next Kid Number
-
+    
     // Generate Child Code
     const kidId = `${parentId}-K${kidNumber}`;
 
@@ -82,8 +81,8 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
     });
     if (existingChild) {
       return res
-        .status(400)
-        .json({ message: "Child Unique ID already exists. Try again." });
+      .status(400)
+      .json({ message: "Child Unique ID already exists. Try again." });
     }
 
     // Create the Child

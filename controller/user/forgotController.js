@@ -15,15 +15,15 @@ if (!req.body) {
     if (!req.body.mobile) {
       return res.status(400).json({ message: "Please enter your mobile number" });
     }
-
     // Check if mobile exists
     const user = await registerModel.findOne({ mobile: req.body.mobile });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    console.log(user)
     
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message:"Server error" , error:error.message });
     
   }
     

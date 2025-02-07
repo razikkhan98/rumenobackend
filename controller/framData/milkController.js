@@ -13,7 +13,6 @@ exports.addMilk = asyncHandler(async (req, res) => {
 
   try {
     const { parentUniqueId, childUniqueId, name, milkKid, milkVolume, milkDate } = req.body;
-
     // Check if Parent exists
     if(parentUniqueId){
       const parentExists = await Animal.findOne({ uniqueId: parentUniqueId });
@@ -21,8 +20,8 @@ exports.addMilk = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Parent not found." });
       }
     }
-  
-
+    
+    
     // Check if Child exists
     if(childUniqueId){
       const childExists = await ChildAnimal.findOne({ uniqueId: childUniqueId });
@@ -30,8 +29,8 @@ exports.addMilk = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Child not found." });
       }
     }
-   
-
+    
+    
     // Create new Milk data
     const AnimalMilkData = await AnimalMilk.create({
       parentUniqueId,
@@ -41,14 +40,14 @@ exports.addMilk = asyncHandler(async (req, res) => {
       milkVolume,
       milkDate,
     });
-
+    
     // Push Milk Data into Parent Record
     const updatedParent = await Animal.findOneAndUpdate(
       { uniqueId: parentUniqueId },
       { $push: { milk: AnimalMilkData } }, // Assuming 'milk' stores ObjectId references
       { new: true }
     );
-
+    
     // Push Child Data into Parent Record
     const updatedChild = await ChildAnimal.findOneAndUpdate(
       { uniqueId: childUniqueId },

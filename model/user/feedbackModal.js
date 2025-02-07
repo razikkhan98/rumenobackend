@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const feedbackSchema = new mongoose.Schema({
-    product_id: {
+    productId: {
         type: Number,
         required: true,
     },

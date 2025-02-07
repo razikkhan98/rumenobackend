@@ -22,24 +22,24 @@ exports.addDeworm = asyncHandler(async (req, res) => {
         ectoType,
         animalDate,
      } = req.body;
-
-    // Check if Parent exists
-    if (parentUniqueId) {
-      const parentExists = await Animal.findOne({ uniqueId: parentUniqueId });
-      if (!parentExists) {
-        return res.status(404).json({ message: "Parent not found." });
+     
+     // Check if Parent exists
+     if (parentUniqueId) {
+       const parentExists = await Animal.findOne({ uniqueId: parentUniqueId });
+       if (!parentExists) {
+         return res.status(404).json({ message: "Parent not found." });
+        }
       }
-    }
 
-    // Check if Child exists
-    if (childUniqueId) {
-      const childExists = await ChildAnimal.findOne({
-        uniqueId: childUniqueId,
-      });
-      if (!childExists) {
-        return res.status(404).json({ message: "Child not found." });
+      // Check if Child exists
+      if (childUniqueId) {
+        const childExists = await ChildAnimal.findOne({
+          uniqueId: childUniqueId,
+        });
+        if (!childExists) {
+          return res.status(404).json({ message: "Child not found." });
+        }
       }
-    }
 
     // Create new Post WEAN data
     const AnimalDewornData = await AnimalDeworn.create({

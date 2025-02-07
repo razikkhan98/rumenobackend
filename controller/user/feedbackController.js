@@ -10,15 +10,21 @@ exports.feedback = expressAsyncHandler(async (req, res) => {
     return res.status(400).json({ message: "No data provided" });
   }
   try {
-    const { productId, feedback, uid } = req.body;
-
+      const { productId, feedback, uid }= req.body;
     // Validate required fields
-    if (!productId || !feedback || !uid) {
+    if (!productId && !feedback && !uid) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Create a new feedback 
+    const newFeedback = new feedbackModel({
+      productId,
+      feedback,
+      uid,
+    });
+
     // Save user to the database
-    await feedbackModel.save();
+   await newFeedback.save();
     res.status(201).json({ message: "Feedback added successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });

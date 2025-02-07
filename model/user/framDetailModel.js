@@ -9,7 +9,7 @@ const framDetailSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    framnumber: {
+    framNumber: {
         type: Number,
         required: true,
     },
@@ -17,7 +17,7 @@ const framDetailSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    framtype: {
+    framType: {
         type: String,
         required: true,
     },

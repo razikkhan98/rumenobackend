@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const animalSchema = new mongoose.Schema(
   {
     uid: { type: String, required: true },
+    parentId: { type: String, required: true },
     uniqueId: { type: String, required: true, unique: true },
     uniqueName: { type: String, required: true },
     ageMonth: Number,
@@ -23,8 +24,12 @@ const animalSchema = new mongoose.Schema(
     anyComment: String,
 
     children: [{ type: String, ref: "ChildAnimal" }], // References Child,
-    // -----------------
-
+    milk: [{ type: Object, ref: "Milk" }], // References Milk,
+    postWean: [{ type: Object, ref: "PostWean" }], // References Post Wean
+    vaccine: [{ type: Object, ref: "Vaccine" }], // References Vaccine
+    deworm: [{ type: Object, ref: "Deworm" }], // References deworm
+    estrusHeat: [{ type: String, ref: "EstrusHeat" }], // References EstrusHeat
+    farmSanition: [{ type: String, ref: "FarmSanition" }], // References farmSanition
     
   },
   { timestamps: true }

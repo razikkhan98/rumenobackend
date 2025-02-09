@@ -132,8 +132,85 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
   }
 });
 
-// Get child Data by UniqueId
+// Update Child Only uniqueId 
+exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
+  // Validate request body
+  if (!req.body) {
+    return res.status(400).json({ message: "No data provided" });
+  }
 
+  try {
+    const { uniqueId, kiduniqueName, gender, age, comment } = req.body;
+    
+    // Validate required fields
+    const requiredFields = { uniqueId, kidunique} || {};
+    for (const [key, value] of Object.entries(requiredFields)) {
+      if (!value) {
+        return res.status(400).json({ message: `${key} is a required field.` });
+      }
+    }
+    
+    // Check if Child exists
+    const existingChild = await ChildAnimal.findOne({ uniqueId });
+    if (!existingChild) {
+      return res.status(404).json({ message: "Child not found." });
+    }
+    
+    // Update Child 
+    const updatedChild = await ChildAnimal.findOneAndUpdate(
+      { uniqueId },
+      {
+        $set: {
+          kiduniqueName,
+          gender,
+          age,
+          comment,
+        },
+      },
+      { new: true }
+    );
+    
+    res.status(200).json({
+      message: "Child updated successfully",
+      data: updatedChild,
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to update child animal.",
+      error: error.message,
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Get child Data by UniqueId
 exports.getAnimalChildDetail = asyncHandler(async (req, res) => {
   // Validate request body
 

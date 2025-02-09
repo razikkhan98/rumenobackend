@@ -28,8 +28,8 @@ const animalSchema = new mongoose.Schema(
     postWean: [{ type: Object, ref: "PostWean" }], // References Post Wean
     vaccine: [{ type: Object, ref: "Vaccine" }], // References Vaccine
     deworm: [{ type: Object, ref: "Deworm" }], // References deworm
-    estrusHeat: [{ type: String, ref: "EstrusHeat" }], // References EstrusHeat
-    farmSanition: [{ type: String, ref: "FarmSanition" }], // References farmSanition
+    estrusHeat: [{ type: Object, ref: "EstrusHeat" }], // References EstrusHeat
+    farmSanition: [{ type: Object, ref: "FarmSanition" }], // References farmSanition
     
   },
   { timestamps: true }

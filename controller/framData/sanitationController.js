@@ -1,9 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const Animal = require("../../model/framData/parentFromModal");
-const AnimalDeworn = require("../../model/framData/dewormModal");
+const AnimalSanitation = require("../../model/framData/sanitationModal");
 const ChildAnimal = require("../../model/framData/childFromModal");
 
-exports.addDeworm = asyncHandler(async (req, res) => {
+exports.addSanitation = asyncHandler(async (req, res) => {
   // Validate request body
   if (Object.keys(req.body).length === 0) {
     return res.status(400).json({ message: "No data provided" });
@@ -13,15 +13,10 @@ exports.addDeworm = asyncHandler(async (req, res) => {
     const {
       parentUniqueId,
       childUniqueId,
-      report,
-      date,
-      endoName,
-      ectoName,
-      endoDate,
-      ectoDate,
-      endoType,
-      ectoType,
-      animalDate,
+      soilDate,
+      limesprinkleDate,
+      insecticideDate,
+      insecticide,
     } = req.body;
 
     // Check if Parent exists
@@ -41,39 +36,35 @@ exports.addDeworm = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Child not found." });
       }
     }
+    console.log(childUniqueId);
 
     // Create new Post WEAN data
-    const AnimalDewornData = await AnimalDeworn.create({
+    const AnimalSanitationData = await AnimalSanitation.create({
       parentUniqueId,
       childUniqueId,
-      report,
-      date,
-      endoName,
-      ectoName,
-      endoDate,
-      ectoDate,
-      endoType,
-      ectoType,
-      animalDate,
+      soilDate,
+      limesprinkleDate,
+      insecticideDate,
+      insecticide,
     });
 
     // Push Milk Data into Parent Record
     const updatedParent = await Animal.findOneAndUpdate(
       { uniqueId: parentUniqueId },
-      { $push: { deworm: AnimalDewornData } }, // Assuming 'Post WEAN' stores ObjectId references
+      { $push: { farmSanition: AnimalSanitationData } }, // Assuming 'Post WEAN' stores ObjectId references
       { new: true }
     );
 
     // Push Child Data into Parent Record
     const updatedChild = await ChildAnimal.findOneAndUpdate(
       { uniqueId: childUniqueId },
-      { $push: { deworm: AnimalDewornData } }, // Assuming 'Post WEAN' stores ObjectId references
+      { $push: { farmSanition: AnimalSanitationData } }, // Assuming 'Post WEAN' stores ObjectId references
       { new: true }
     );
 
     res.status(201).json({
-      message: "Deworn added successfully",
-      data: AnimalDewornData,
+      message: "Sanitation added successfully",
+      data: AnimalSanitationData,
     });
   } catch (error) {
     res.status(500).json({

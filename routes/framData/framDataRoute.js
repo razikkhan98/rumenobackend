@@ -14,6 +14,8 @@ const milkController = require("../../controller/framData/milkController");
 const postweanController = require("../../controller/framData/postweanControlle");
 const vaccineController = require("../../controller/framData/vaccineController");
 const dewormController = require("../../controller/framData/dewormController");
+const estrusHeatController = require("../../controller/framData/estrusHeatController");
+const sanitationController = require("../../controller/framData/sanitationController");
 
 // Farm Detail
 router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
@@ -23,7 +25,12 @@ router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
 // ================
 
 
+// ===============
 // Parent
+// ===============
+
+
+// Add Parent
 router.post("/user/animaldata/parent", animalParentController.animalDetail);
 
 // Get only single Parent 
@@ -33,8 +40,11 @@ router.get("/user/animaldata/parent/getAll/:uniqueId",animalParentController.ani
 router.get("/user/animaldata/parent/getAll",animalParentController.getAllParents);
 
 
-// Child
+// Add Child
 router.post("/user/animaldata/child", animalchildController.animalchildDetail);
+
+// Update Child
+router.put("/user/animaldata/child/update/:uniqueId", animalchildController.updateAnimalChildDetail);
 
 // Get only single Child
 
@@ -49,6 +59,7 @@ router.post("/user/animaldata/child", animalchildController.animalchildDetail);
 // Post Wean
 router.post("/user/animal/postweandata/add", postweanController.addPostWean);
 
+
 //  Milk Routes
 router.post("/user/animal/milkdata/add", milkController.addMilk);
 
@@ -57,6 +68,12 @@ router.post("/user/animal/vaccinedata/add", vaccineController.addVaccine);
 
 // Deworn Routes
 router.post("/user/animal/dewormdata/add", dewormController.addDeworm);
+
+// Estrus Heat
+router.post("/user/animal/estrusdata/add", estrusHeatController.addEstrusHeat);
+
+// Sanitation Routes
+router.post("/user/animal/sanitationdata/add", sanitationController.addSanitation);
 
 
 

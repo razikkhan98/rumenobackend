@@ -6,11 +6,12 @@ const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
 const ChildAnimal = require("../../model/framData/childFromModal");
 const mongoose = require("mongoose");
-const generateUniqueldId = require("../../utils/uniqueId");
+const generateUniqueId = require("../../utils/uniqueId");
 
-exports.animalchildDetail = asyncHandler(async (req, res) => {
+// POST: Add Child Animal Data
+exports.animalChildDetail = asyncHandler(async (req, res) => {
+ 
   // Validate request body
-
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
   }
@@ -38,6 +39,11 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
       uid,
     } = req.body;
 
+    // // Validate required fields
+    // if (!uid || !kiduniqueName || !gender || !parentId) {
+    //   return res.status(400).json({ message: "Missing required fields." });
+    // }
+
     // Validate required fields
     const requiredFields = { uid, kiduniqueName, gender, parentId };
     for (const [key, value] of Object.entries(requiredFields)) {
@@ -45,35 +51,25 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: `${key} is a required field.` });
       }
     }
-    // Generate UniqueId
-    const uniqueId = generateUniqueldId(kiduniqueName);
-    
-    // const parentObjectId = new mongoose.Types.ObjectId(parentId);
-    // console.log('parentObjectId: ', parentObjectId);
-    
+
+    // Generate Unique ID
+    const uniqueId = generateUniqueId(kiduniqueName);
+
     // Check if UID exists in User model
     const existingUser = await User.findOne({ uid });
     if (!existingUser) {
       return res.status(400).json({ message: "UID does not exist." });
     }
-    
+
     // Check if Parent exists
     const parentExists = await Animal.findOne({ parentId });
-    console.log('parentExists: ', parentExists);
-    
     if (!parentExists) {
       return res.status(404).json({ message: "Parent not found." });
     }
-    
+
     // Count existing children for unique kid number
     const childCount = await ChildAnimal.countDocuments({ parentId });
-    const kidNumber = childCount + 1; // Next Kid Number
-    
-    // Generate Child Code
-    const kidId = `${parentId}-K${kidNumber}`;
-
-    // const KiduniqueId = chid.uniqueId + 1;
-    // console.log('KiduniqueId: ', KiduniqueId);
+    const kidId = `${parentId}-K${childCount + 1}`;
 
     // Check if Child Unique ID already exists
     const existingChild = await ChildAnimal.findOne({
@@ -81,12 +77,12 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
     });
     if (existingChild) {
       return res
-      .status(400)
-      .json({ message: "Child Unique ID already exists. Try again." });
+        .status(400)
+        .json({ message: "Child Unique ID already exists. Try again." });
     }
 
     // Create the Child
-    const newChild = {
+    const newChild = await ChildAnimal.create({
       kidId,
       kiduniqueName,
       uniqueId,
@@ -106,24 +102,21 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
       castration,
       motherAge,
       comment,
-      parentId: parentExists?.parentId,
+      parentId,
       uid,
-      parent: parentExists?._id,
-    };
+      parent: parentExists._id,
+    });
 
-    const createChild = await ChildAnimal.create(newChild);
-
-    // Upsert Child Record in Parent
-    const updatedParent = await Animal.findOneAndUpdate(
-      { parentId: parentExists?.parentId },
-      { $push: { children: createChild?.kidId } },
+    // Update Parent Record
+    await Animal.findOneAndUpdate(
+      { parentId },
+      { $push: { children: newChild.kidId } },
       { new: true, upsert: true }
     );
 
-    res.status(201).json({
-      message: "Child added successfully",
-      data: newChild,
-    });
+    res
+      .status(201)
+      .json({ message: "Child added successfully", data: newChild });
   } catch (error) {
     res.status(500).json({
       message: "Server Error. Failed to add child animal.",
@@ -132,49 +125,83 @@ exports.animalchildDetail = asyncHandler(async (req, res) => {
   }
 });
 
-// Update Child Only uniqueId 
+// PUT: Update Child Animal Data
 exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
-  // Validate request body
-  if (!req.body) {
+  // Validate request params
+  if (!req.params) {
     return res.status(400).json({ message: "No data provided" });
   }
+  
+
 
   try {
-    const { uniqueId, kiduniqueName, gender, age, comment } = req.body;
-    
+    const {
+      uniqueId,
+      kidId,
+      parentId,
+      kiduniqueName,
+      age,
+      gender,
+      breed,
+      DOB,
+      kidWeight,
+      birthWeight,
+      kidCode,
+      kidScore,
+      BODType,
+      weanDate,
+      weanWeight,
+      motherWeanWeight,
+      motherWeanDate,
+      castration,
+      motherAge,
+      comment,
+    } = req.body;
+
     // Validate required fields
-    const requiredFields = { uniqueId, kidunique} || {};
+    const requiredFields = { uniqueId, kidId, parentId };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value) {
         return res.status(400).json({ message: `${key} is a required field.` });
       }
     }
-    
+
     // Check if Child exists
     const existingChild = await ChildAnimal.findOne({ uniqueId });
     if (!existingChild) {
       return res.status(404).json({ message: "Child not found." });
     }
-    
-    // Update Child 
+
+    // Update Child
     const updatedChild = await ChildAnimal.findOneAndUpdate(
       { uniqueId },
       {
         $set: {
           kiduniqueName,
+          uniqueId,
           gender,
           age,
+          breed,
+          DOB,
+          kidWeight,
+          birthWeight,
+          kidCode,
+          kidScore,
+          BODType,
+          weanDate,
+          weanWeight,
+          motherWeanWeight,
+          motherWeanDate,
+          castration,
+          motherAge,
           comment,
         },
       },
       { new: true }
     );
-    
-    res.status(200).json({
-      message: "Child updated successfully",
-      data: updatedChild,
-    });
-    
+    res
+      .status(200)
+      .json({ message: "Child updated successfully", data: updatedChild });
   } catch (error) {
     res.status(500).json({
       message: "Server Error. Failed to update child animal.",
@@ -182,33 +209,6 @@ exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
     });
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Get child Data by UniqueId
 exports.getAnimalChildDetail = asyncHandler(async (req, res) => {
@@ -236,17 +236,14 @@ exports.getAnimalChildDetail = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Child not found." });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Child data retrieved successfully",
-        data: childData[0],
-      });
+    res.status(200).json({
+      message: "Child data retrieved successfully",
+      data: childData[0],
+    });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 });
-
 
 //  Promote Child to Parent
 exports.promoteChildToParent = asyncHandler(async (req, res) => {

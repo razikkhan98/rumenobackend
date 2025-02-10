@@ -41,7 +41,7 @@ router.get("/user/animaldata/parent/getAll",animalParentController.getAllParents
 
 
 // Add Child
-router.post("/user/animaldata/child", animalchildController.animalchildDetail);
+router.post("/user/animaldata/child", animalchildController.animalChildDetail);
 
 // Update Child
 router.put("/user/animaldata/child/update/:uniqueId", animalchildController.updateAnimalChildDetail);

@@ -1,6 +1,6 @@
 //  Generate uniquel Code
 
-function generateUniqueldId(uniqueName , kiduniqueName) {
+function generateUniqueldId(animalName) {
   
     // uuid ( last 4 digits number )
     const uuid = Math.floor(100000 + Math.random() * 9000)
@@ -8,7 +8,7 @@ function generateUniqueldId(uniqueName , kiduniqueName) {
       .substr(-6);
   
     // generate parent code
-    const parentCode = `${uniqueName|| kiduniqueName.toUpperCase()}-${uuid}`;
+    const parentCode = `${animalName || kiduniqueName.toUpperCase()}-${uuid}`;
   
     return parentCode;
   }

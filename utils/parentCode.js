@@ -1,6 +1,6 @@
 //  Generate Parent Code
 
-function generateParentCode(uniqueName) {
+function generateParentCode(animalName) {
   // example : - parent code : - PCOW-28  ( P :- Parent , COW : - uuid , - , 28 : - uniqueNumber ) fromat
 
   // uuid ( last 4 digits number )
@@ -9,7 +9,7 @@ function generateParentCode(uniqueName) {
     .substr(-5);
 
   // generate parent code
-  const parentCode = `P${uniqueName.toUpperCase()}-${uuid}`;
+  const parentCode = `P${animalName.toUpperCase()}-${uuid}`;
 
   return parentCode;
 }

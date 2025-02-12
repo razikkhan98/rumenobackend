@@ -52,8 +52,7 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
       }
     }
 
-    // Generate Unique ID
-    const uniqueId = generateUniqueId(kiduniqueName);
+
 
     // Check if UID exists in User model
     const existingUser = await User.findOne({ uid });
@@ -67,6 +66,12 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Parent not found." });
     }
 
+    // Generate Unique ID
+    const animalName = parentExists.animalName
+    
+    const uniqueId = generateUniqueId(animalName);
+
+ 
     // Count existing children for unique kid number
     const childCount = await ChildAnimal.countDocuments({ parentId });
     const kidId = `${parentId}-K${childCount + 1}`;

@@ -41,12 +41,15 @@ const registerSchema = new mongoose.Schema({
   },
   city: {
     type: String,
+    default: null
   },
   state: {
     type: String,
+    default: null
   },
   country: {
     type: String,
+    default: null
   },
   uid:{
     type: String,

@@ -31,9 +31,11 @@ const UserSchema = new mongoose.Schema({
   },
   category: {
     type: String,
+    default: null
   },
   other: {
     type: String,
+    default: null
   },
   need: {
     type: String,

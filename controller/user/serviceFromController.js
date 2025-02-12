@@ -29,7 +29,7 @@ exports.service = expressAsyncHandler(async (req, res) => {
            other,
            need 
         })
-
+console.log(newService)
         // Save user to the database
         await newService.save();
         res.status(201).json({ message: "Form submitted successfully" });

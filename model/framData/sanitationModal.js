@@ -2,8 +2,13 @@ const mongoose = require("mongoose");
 
 const SanitationSchema = new mongoose.Schema({
  
+  sanitationId: {
+    type: String,
+    required: true
+  },
   soilDate: {
     type: Date,
+    default: null
   },
   limesprinkleDate: {
     type: Date,
@@ -13,6 +18,7 @@ const SanitationSchema = new mongoose.Schema({
   },
   insecticide: {
     type: String,
+    default: null
   },
 });
 

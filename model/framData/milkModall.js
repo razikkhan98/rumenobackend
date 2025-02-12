@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 
 const MilkSchema = new mongoose.Schema({
-  // uniqueId: {
-  //   type: String,
-  // },
+  milkId: {
+    type: String,
+    required: true
+  },
   name: {
     type: String,
     default: null,

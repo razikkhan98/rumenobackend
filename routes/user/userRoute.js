@@ -16,8 +16,9 @@ const contactController = require("../../controller/user/contactController");
 const serviceFromController = require("../../controller/user/serviceFromController");
 const blogController = require("../../controller/user/blogController");
 const framDetailController = require("../../controller/user/framDetailController");
-
-
+const reviewController = require("../../controller/user/reviewController");
+const transactionController = require("../../controller/user/transactionController");
+const transactionIssueController = require("../../controller/user/transactionIssueController");
 
 // ========
 // Routes
@@ -46,6 +47,23 @@ router.post("/user/service", serviceFromController.service);
 
 // Blog Comment
 router.post("/user/blog", validateToken, blogController.blogComment);
+
+
+// Review 
+router.post("/user/review", reviewController.userReview);
+
+// Get Review
+router.get("/user/getReview", reviewController.getReview);
+
+
+// Transaction
+router.post("/user/transaction", transactionController.userTransaction);
+
+// get Transaction
+router.get("/user/getTransaction", transactionController.getTransaction);
+
+// Transaction Issue
+router.post("/user/transactionIssue", transactionIssueController.userTransactionIssue);
 
 // // Farm Detail
 // router.post("/user/farmdetail", validateToken, framDetailController.farmDetail);

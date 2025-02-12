@@ -18,6 +18,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
   try {
     const {
       uid,
+      animalName,
       uniqueName,
       ageMonth,
       ageYear,
@@ -32,6 +33,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       bodyScore,
       anyComment,
     } = req.body;
+    // console.log(req.body);
     
     // Validate required fields
     const requiredFields = { uid, uniqueName, gender };
@@ -46,19 +48,20 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     if (!existingUser) {
       return res.status(400).json({ message: "UID does not exist." });
     }
-
+    
     // Generate Parent Code
-    const parentCode = generateParentCode(uniqueName);
+    const parentCode = generateParentCode(animalName);
+    console.log(parentCode)
     
     // Ensure unique parentCode by checking existing records
     let counter = 1;
     while (await Animal.findOne({ uniqueId: parentCode })) {
-      parentCode = `${generateParentCode(uniqueName)}-${counter++}`;
+      parentCode = `${generateParentCode(animalName)}-${counter++}`;
       counter++;
     }
     
     // Generate UniqueId
-    const uniqueId = generateUniqueldId(uniqueName);
+    const uniqueId = generateUniqueldId(animalName);
     
     
     // Create new Parent Animal
@@ -66,6 +69,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       uid,
       parentId: parentCode,
       uniqueId,
+      animalName,
       uniqueName,
       ageMonth,
       ageYear,
@@ -86,7 +90,6 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     // Save the new Parent to the database
 
     await newParent.save();
-
     // Send a success response
 
     res.status(201).json({
@@ -97,6 +100,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     res.status(500).json({
       message: "Server Error. Failed to add parent animal.",
       error: error.message,
+      
     });
   }
 });

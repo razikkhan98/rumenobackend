@@ -43,7 +43,7 @@ exports.userReview = expressAsyncHandler(async (req, res) => {
     }
 });
 
-// Get transaction Api 
+// Get Review Api 
 exports.getReview = expressAsyncHandler(async (req, res) => {
   try {
     const user = await reviewModel.find();

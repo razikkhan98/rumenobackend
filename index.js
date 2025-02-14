@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const userRoute = require("./routes/user/userRoute");
 const userFramData = require("./routes/framData/framDataRoute");
-
+const adminRoute = require("./routes/admin/adminRoute");
 
 dotenv.config();
 
@@ -32,6 +32,8 @@ app.use("/rumeno", userRoute);
 
 app.use("/rumeno", userFramData);
 
+//Admin
+app.use("/rumeno", adminRoute)
 
 // Starting the server
 

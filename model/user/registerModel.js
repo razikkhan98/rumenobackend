@@ -1,12 +1,14 @@
 const mongoose = require("mongoose");
 
 const registerSchema = new mongoose.Schema({
+  uid:{
+    type: String,
+    required: true,
+    unique: true
+  },
   firstName: {
     type: String,
     required: true,
-    unique: true,
-    trim: true,
-    match: /^[a-zA-Z]+$/,
     minlength: 2,
     maxlength: 20,
   },
@@ -35,27 +37,7 @@ const registerSchema = new mongoose.Schema({
     minlength: 10,
     maxlength: 10,
   },
-  address: {
-    type: String,
-    required: true,
-  },
-  city: {
-    type: String,
-    default: null
-  },
-  state: {
-    type: String,
-    default: null
-  },
-  country: {
-    type: String,
-    default: null
-  },
-  uid:{
-    type: String,
-    required: true,
-    unique: true
-  }
+ 
   
 });
 

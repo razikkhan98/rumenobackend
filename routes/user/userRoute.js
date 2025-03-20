@@ -62,6 +62,9 @@ router.post("/user/transaction", transactionController.userTransaction);
 // get Transaction
 router.get("/user/getTransaction", transactionController.getTransaction);
 
+// get Single Transaction
+router.get("/user/getSingleTransaction/:uid", transactionController.getSingleTransaction);
+
 // Transaction Issue
 router.post("/user/transactionIssue", transactionIssueController.userTransactionIssue);
 
@@ -73,17 +76,17 @@ router.post("/user/transactionIssue", transactionIssueController.userTransaction
 // Add to Cart
 // ========
 
-// add to cart
-router.post("/addtocart", validateToken, addToCartController.addToCart);
+// // add to cart
+// router.post("/addtocart", validateToken, addToCartController.addToCart);
 
-// get cart items
-router.get("/getcartitems", validateToken, addToCartController.getCartItems);
+// // get cart items
+// router.get("/getcartitems", validateToken, addToCartController.getCartItems);
 
-// update cart item
-router.put("/updatecartitem/:itemId", addToCartController.updateCartItem);
+// // update cart item
+// router.put("/updatecartitem/:itemId", addToCartController.updateCartItem);
 
-// remove item from cart
-router.delete("/removefromcart/:itemId", addToCartController.deleteCartItem);
+// // remove item from cart
+// router.delete("/removefromcart/:itemId", addToCartController.deleteCartItem);
 
 
 

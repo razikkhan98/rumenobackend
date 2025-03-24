@@ -33,9 +33,9 @@ const registerSchema = new mongoose.Schema({
   mobile: {
     type: Number,
     required: true,
-    match: [/^\d{10}$/, "Phone number must be exactly 10 digits"],
-    minlength: 10,
-    maxlength: 10,
+    // match: [/^\d{10}$/, "Phone number must be exactly 10 digits"],
+    // minlength: 10,
+    // maxlength: 10,
   },
  
   

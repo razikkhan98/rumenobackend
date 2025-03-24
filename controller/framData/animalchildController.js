@@ -19,24 +19,29 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
   try {
     const {
       parentId,
-      kiduniqueName,
-      age,
       DOB,
+      kidWeightkg,
+      kidWeightgm,
+      motherAgeyear,
+      motherAgemother,
+      selectoption,
+      ageyear,
+      agemonth,
       gender,
-      kidCode,
       kidScore,
       BODType,
-      kidWeight,
+      birthWeightkg,
+      birthWeightgm,
       weanDate,
-      weanWeight,
-      motherWeanWeight,
-      motherWeanDate,
+      weanWeightkg,
+      weanWeightgm,
+      motherWeanWeightkg,
+      motherWeanWeightgm,
+      motherWeanDatekg,
+      motherWeanDategm,
       castration,
-      birthWeight,
-      breed,
-      motherAge,
       comment,
-      uid,
+     
     } = req.body;
 
     // // Validate required fields
@@ -45,7 +50,7 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
     // }
 
     // Validate required fields
-    const requiredFields = { uid, kiduniqueName, gender, parentId };
+    const requiredFields = { gender, parentId };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value) {
         return res.status(400).json({ message: `${key} is a required field.` });
@@ -54,11 +59,11 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
 
 
 
-    // Check if UID exists in User model
-    const existingUser = await User.findOne({ uid });
-    if (!existingUser) {
-      return res.status(400).json({ message: "UID does not exist." });
-    }
+    // // Check if UID exists in User model
+    // const existingUser = await User.findOne({ uid });
+    // if (!existingUser) {
+    //   return res.status(400).json({ message: "UID does not exist." });
+    // }
 
     // Check if Parent exists
     const parentExists = await Animal.findOne({ parentId });
@@ -89,26 +94,30 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
     // Create the Child
     const newChild = await ChildAnimal.create({
       kidId,
-      kiduniqueName,
       uniqueId,
-      age,
-      gender,
-      breed,
+      parentId,
       DOB,
-      kidWeight,
-      birthWeight,
-      kidCode,
+      kidWeightkg,
+      kidWeightgm,
+      motherAgeyear,
+      motherAgemother,
+      selectoption,
+      ageyear,
+      agemonth,
+      gender,
       kidScore,
       BODType,
+      birthWeightkg,
+      birthWeightgm,
       weanDate,
-      weanWeight,
-      motherWeanWeight,
-      motherWeanDate,
+      weanWeightkg,
+      weanWeightgm,
+      motherWeanWeightkg,
+      motherWeanWeightgm,
+      motherWeanDatekg,
+      motherWeanDategm,
       castration,
-      motherAge,
       comment,
-      parentId,
-      uid,
       parent: parentExists._id,
     });
 
@@ -250,6 +259,25 @@ exports.getAnimalChildDetail = asyncHandler(async (req, res) => {
   }
 });
 
+// Get all Child Data
+ exports.getAllChildren = asyncHandler(async (req, res) => {
+  try {
+    const childData = await ChildAnimal.find({});
+
+    res.status(200).json({
+      message: "All child data retrieved successfully",
+      data: childData,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
+
+
+
+
+
 //  Promote Child to Parent
 exports.promoteChildToParent = asyncHandler(async (req, res) => {
   try {
@@ -309,3 +337,4 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
+

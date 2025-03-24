@@ -26,15 +26,14 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       heightDate,
       purchasDate,
       gender,
-      weightMonth,
-      weightYear,
+      weightKg,
+      weightGm,
       pregnancyDetail,
       maleDetail,
       bodyScore,
       anyComment,
     } = req.body;
-    // console.log(req.body);
-    
+
     // Validate required fields
     const requiredFields = { uid, uniqueName, gender };
     for (const [key, value] of Object.entries(requiredFields)) {
@@ -42,28 +41,32 @@ exports.animalDetail = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: `${key} is a required field.` });
       }
     }
-    
+
     // Check if UID exists in User model
     const existingUser = await User.findOne({ uid });
     if (!existingUser) {
       return res.status(400).json({ message: "UID does not exist." });
     }
-    
+
+    // Check uniqueName exists in User model
+    const existingAnimal = await Animal.findOne({ uniqueName });
+    if (existingAnimal) {
+      return res.status(400).json({ message: "Unique Name already exists." });
+    }
+
     // Generate Parent Code
     const parentCode = generateParentCode(animalName);
-    console.log(parentCode)
-    
+
     // Ensure unique parentCode by checking existing records
     let counter = 1;
     while (await Animal.findOne({ uniqueId: parentCode })) {
       parentCode = `${generateParentCode(animalName)}-${counter++}`;
       counter++;
     }
-    
+
     // Generate UniqueId
     const uniqueId = generateUniqueldId(animalName);
-    
-    
+
     // Create new Parent Animal
     const newParent = new Animal({
       uid,
@@ -77,8 +80,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       heightDate,
       purchasDate,
       gender,
-      weightMonth,
-      weightYear,
+      weightKg,
+      weightGm,
       pregnancyDetail,
       maleDetail,
       bodyScore,
@@ -86,6 +89,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       children: [], // No children initially
       milk: [],
     });
+    
 
     // Save the new Parent to the database
 
@@ -93,14 +97,13 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     // Send a success response
 
     res.status(201).json({
-      message: "Parent animal added successfully",
+      message: "success",
       data: newParent,
     });
   } catch (error) {
     res.status(500).json({
       message: "Server Error. Failed to add parent animal.",
       error: error.message,
-      
     });
   }
 });
@@ -228,10 +231,10 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         ectoName: deworm.ectoName, // Ectoparasitic treatment name
         endoDate: deworm.endoDate,
         ectoDate: deworm.ectoDate,
-       endotype:deworm.endotype,
-       ectotype:deworm.ectotype,
+        endotype: deworm.endotype,
+        ectotype: deworm.ectotype,
         date: deworm.date,
-        animalDate:deworm.animalDetail,
+        animalDate: deworm.animalDetail,
         createdAt: deworm.createdAt,
         updatedAt: deworm.updatedAt,
       })),

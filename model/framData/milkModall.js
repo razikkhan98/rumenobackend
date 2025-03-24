@@ -5,20 +5,17 @@ const MilkSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  name: {
+  milkvolume: {
     type: String,
     default: null,
   },
-  milkKid: {
-    type: String,
+  numberKids: {
+    type: Number,
     default: null,
   },
-  milkVolume: {
-    type: String,
-    default: null,
-  },
+ 
   milkDate: {
-    type: String,
+    type: Date,
     default: null,
   },
 });

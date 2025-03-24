@@ -13,9 +13,8 @@ exports.addMilk = asyncHandler(async (req, res) => {
     const {
       parentUniqueId,
       childUniqueId,
-      name,
-      milkKid,
       milkVolume,
+      numberKids,
       milkDate,
     } = req.body;
 
@@ -49,8 +48,7 @@ exports.addMilk = asyncHandler(async (req, res) => {
     // Create new Milk data
     const AnimalMilkData = await AnimalMilk.create({
       milkId,
-      name,
-      milkKid,
+      numberKids,
       milkVolume,
       milkDate,
     });

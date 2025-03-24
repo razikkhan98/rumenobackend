@@ -21,11 +21,11 @@ const EstrusHeatSchema = new mongoose.Schema({
     default: null
   },
   breedDate: {
-    type: String,
+    type: Date,
     default: null
   },
   dueDate: {
-    type: String,
+    type: Date,
     default: null
   },
 });

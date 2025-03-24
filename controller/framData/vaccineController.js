@@ -11,7 +11,7 @@ exports.addVaccine = asyncHandler(async (req, res) => {
   }
  
   try {
-    const { parentUniqueId, childUniqueId, name, date } = req.body;
+    const { parentUniqueId, childUniqueId, vaccineName, vaccineDate } = req.body;
     if (!parentUniqueId && !childUniqueId) {
           return res.status(400).json({
             message: "Either parentUniqueId or childUniqueId is required.",
@@ -42,8 +42,8 @@ exports.addVaccine = asyncHandler(async (req, res) => {
     // Create new Post WEAN data
     const AnimalVaccineData = await AnimalVaccine.create({
       vaccineId,
-      name,
-      date,
+      vaccineName,
+      vaccineDate,
     });
  
     // Push Milk Data into Parent Record

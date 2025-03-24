@@ -5,11 +5,11 @@ const VaccineSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  name: {
+  vaccineName: {
     type: String,
     default: null
   },
-  date: {
+  vaccineDate: {
     type: String,
     default: null
   },

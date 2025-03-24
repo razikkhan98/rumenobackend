@@ -50,7 +50,14 @@ router.put("/user/animaldata/child/update/:uniqueId", animalchildController.upda
  
 router.get("/user/animaldata/child/getAll/:uniqueId", animalchildController.getAnimalChildDetail);
  
+ // Get all Child
+ router.get("/user/animaldata/child/getAll", animalchildController.getAllChildren);
+
  
+ 
+ 
+ // ===============
+// Milk
  
  
  

@@ -10,7 +10,6 @@ const generateUniqueId = require("../../utils/uniqueId");
 
 // POST: Add Child Animal Data
 exports.animalChildDetail = asyncHandler(async (req, res) => {
- 
   // Validate request body
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
@@ -41,7 +40,6 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
       motherWeanDategm,
       castration,
       comment,
-     
     } = req.body;
 
     // // Validate required fields
@@ -57,8 +55,6 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
       }
     }
 
-
-
     // // Check if UID exists in User model
     // const existingUser = await User.findOne({ uid });
     // if (!existingUser) {
@@ -72,11 +68,10 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
     }
 
     // Generate Unique ID
-    const animalName = parentExists.animalName
-    
+    const animalName = parentExists.animalName;
+
     const uniqueId = generateUniqueId(animalName);
 
- 
     // Count existing children for unique kid number
     const childCount = await ChildAnimal.countDocuments({ parentId });
     const kidId = `${parentId}-K${childCount + 1}`;
@@ -145,8 +140,6 @@ exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
   if (!req.params) {
     return res.status(400).json({ message: "No data provided" });
   }
-  
-
 
   try {
     const {
@@ -260,7 +253,7 @@ exports.getAnimalChildDetail = asyncHandler(async (req, res) => {
 });
 
 // Get all Child Data
- exports.getAllChildren = asyncHandler(async (req, res) => {
+exports.getAllChildren = asyncHandler(async (req, res) => {
   try {
     const childData = await ChildAnimal.find({});
 
@@ -272,11 +265,6 @@ exports.getAnimalChildDetail = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 });
-
-
-
-
-
 
 //  Promote Child to Parent
 exports.promoteChildToParent = asyncHandler(async (req, res) => {
@@ -338,3 +326,42 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
   }
 });
 
+exports.getTotalCount = asyncHandler(async (req, res) => {
+  try {
+    const { animalName, uid } = req.query; // Get animalName and uid from frontend query
+
+    // Ensure UID is provided to prevent fetching all records
+    if (!uid) {
+      return res.status(400).json({ error: "UID is required" });
+    }
+
+    // Filter parent animals based on uid and optionally by animalName
+    const parentFilter = { uid };
+    if (animalName) parentFilter.animalName = animalName;
+
+    const parentDetails = await Animal.find(
+      parentFilter,
+      "uniqueId parentId animalName"
+    ).lean();
+
+    // Extract parentIds to find matching children
+    const parentIds = parentDetails.map((parent) => parent.parentId);
+
+    // Find child animals that belong to the filtered parents
+    const childDetails = await ChildAnimal.find(
+      { parentId: { $in: parentIds } },
+      "kidId parentId kidCode"
+    ).lean();
+
+    res.json({
+      parents: parentDetails,
+      children: childDetails,
+      totalAnimal: parentDetails.length + childDetails.length,
+      totalParent: parentDetails.length,
+      totalChild: childDetails.length,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});

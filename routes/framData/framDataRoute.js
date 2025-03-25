@@ -41,6 +41,7 @@ router.get(
   animalParentController.getAllParents
 );
 
+
 // Add Child
 router.post("/user/animaldata/child", animalchildController.animalChildDetail);
 
@@ -151,5 +152,8 @@ router.delete(
   "/user/animal/sanitationdata/delete/:sanitationId",
   sanitationController.deleteSanitation
 );
+
+
+
 
 module.exports = router;

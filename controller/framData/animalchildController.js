@@ -7,6 +7,8 @@ const User = require("../../model/user/registerModel");
 const ChildAnimal = require("../../model/framData/childFromModal");
 const mongoose = require("mongoose");
 const generateUniqueId = require("../../utils/uniqueId");
+const moment = require("moment");
+const vaccineModal = require("../../model/framData/vaccineModal");
 
 // POST: Add Child Animal Data
 exports.animalChildDetail = asyncHandler(async (req, res) => {
@@ -326,16 +328,83 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
   }
 });
 
+// exports.getTotalCount = asyncHandler(async (req, res) => {
+//   // try {
+//   //   const { animalName, uid } = req.query; // Get animalName and uid from frontend query
+
+//   //   if (!uid) {
+//   //     return res.status(400).json({ error: "UID is required" });
+//   //   }
+
+//   //   const parentFilter = { uid };
+//   //   if (animalName) parentFilter.animalName = animalName;
+
+//   //   const parentDetails = await Animal.find(
+//   //     parentFilter,
+//   //     "uniqueId parentId animalName"
+//   //   ).lean();
+
+//   //   const parentIds = parentDetails.map((parent) => parent.parentId);
+
+//   //   const childDetails = await ChildAnimal.find(
+//   //     { parentId: { $in: parentIds } },
+//   //     "kidId parentId kidCode"
+//   //   ).lean();
+
+//   //   const allVaccines = await vaccineModal
+//   //     .find({}, "vaccineId vaccineName vaccineDate uniqueId")
+//   //     .lean();
+
+//   //   // Get current month in "YYYY-MM" format
+//   //   const currentMonth = moment().format("YYYY-MM");
+
+//   //   // Parent vaccinated animals
+//   //   const parentVaccinated = parentDetails.filter((parent) =>
+//   //     allVaccines.some(
+//   //       (v) =>
+//   //         v.vaccineId === parent.uniqueId &&
+//   //         v.vaccineDate.startsWith(currentMonth)
+//   //     )
+//   //   );
+
+//   //   // Child vaccinated animals
+//   //   const childVaccinated = childDetails.filter((child) =>
+//   //     allVaccines.some(
+//   //       (v) =>
+//   //         v.vaccineId === child.kidId && v.vaccineDate.startsWith(currentMonth)
+//   //     )
+//   //   );
+
+//   //   // Unvaccinated parent and child counts
+//   //   const parentUnvaccinatedCount =
+//   //     parentDetails.length - parentVaccinated.length;
+//   //   const childUnvaccinatedCount = childDetails.length - childVaccinated.length;
+
+//   //   res.json({
+//   //     totalAnimals: parentDetails.length + childDetails.length,
+//   //     totalParents: parentDetails.length,
+//   //     totalChildren: childDetails.length,
+//   //     totalVaccines: allVaccines.length,
+//   //     vaccinatedParents: parentVaccinated.length,
+//   //     vaccinatedChildren: childVaccinated.length,
+//   //     unvaccinatedParents: parentUnvaccinatedCount,
+//   //     unvaccinatedChildren: childUnvaccinatedCount,
+//   //   });
+//   // } catch (error) {
+//   //   console.error(error);
+//   //   res.status(500).json({ error: "Internal Server Error" });
+//   // }
+
+// });
+
 exports.getTotalCount = asyncHandler(async (req, res) => {
   try {
-    const { animalName, uid } = req.query; // Get animalName and uid from frontend query
+    const { animalName, uid } = req.query;
 
-    // Ensure UID is provided to prevent fetching all records
     if (!uid) {
       return res.status(400).json({ error: "UID is required" });
     }
 
-    // Filter parent animals based on uid and optionally by animalName
     const parentFilter = { uid };
     if (animalName) parentFilter.animalName = animalName;
 
@@ -344,21 +413,84 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
       "uniqueId parentId animalName"
     ).lean();
 
-    // Extract parentIds to find matching children
     const parentIds = parentDetails.map((parent) => parent.parentId);
 
-    // Find child animals that belong to the filtered parents
     const childDetails = await ChildAnimal.find(
       { parentId: { $in: parentIds } },
       "kidId parentId kidCode"
     ).lean();
 
+
+
+
+    const allVaccines = await vaccineModal
+      .find({}, "vaccineId vaccineName vaccineDate uniqueId")
+      .lean();
+
+    // Get current month in "YYYY-MM" format
+    const currentMonth = moment().format("YYYY-MM");
+
+    // Parent vaccinated animals (data)
+    const parentVaccinated = parentDetails.filter((parent) =>
+      allVaccines.some(
+        (v) =>
+          v.vaccineId === parent.uniqueId &&
+          v.vaccineDate.startsWith(currentMonth)
+      )
+    );
+
+    // Child vaccinated animals (data)
+    const childVaccinated = childDetails.filter((child) =>
+      allVaccines.some(
+        (v) =>
+          v.vaccineId === child.kidId && v.vaccineDate.startsWith(currentMonth)
+      )
+    );
+
+    // Parent unvaccinated animals (data)
+    const parentUnvaccinated = parentDetails.filter(
+      (parent) =>
+        !allVaccines.some(
+          (v) =>
+            v.vaccineId === parent.uniqueId &&
+            v.vaccineDate.startsWith(currentMonth)
+        )
+    );
+
+    // Child unvaccinated animals (data)
+    const childUnvaccinated = childDetails.filter(
+      (child) =>
+        !allVaccines.some(
+          (v) =>
+            v.vaccineId === child.kidId &&
+            v.vaccineDate.startsWith(currentMonth)
+        )
+    );
+
+
+    
+
     res.json({
-      parents: parentDetails,
-      children: childDetails,
-      totalAnimal: parentDetails.length + childDetails.length,
-      totalParent: parentDetails.length,
-      totalChild: childDetails.length,
+      totalAnimals: parentDetails.length + childDetails.length,
+      totalParents: parentDetails.length,
+      totalChildren: childDetails.length,
+      totalVaccines: allVaccines.length,
+      vaccinatedParents: {
+        count: parentVaccinated.length,
+        data: parentVaccinated,
+      },
+      vaccinatedChildren: {
+        count: childVaccinated.length,
+        data: childVaccinated,
+      },
+      unvaccinatedParents: {
+        count: parentUnvaccinated.length,
+        data: parentUnvaccinated,
+      },
+      unvaccinatedChildren: {
+        count: childUnvaccinated.length,
+        data: childUnvaccinated,
+      },
     });
   } catch (error) {
     console.error(error);

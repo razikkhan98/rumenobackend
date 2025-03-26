@@ -28,10 +28,21 @@ router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
 
 // Add Parent
 router.post("/user/animaldata/parent", animalParentController.animalDetail);
+// router.get(
+//   "/user/animaldata/parent/getAll",
+//   animalParentController.getAllParents
+// );
+
+// Get only single Parent
 router.get(
-  "/user/animaldata/parent/getAll",
-  animalParentController.getAllParents
+  "/user/animaldata/parent/getAll/:uniqueId",
+  animalParentController.animalAllDetail
 );
+
+// Get all Parents
+router.get("/user/animaldata/parent/getAll",animalParentController.getAllParents);
+ 
+ 
 
 // Get only single Parent
 router.get(
@@ -218,9 +229,12 @@ router.delete(
 );
 
 //  getTotalCount
-router.get(
-  "/user/animaldata/parentchild/getAllCount",
-  animalchildController.getTotalCount
-);
+// router.get(
+//   "/user/animaldata/parentchild/getAllCount",
+//   animalchildController.getTotalCount
+// );
 
+router.get("/user/animaldata/parentchild/getAllCount", animalchildController.getTotalCount);
+ 
+ 
 module.exports = router;

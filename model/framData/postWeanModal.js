@@ -3,27 +3,31 @@ const mongoose = require("mongoose");
 const PostWeanSchema = new mongoose.Schema({
   postWeanId: {
     type: String,
-    required: true
+    required: true,
   },
   weightKg: {
     type: String,
-    default: null
+    default: null,
   },
   weightGm: {
     type: String,
-    default: null
+    default: null,
   },
   bodyScore: {
     type: String,
-    default: null
+    default: null,
   },
   weanDate: {
     type: String,
-    default: null
+    default: null,
   },
   weanComment: {
     type: String,
-    default: null
+    default: null,
+  },
+  uId: {
+    type: String,
+    default: null,
   },
 });
 

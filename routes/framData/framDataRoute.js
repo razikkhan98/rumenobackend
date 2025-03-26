@@ -160,12 +160,11 @@ router.post("/user/animal/sanitationdata/add", sanitationController.addSanitatio
 router.put("/user/animal/sanitationdata/update/:sanitationId", sanitationController.updateSanitation);
 
 // Delete Sanitation Parent and Child
-router.delete(
-  "/user/animal/sanitationdata/delete/:sanitationId",
-  sanitationController.deleteSanitation
-);
-
-
-
-
+router.delete("/user/animal/sanitationdata/delete/:sanitationId", sanitationController.deleteSanitation);
+ 
+ 
+//  getTotalCount
+router.get("/user/animaldata/parentchild/getAllCount", animalchildController.getTotalCount);
+ 
+ 
 module.exports = router;

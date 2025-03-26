@@ -1,8 +1,8 @@
 // const mongoose = require("mongoose");
 
 // const childSchema = new mongoose.Schema({
- 
-//   kidId: { type: String, required: true,  },
+
+//   kidId: { type: Strin  },
 //   kiduniqueName: { type: String, required: true },
 //   age: { type: Number, required: true },
 //   DOB: { type: Date, required: true },
@@ -26,47 +26,70 @@
 //   children: [{ type: mongoose.Schema.Types.ObjectId, ref: "ChildAnimal" }], // References other Children (Recursive)
 //   milk: [{ type: Object, ref: "Milk" }], // References Milk,
 
-
 // });
 
 // module.exports = mongoose.model("ChildAnimal", childSchema);
 
-
-
 const mongoose = require("mongoose");
- 
+
 const childSchema = new mongoose.Schema({
- 
-  kidId: { type: String, required: true,  },
-  ageyear: { type: Number,},
-  agemonth: { type: Number, },
-  DOB: { type: Date,},
-  gender: { type: String, enum: ["Male", "Female", "Other"], required: true },
-  kidCode: { type: String,  },
-  kidScore: { type: String, },
-  BODType: { type: String, },
-  kidWeightkg: { type: Number,},
-  kidWeightgm: { type: Number,  },
-  weanDate: { type: Date },
-  weanWeightkg: { type: Number, default: 0, },
-  weanWeightgm: { type: Number, default: 0, },
-
-  motherWeanWeightkg: { type: Number },
-  motherWeanDatekg: { type: Date  },
-  motherWeanDategm: { type: Date  },
-
-  castration: { type: Date, default: false },
-  birthWeightkg: { type: Number,  },
-  birthWeightgm: { type: Number, },
-  breed: { type: String },
-  motherAgeyear: { type: Number,  },
-  motherAgemother: { type: Number, },
-  selectoption: { type: String , },
-
-  comment: { type: String },
- 
   uniqueId: { type: String, required: true },
   parentId: { type: String, ref: "Animal" }, // References Parent
+  kidId:{ type : String, required: true},
+  kidage: {
+    type: Number,
+  },
+  kidweight: {
+    type: Number,
+  },
+  heightft:{
+    type: Number,
+   
+  },
+  motherage: {
+    type: Number,
+  },
+  breed: {
+    type: String,
+  },
+  dob: {
+    type: Date,
+  },
+  gender: {
+    type: String,
+    enum: ["Male", "Female" , "Other"], // Restricts gender to these values
+  },
+  kidcode: {
+    type: String,
+    // unique: true, // Ensures kidcode is unique
+  },
+  kidscore: {
+    type: Number,
+  },
+  dobtype: {
+    type: String,
+    enum: ["Natural", ""], // Add valid values
+    required: true 
+
+  },
+  dobweight: {
+    type: Number,
+  },
+  weanweight: {
+    type: Number,
+  },
+  castration: {
+    type: Date,
+  },
+  motherweandate: {
+    type: Date,
+    required: false,
+  },
+  motherweandateweight: {
+    type: Number,
+    required: false,
+  },
+
   children: [{ type: mongoose.Schema.Types.ObjectId, ref: "ChildAnimal" }], // References other Children (Recursive)
   milk: [{ type: Object, ref: "Milk" }], // References Milk,
   postWean: [{ type: Object, ref: "PostWean" }], // References Post Wean
@@ -74,7 +97,6 @@ const childSchema = new mongoose.Schema({
   deworm: [{ type: Object, ref: "Deworm" }], // References deworm
   estrusHeat: [{ type: Object, ref: "EstrusHeat" }], // References EstrusHeat
   farmSanition: [{ type: Object, ref: "FarmSanition" }], // References farmSanition
- 
 });
- 
+
 module.exports = mongoose.model("ChildAnimal", childSchema);

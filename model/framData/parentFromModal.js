@@ -44,9 +44,16 @@ const mongoose = require("mongoose");
 
 const animalSchema = new mongoose.Schema(
   {
-    uid: { type: String, required: true },
-    parentId: { type: String, required: true },
-    uniqueId: { type: String, required: true, unique: true },
+    uid: { type: String, 
+      // required: true
+     },
+    parentId: { type: String, 
+      // required: true
+     },
+    uniqueId: { type: String,
+      //  required: true, 
+      //  unique: true
+       },
     uniqueName: { type: String, default: null },
     animalName: { type: String, default: null },
 
@@ -59,7 +66,7 @@ const animalSchema = new mongoose.Schema(
     gender: {
       type: String,
       enum: ["Male", "Female", "Other"], // Ensure only these values are accepted
-      required: true,
+      // required: true,
     },
 
     weightKg: { type: Number, default: null },

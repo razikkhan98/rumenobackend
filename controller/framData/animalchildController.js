@@ -7,10 +7,10 @@ const User = require("../../model/user/registerModel");
 const ChildAnimal = require("../../model/framData/childFromModal");
 const mongoose = require("mongoose");
 const generateUniqueId = require("../../utils/uniqueId");
+const generateParentCode = require("../../utils/parentCode");
 
 // POST: Add Child Animal Data
 exports.animalChildDetail = asyncHandler(async (req, res) => {
- 
   // Validate request body
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
@@ -19,35 +19,22 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
   try {
     const {
       parentId,
-      DOB,
-      kidWeightkg,
-      kidWeightgm,
-      motherAgeyear,
-      motherAgemother,
-      selectoption,
-      ageyear,
-      agemonth,
+      kidage,
+      heightft,
+      kidweight,
+      motherage,
+      breed,
+      dob,
       gender,
-      kidScore,
-      BODType,
-      birthWeightkg,
-      birthWeightgm,
-      weanDate,
-      weanWeightkg,
-      weanWeightgm,
-      motherWeanWeightkg,
-      motherWeanWeightgm,
-      motherWeanDatekg,
-      motherWeanDategm,
+      kidcode,
+      kidscore,
+      dobtype,
+      dobweight,
+      weanweight,
       castration,
-      comment,
-     
+      motherweandate,
+      motherweandateweight,
     } = req.body;
-
-    // // Validate required fields
-    // if (!uid || !kiduniqueName || !gender || !parentId) {
-    //   return res.status(400).json({ message: "Missing required fields." });
-    // }
 
     // Validate required fields
     const requiredFields = { gender, parentId };
@@ -57,9 +44,7 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
       }
     }
 
-
-
-    // // Check if UID exists in User model
+    // Check if UID exists in User model
     // const existingUser = await User.findOne({ uid });
     // if (!existingUser) {
     //   return res.status(400).json({ message: "UID does not exist." });
@@ -72,11 +57,10 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
     }
 
     // Generate Unique ID
-    const animalName = parentExists.animalName
-    
+    const animalName = parentExists.animalName;
+
     const uniqueId = generateUniqueId(animalName);
 
- 
     // Count existing children for unique kid number
     const childCount = await ChildAnimal.countDocuments({ parentId });
     const kidId = `${parentId}-K${childCount + 1}`;
@@ -90,37 +74,32 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
         .status(400)
         .json({ message: "Child Unique ID already exists. Try again." });
     }
-
     // Create the Child
     const newChild = await ChildAnimal.create({
       kidId,
       uniqueId,
       parentId,
-      DOB,
-      kidWeightkg,
-      kidWeightgm,
-      motherAgeyear,
-      motherAgemother,
-      selectoption,
-      ageyear,
-      agemonth,
+      kidage,
+      heightft,
+      kidweight,
+      motherage,
+      breed,
+      dob,
       gender,
-      kidScore,
-      BODType,
-      birthWeightkg,
-      birthWeightgm,
-      weanDate,
-      weanWeightkg,
-      weanWeightgm,
-      motherWeanWeightkg,
-      motherWeanWeightgm,
-      motherWeanDatekg,
-      motherWeanDategm,
+      kidcode,
+      kidscore,
+      dobtype,
+      dobweight,
+      weanweight,
       castration,
-      comment,
+      motherweandate,
+      motherweandateweight,
       parent: parentExists._id,
     });
 
+    console.log(newChild);
+
+    console.log("Hello world");
     // Update Parent Record
     await Animal.findOneAndUpdate(
       { parentId },
@@ -145,8 +124,6 @@ exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
   if (!req.params) {
     return res.status(400).json({ message: "No data provided" });
   }
-  
-
 
   try {
     const {
@@ -154,22 +131,20 @@ exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
       kidId,
       parentId,
       kiduniqueName,
-      age,
-      gender,
+      kidage,
+      kidweight,
+      motherage,
       breed,
-      DOB,
-      kidWeight,
-      birthWeight,
-      kidCode,
-      kidScore,
-      BODType,
-      weanDate,
+      dob,
+      gender,
+      kidcode,
+      kidscore,
+      dobType,
+      dobweight,
       weanWeight,
-      motherWeanWeight,
-      motherWeanDate,
       castration,
-      motherAge,
-      comment,
+      motherweandate,
+      motherweandateweight,
     } = req.body;
 
     // Validate required fields
@@ -193,22 +168,23 @@ exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
         $set: {
           kiduniqueName,
           uniqueId,
-          gender,
-          age,
+          kidId,
+          parentId,
+          kiduniqueName,
+          kidage,
+          kidweight,
+          motherage,
           breed,
-          DOB,
-          kidWeight,
-          birthWeight,
-          kidCode,
-          kidScore,
-          BODType,
-          weanDate,
+          dob,
+          gender,
+          kidcode,
+          kidscore,
+          dobType,
+          dobweight,
           weanWeight,
-          motherWeanWeight,
-          motherWeanDate,
           castration,
-          motherAge,
-          comment,
+          motherweandate,
+          motherweandateweight,
         },
       },
       { new: true }
@@ -260,7 +236,7 @@ exports.getAnimalChildDetail = asyncHandler(async (req, res) => {
 });
 
 // Get all Child Data
- exports.getAllChildren = asyncHandler(async (req, res) => {
+exports.getAllChildren = asyncHandler(async (req, res) => {
   try {
     const childData = await ChildAnimal.find({});
 
@@ -273,21 +249,18 @@ exports.getAnimalChildDetail = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-
-
-
 //  Promote Child to Parent
 exports.promoteChildToParent = asyncHandler(async (req, res) => {
   try {
     const { childId } = req.params; // ChildAnimal's `_id`
 
     // Step 1: Find the child in the `ChildAnimal` collection
-    const child = await ChildAnimal.findById("67a0acab304d4ff860e19cf6");
+    const child = await ChildAnimal.findById(childId);
     if (!child) {
       return res.status(404).json({ message: "Child not found" });
     }
+
+    // Check if child is already promoted
 
     const existingParent = await Animal.findOne({
       uniqueId: child.uniqueId,
@@ -298,27 +271,44 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
         .json({ message: "Child is already promoted to parent." });
     }
 
+   
+
     // Step 2: Remove the child from its current parent's `children` array
-    if (child.parentId) {
-      await Animal.findByIdAndUpdate(
-        child.parentId,
-        { $pull: { children: child._id } },
-        { new: true }
-      );
-    }
+    // if (child.parentId) {
+    //   await Animal.findByIdAndUpdate(
+    //     child.parentId,
+    //     { $pull: { children: child._id } },
+    //     { new: true }
+    //   );
+    // }
+
+
+     // Generate Parent Code
+        // const parentCode = generateParentCode(animalName);
+    
+        // // Ensure unique parentCode by checking existing records
+        // let counter = 1;
+        // while (await Animal.findOne({ uniqueId: parentCode })) {
+        //   parentCode = `${generateParentCode(animalName)}-${counter++}`;
+        //   counter++;
+        // }
+    
 
     // Step 3: Create a new `Animal` entry (promoting child to parent)
     const newParent = new Animal({
-      uid: `NEW-${child.uniqueId}`, // Generate new unique ID
+      uid: child.uid, // Generate new unique ID
       uniqueId: child.uniqueId,
       uniqueName: child.kiduniqueName,
-      ageMonth: child.age % 12,
-      ageYear: Math.floor(child.age / 12),
-      gender: child.gender.toLowerCase(),
-      children: [], // Empty initially, will be updated in Step 4
+      parentId: `P${child.uniqueId}`
+      // ageMonth: child.age % 12,
+      // ageYear: Math.floor(child.age / 12),
+      // gender: child.gender.toLowerCase(),
+      // children: [], // Empty initially, will be updated in Step 4
+      // `NEW-${child.uniqueId}`
     });
 
     await newParent.save();
+
 
     // Step 4: Update any existing children to point to the new parent
     await ChildAnimal.updateMany(
@@ -338,3 +328,94 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
   }
 });
 
+exports.getTotalCount = asyncHandler(async (req, res) => {
+  try {
+    const { animalName, uid } = req.query;
+
+    if (!uid) {
+      return res.status(400).json({ error: "UID is required" });
+    }
+
+    const parentFilter = { uid };
+    if (animalName) parentFilter.animalName = animalName;
+
+    const parentDetails = await Animal.find(
+      parentFilter,
+      "uniqueId parentId animalName"
+    ).lean();
+
+    const parentIds = parentDetails.map((parent) => parent.parentId);
+
+    const childDetails = await ChildAnimal.find(
+      { parentId: { $in: parentIds } },
+      "kidId parentId kidCode"
+    ).lean();
+
+    const allVaccines = await vaccineModal
+      .find({}, "vaccineId vaccineName vaccineDate uniqueId")
+      .lean();
+
+    // Get current month in "YYYY-MM" format
+    const currentMonth = moment().format("YYYY-MM");
+
+    // Parent vaccinated animals (data)
+    const parentVaccinated = parentDetails.filter((parent) =>
+      allVaccines.some(
+        (v) =>
+          v.vaccineId === parent.uniqueId &&
+          v.vaccineDate.startsWith(currentMonth)
+      )
+    );
+
+    // Child vaccinated animals (data)
+    const childVaccinated = childDetails.filter((child) =>
+      allVaccines.some(
+        (v) =>
+          v.vaccineId === child.kidId && v.vaccineDate.startsWith(currentMonth)
+      )
+    );
+
+    // Parent unvaccinated animals (data)
+    const parentUnvaccinated = parentDetails.filter((parent) =>
+      allVaccines.some(
+        (v) =>
+          v.vaccineId === parent.uniqueId &&
+          v.vaccineDate.startsWith(currentMonth)
+      )
+    );
+
+    // Child unvaccinated animals (data)
+    const childUnvaccinated = childDetails.filter((child) =>
+      allVaccines.some(
+        (v) =>
+          v.vaccineId === child.kidId && v.vaccineDate.startsWith(currentMonth)
+      )
+    );
+
+    res.json({
+      totalAnimals: parentDetails.length + childDetails.length,
+      totalParents: parentDetails.length,
+      totalChildren: childDetails.length,
+      totalVaccines: allVaccines.length,
+      vaccinatedParents: {
+        count: parentVaccinated.length,
+        data: parentVaccinated,
+      },
+      vaccinatedChildren: {
+        count: childVaccinated.length,
+        data: childVaccinated,
+      },
+      unvaccinatedParents: {
+        count: parentUnvaccinated.length,
+        data: parentUnvaccinated,
+      },
+      unvaccinatedChildren: {
+        count: childUnvaccinated.length,
+        data: childUnvaccinated,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});

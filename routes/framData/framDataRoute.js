@@ -40,9 +40,10 @@ router.get(
 );
 
 // Get all Parents
-router.get("/user/animaldata/parent/getAll",animalParentController.getAllParents);
- 
- 
+router.get(
+  "/user/animaldata/parent/getAll",
+  animalParentController.getAllParents
+);
 
 // Get only single Parent
 router.get(
@@ -79,7 +80,6 @@ router.put(
 router.delete(
   "/user/animaldata/child/delete/:uniqueId",
   animalchildController.deleteChildAnimal
-  
 );
 
 // router.delete("/user/animaldata/child/
@@ -234,7 +234,9 @@ router.delete(
 //   animalchildController.getTotalCount
 // );
 
-router.get("/user/animaldata/parentchild/getAllCount", animalchildController.getTotalCount);
- 
- 
+router.get(
+  "/user/animaldata/parentchild/getAllCount",
+  animalchildController.getTotalCount
+);
+
 module.exports = router;

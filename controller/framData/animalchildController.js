@@ -379,6 +379,7 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
           )
       );
 
+
       return {
         vaccinated: {
           count: vaccinated.length,
@@ -396,14 +397,14 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
 
     const parentDetails = await Animal.find(
       parentFilter,
-      "uniqueId parentId animalName"
+      "uid uniqueId parentId animalName"
     ).lean();
 
     const parentIds = parentDetails.map((parent) => parent.parentId);
 
     const childDetails = await ChildAnimal.find(
       { parentId: { $in: parentIds } },
-      "kidId parentId kidCode"
+      "uniqueId kidId parentId kidCode"
     ).lean();
 
     // Fetch all records with additional error handling
@@ -549,43 +550,55 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
       ),
     };
 
+    
     res.json({
-      totalAnimals: parentDetails.length + childDetails.length,
-      totalParents: parentDetails.length,
-      totalChildren: childDetails.length,
-      totalVaccines: allVaccines.length,
-      totalPostWeans: allPostWean.length,
-
-      vaccinatedParents: vaccines.parents.vaccinated,
-      vaccinatedChildren: vaccines.children.vaccinated,
-      unvaccinatedParents: vaccines.parents.unvaccinated,
-      unvaccinatedChildren: vaccines.children.unvaccinated,
-
-      weanedParents: postWean.parents.vaccinated,
-      weanedChildren: postWean.children.vaccinated,
-      unweanedParents: postWean.parents.unvaccinated,
-      unweanedChildren: postWean.children.unvaccinated,
-
-      milkParents: milk.parents.vaccinated,
-      milkChildren: milk.children.vaccinated,
-      unMilkParents: milk.parents.unvaccinated,
-      unMilkChildren: milk.children.unvaccinated,
-
-      heatParents: heat.parents.vaccinated,
-      heatChildren: heat.children.vaccinated,
-      unHeatParents: heat.parents.unvaccinated,
-      unHeatChildren: heat.children.unvaccinated,
-
-      dewormParents: deworm.parents.vaccinated,
-      dewormChildren: deworm.children.vaccinated,
-      unDewormParents: deworm.parents.unvaccinated,
-      unDewormChildren: deworm.children.unvaccinated,
-
-      sanitationParents: sanitation.parents.vaccinated,
-      sanitationChildren: sanitation.children.vaccinated,
-      unSanitationParents: sanitation.parents.unvaccinated,
-      unSanitationChildren: sanitation.children.unvaccinated,
+      TotalAnimals: parentDetails.length + childDetails.length,
+      TotalParents: parentDetails.length,
+      TotalChildren: childDetails.length,
+    
+      // ✅ Separate count and data for vaccines
+      VaccineCount: vaccines.parents.unvaccinated.count + vaccines.children.unvaccinated.count,
+      VaccineData: {
+        parents: vaccines.parents.unvaccinated.data,
+        children: vaccines.children.unvaccinated.data,
+      },
+    
+      // ✅ Separate count and data for post-weaning
+      PostWeanCount: postWean.parents.unvaccinated.count + postWean.children.unvaccinated.count,
+      PostWeanData: {
+        parents: postWean.parents.unvaccinated.data,
+        children: postWean.children.unvaccinated.data,
+      },
+    
+      // ✅ Separate count and data for milk
+      MilkCount: milk.parents.unvaccinated.count + milk.children.unvaccinated.count,
+      MilkData: {
+        parents: milk.parents.unvaccinated.data,
+        children: milk.children.unvaccinated.data,
+      },
+    
+      // ✅ Separate count and data for heat tracking
+      HeatCount: heat.parents.unvaccinated.count + heat.children.unvaccinated.count,
+      HeatData: {
+        parents: heat.parents.unvaccinated.data,
+        children: heat.children.unvaccinated.data,
+      },
+    
+      // ✅ Separate count and data for deworming
+      DewormCount: deworm.parents.unvaccinated.count + deworm.children.unvaccinated.count,
+      DewormData: {
+        parents: deworm.parents.unvaccinated.data,
+        children: deworm.children.unvaccinated.data,
+      },
+    
+      // ✅ Separate count and data for sanitation
+      SanitationCount: sanitation.parents.unvaccinated.count + sanitation.children.unvaccinated.count,
+      SanitationData: {
+        parents: sanitation.parents.unvaccinated.data,
+        children: sanitation.children.unvaccinated.data,
+      },
     });
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -614,403 +627,3 @@ exports.deleteChildAnimal = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
-// exports.getTotalCount = asyncHandler(async (req, res) => {
-//   try {
-//     const { animalName, uid } = req.query;
-
-//     if (!uid) {
-//       return res.status(400).json({ error: "UID is required" });
-//     }
-
-//     const parentFilter = { uid };
-//     if (animalName) parentFilter.animalName = animalName;
-
-//     const parentDetails = await Animal.find(
-//       parentFilter,
-//       "uniqueId parentId animalName"
-//     ).lean();
-
-//     const parentIds = parentDetails.map((parent) => parent.parentId);
-
-//     const childDetails = await ChildAnimal.find(
-//       { parentId: { $in: parentIds } },
-//       "kidId parentId kidCode"
-//     ).lean();
-
-//     const allVaccines = await vaccineModal
-//       .find({}, "vaccineId vaccineName vaccineDate uniqueId")
-//       .lean();
-
-//     // Get current month in "YYYY-MM" format
-//     const currentMonth = moment().format("YYYY-MM");
-
-//     // Parent vaccinated animals (data)
-//     const parentVaccinated = parentDetails.filter((parent) =>
-//       allVaccines.some(
-//         (v) =>
-//           v.vaccineId === parent.uniqueId &&
-//           v.vaccineDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Child vaccinated animals (data)
-//     const childVaccinated = childDetails.filter((child) =>
-//       allVaccines.some(
-//         (v) =>
-//           v.vaccineId === child.kidId && v.vaccineDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Parent unvaccinated animals (data)
-//     const parentUnvaccinated = parentDetails.filter((parent) =>
-//       allVaccines.some(
-//         (v) =>
-//           v.vaccineId === parent.uniqueId &&
-//           v.vaccineDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Child unvaccinated animals (data)
-//     const childUnvaccinated = childDetails.filter((child) =>
-//       allVaccines.some(
-//         (v) =>
-//           v.vaccineId === child.kidId && v.vaccineDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Postwean start
-
-//     // Fetch all post-wean records
-//     const allPostWean = await postWeanModal
-//       .find({}, "postWeanId weanDate weightKg weightGm bodyScore weanComment")
-//       .lean();
-
-//     // Parent weaned animals
-//     const parentWeaned = parentDetails.filter((parent) =>
-//       allPostWean.some(
-//         (w) =>
-//           w.postWeanId === parent.uniqueId &&
-//           w.weanDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Child weaned animals
-//     const childWeaned = childDetails.filter((child) =>
-//       allPostWean.some(
-//         (w) =>
-//           w.postWeanId === child.kidId && w.weanDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Parent unweaned animals
-//     const parentUnweaned = parentDetails.filter(
-//       (parent) =>
-//         !allPostWean.some(
-//           (w) =>
-//             w.postWeanId === parent.uniqueId &&
-//             w.weanDate.startsWith(currentMonth)
-//         )
-//     );
-
-//     // Child unweaned animals
-//     const childUnweaned = childDetails.filter(
-//       (child) =>
-//         !allPostWean.some(
-//           (w) =>
-//             w.postWeanId === child.kidId && w.weanDate.startsWith(currentMonth)
-//         )
-//     );
-
-//     // Postwean end
-
-//     // milk start
-
-//     // Fetch all milk records
-//     const allMilk = await milkModall
-//       .find({}, "milkId milkvolume numberKids milkDate uId")
-//       .lean();
-
-//     // Parent Milk animals
-//     const parentMilk = parentDetails.filter((parent) =>
-//       allMilk.some(
-//         (m) =>
-//           m.milkId === parent.uniqueId && m.milkDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Child Milk animals
-//     const childMilk = childDetails.filter((child) =>
-//       allMilk.some(
-//         (m) => m.milkId === child.kidId && m.milkDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Parent unMilk animals
-//     const parentUnMilk = parentDetails.filter(
-//       (parent) =>
-//         !allMilk.some(
-//           (m) =>
-//             m.milkId === parent.uniqueId && m.milkDate.startsWith(currentMonth)
-//         )
-//     );
-
-//     // Child unMilk animals
-//     const childUnMilk = childDetails.filter(
-//       (child) =>
-//         !allMilk.some(
-//           (m) => m.milkId === child.kidId && m.milkDate.startsWith(currentMonth)
-//         )
-//     );
-
-//     // milk end
-
-//     // deworm start
-
-//     // Fetch all deworm records
-//     const alldDeworm = await dewormModal
-//       .find(
-//         {},
-//         "dewormId report date endoName ectoName endoDate ectoDate endoType ectoType animalDate"
-//       )
-//       .lean();
-
-//     // Parent deworm animals
-//     const parentDeworm = parentDetails.filter((parent) =>
-//       alldDeworm.some(
-//         (d) => d.dewormId === parent.uniqueId && d.date.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Child deworm animals
-//     const childDeworm = childDetails.filter((child) =>
-//       alldDeworm.some(
-//         (d) => d.dewormId === child.kidId && d.date.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Parent unDeworm animals
-//     const parentUnDeworm = parentDetails.filter(
-//       (parent) =>
-//         !alldDeworm.some(
-//           (d) =>
-//             d.dewormId === parent.uniqueId && d.date.startsWith(currentMonth)
-//         )
-//     );
-
-//     // Child unDeworm animals
-//     const childUnDeworm = childDetails.filter(
-//       (child) =>
-//         !alldDeworm.some(
-//           (d) => d.dewormId === child.kidId && d.date.startsWith(currentMonth)
-//         )
-//     );
-
-//     // deworm end
-
-//     // Heat start
-
-//     // Fetch all Heat records
-//     const alldHeat = await estrusHeatModal
-//       .find({}, "heatId heat heatDate heatResult breederName breedDate dueDate")
-//       .lean();
-
-//     // Parent Heat animals
-//     const parentHeat = parentDetails.filter((parent) =>
-//       alldHeat.some(
-//         (h) =>
-//           h.heatId === parent.uniqueId && h.heatDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Child Heat animals
-//     const childHeat = childDetails.filter((child) =>
-//       alldHeat.some(
-//         (h) => h.heatId === child.kidId && h.heatDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Parent unHeat animals
-//     const parentUnHeat = parentDetails.filter(
-//       (parent) =>
-//         !alldHeat.some(
-//           (h) =>
-//             h.heatId === parent.uniqueId && h.heatDate.startsWith(currentMonth)
-//         )
-//     );
-
-//     // Child unHeat animals
-//     const childUnHeat = childDetails.filter(
-//       (child) =>
-//         !alldHeat.some(
-//           (h) => h.heatId === child.kidId && h.heatDate.startsWith(currentMonth)
-//         )
-//     );
-
-//     // Heat end
-
-//     // Sanitation start
-
-//     // Fetch all Sanitation records
-//     const alldSanitation = await sanitationModal
-//       .find(
-//         {},
-//         "sanitationId soilDate limesprinkleDate insecticideDate insecticide"
-//       )
-//       .lean();
-
-//     // Parent Sanitation animals
-//     const parentSanitation = parentDetails.filter((parent) =>
-//       alldSanitation.some(
-//         (s) =>
-//           s.sanitationId === parent.uniqueId &&
-//           s.soilDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Child Sanitation animals
-//     const childSanitation = childDetails.filter((child) =>
-//       alldSanitation.some(
-//         (s) =>
-//           s.sanitationId === child.kidId && s.soilDate.startsWith(currentMonth)
-//       )
-//     );
-
-//     // Parent unSanitation animals
-//     const parentUnSanitation = parentDetails.filter(
-//       (parent) =>
-//         !alldSanitation.some(
-//           (s) =>
-//             s.sanitationId === parent.uniqueId &&
-//             s.soilDate.startsWith(currentMonth)
-//         )
-//     );
-
-//     // Child unSanitation animals
-//     const childUnSanitation = childDetails.filter(
-//       (child) =>
-//         !alldSanitation.some(
-//           (s) =>
-//             s.sanitationId === child.kidId &&
-//             s.soilDate.startsWith(currentMonth)
-//         )
-//     );
-
-//     // Heat end
-
-//     res.json({
-//       totalAnimals: parentDetails.length + childDetails.length,
-//       totalParents: parentDetails.length,
-//       totalChildren: childDetails.length,
-//       totalVaccines: allVaccines.length,
-//       totalPostWeans: allPostWean.length,
-
-//       vaccinatedParents: {
-//         count: parentVaccinated.length,
-//         data: parentVaccinated,
-//       },
-//       vaccinatedChildren: {
-//         count: childVaccinated.length,
-//         data: childVaccinated,
-//       },
-//       unvaccinatedParents: {
-//         count: parentUnvaccinated.length,
-//         data: parentUnvaccinated,
-//       },
-//       unvaccinatedChildren: {
-//         count: childUnvaccinated.length,
-//         data: childUnvaccinated,
-//       },
-//       // ---
-//       weanedParents: {
-//         count: parentWeaned.length,
-//         data: parentWeaned,
-//       },
-//       weanedChildren: {
-//         count: childWeaned.length,
-//         data: childWeaned,
-//       },
-
-//       unweanedParents: {
-//         count: parentUnweaned.length,
-//         data: parentUnweaned,
-//       },
-//       unweanedChildren: {
-//         count: childUnweaned.length,
-//         data: childUnweaned,
-//       },
-//       // ---
-//       milkParents: {
-//         count: parentMilk.length,
-//         data: parentMilk,
-//       },
-//       milkChildren: {
-//         count: childMilk.length,
-//         data: childMilk,
-//       },
-//       unMilkParents: {
-//         count: parentUnMilk.length,
-//         data: parentUnMilk,
-//       },
-//       unMilkChildren: {
-//         count: childUnMilk.length,
-//         data: childUnMilk,
-//       },
-//       // ----
-//       heatParents: {
-//         count: parentHeat.length,
-//         data: parentHeat,
-//       },
-//       heatChildren: {
-//         count: childHeat.length,
-//         data: childHeat,
-//       },
-//       unHeatParents: {
-//         count: parentUnHeat.length,
-//         data: parentUnHeat,
-//       },
-//       unHeatChildren: {
-//         count: childUnHeat.length,
-//         data: childUnHeat,
-//       },
-//       // -----
-//       dewormParents: {
-//         count: parentDeworm.length,
-//         data: parentDeworm,
-//       },
-//       dewormChildren: {
-//         count: childDeworm.length,
-//         data: childDeworm,
-//       },
-//       unDewormParents: {
-//         count: parentUnDeworm.length,
-//         data: parentUnDeworm,
-//       },
-//       unDewormChildren: {
-//         count: childUnDeworm.length,
-//         data: childUnDeworm,
-//       },
-
-//       //------
-
-//       sanitationParents: {
-//         count: parentSanitation.length,
-//         data: parentSanitation,
-//       },
-//       sanitationChildren: {
-//         count: childSanitation.length,
-//         data: childSanitation,
-//       },
-//       unSanitationParents: {
-//         count: parentUnSanitation.length,
-//         data: parentUnSanitation,
-//       },
-//       unSanitationChildren: {
-//         count: childUnSanitation.length,
-//         data: childUnSanitation,
-//       },
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });

@@ -249,6 +249,10 @@ exports.getAllChildren = asyncHandler(async (req, res) => {
   }
 });
 
+// Delete Child
+
+// exports.deleteAnimalChildDetail = asyncHandler(async (req, res) => {
+
 //  Promote Child to Parent
 exports.promoteChildToParent = asyncHandler(async (req, res) => {
   try {
@@ -271,8 +275,6 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
         .json({ message: "Child is already promoted to parent." });
     }
 
-   
-
     // Step 2: Remove the child from its current parent's `children` array
     // if (child.parentId) {
     //   await Animal.findByIdAndUpdate(
@@ -282,24 +284,22 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
     //   );
     // }
 
+    // Generate Parent Code
+    // const parentCode = generateParentCode(animalName);
 
-     // Generate Parent Code
-        // const parentCode = generateParentCode(animalName);
-    
-        // // Ensure unique parentCode by checking existing records
-        // let counter = 1;
-        // while (await Animal.findOne({ uniqueId: parentCode })) {
-        //   parentCode = `${generateParentCode(animalName)}-${counter++}`;
-        //   counter++;
-        // }
-    
+    // // Ensure unique parentCode by checking existing records
+    // let counter = 1;
+    // while (await Animal.findOne({ uniqueId: parentCode })) {
+    //   parentCode = `${generateParentCode(animalName)}-${counter++}`;
+    //   counter++;
+    // }
 
     // Step 3: Create a new `Animal` entry (promoting child to parent)
     const newParent = new Animal({
       uid: child.uid, // Generate new unique ID
       uniqueId: child.uniqueId,
       uniqueName: child.kiduniqueName,
-      parentId: `P${child.uniqueId}`
+      parentId: `P${child.uniqueId}`,
       // ageMonth: child.age % 12,
       // ageYear: Math.floor(child.age / 12),
       // gender: child.gender.toLowerCase(),
@@ -308,7 +308,6 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
     });
 
     await newParent.save();
-
 
     // Step 4: Update any existing children to point to the new parent
     await ChildAnimal.updateMany(
@@ -417,5 +416,28 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+exports.deleteChildAnimal = asyncHandler(async (req, res) => {
+  try {
+    const { uniqueId } = req.params;
+
+    if (!uniqueId) {
+      return res.status(400).json({ message: "UniqueId is required" });
+    }
+
+    // Find the Child by uniqueId
+    const Child = await ChildAnimal.findOne({ uniqueId });
+
+    if (!Child) {
+      return res.status(404).json({ message: "Child not found" });
+    }
+
+    await ChildAnimal.deleteOne({ uniqueId });
+
+    res.status(200).json({ message: "Child deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
   }
 });

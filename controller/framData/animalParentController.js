@@ -240,56 +240,110 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       })),
     }));
 
-    // const formatChildData = (child) => ({
-    //   uniqueId: child.uniqueId || null,
-    //   childId: child._id || null,
-    //   kiduniqueId: child.kiduniqueId || null,
-    //   kiduniqueName: child.kiduniqueName || null,
-    //   age: child.age || null,
-    //   DOB: child.DOB || null,
-    //   gender: child.gender || null,
-    //   kidCode: child.kidCode || null,
-    //   kidScore: child.kidScore || null,
-    //   BODType: child.BODType || null,
-    //   kidWeight: child.kidWeight || null,
-    //   weanDate: child.weanDate || null,
-    //   weanWeight: child.weanWeight || null,
-    //   motherWeanWeight: child.motherWeanWeight || null,
-    //   motherWeanDate: child.motherWeanDate || null,
-    //   castration: child.castration || null,
-    //   birthWeight: child.birthWeight || null,
-    //   breed: child.breed || null,
-    //   motherAge: child.motherAge || null,
-    //   comment: child.comment || null,
-    //   createdAt: child.createdAt || null,
-    //   updatedAt: child.updatedAt || null,
-    // });
-
-    // const parentsData = parents.map((parent) => ({
-    //   parentId: parent._id || null,
-    //   uniqueId: parent.uniqueId || null,
-    //   uniqueName: parent.uniqueName || null,
-    //   ageMonth: parent.ageMonth || null,
-    //   ageYear: parent.ageYear || null,
-    //   height: parent.height || null,
-    //   purchasDate: parent.purchasDate || null,
-    //   gender: parent.gender || null,
-    //   weightMonth: parent.weightMonth || null,
-    //   weightYear: parent.weightYear || null,
-    //   pregnancyDetail: parent.pregnancyDetail || null,
-    //   maleDetail: parent.maleDetail || null,
-    //   bodyScore: parent.bodyScore || null,
-    //   anyComment: parent.anyComment || null,
-    //   createdAt: parent.createdAt || null,
-    //   updatedAt: parent.updatedAt || null,
-    //   children: (parent.children || []).map(formatChildData),
-    // }));
+  
 
     res.status(200).json({
       parents: parentsData,
     });
   } catch (error) {
     console.error("Error fetching parent and child data:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+// Update Parent
+exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({ message: "No data provided" });
+  }
+
+  try {
+    const { uniqueId } = req.params; // Extract uniqueId from URL params
+    if (!uniqueId) {
+      return res.status(400).json({ message: "UniqueId is required" });
+    }
+
+    const {
+      ageMonth,
+      ageYear,
+      height,
+      heightDate,
+      purchasDate,
+      gender,
+      weightKg,
+      weightGm,
+      pregnancyDetail,
+      maleDetail,
+      bodyScore,
+      anyComment,
+    } = req.body;
+
+    const updatedFields = {
+      ageMonth,
+      ageYear,
+      height,
+      heightDate,
+      purchasDate,
+      gender,
+      weightKg,
+      weightGm,
+      pregnancyDetail,
+      maleDetail,
+      bodyScore,
+      anyComment,
+    };
+
+    const updated = await Animal.findOneAndUpdate(
+      { uniqueId: uniqueId }, // Ensure you pass uniqueId properly
+      { $set: updatedFields },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "No parent found" });
+    }
+
+    res.status(200).json({
+      message: "Parent updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
+
+ // Delete parent (if no children)
+ 
+exports.deleteAnimalParent = asyncHandler(async (req, res) => {
+  try {
+    const { uniqueId } = req.params;
+
+    if (!uniqueId) {
+      return res.status(400).json({ message: "UniqueId is required" });
+    }
+
+    // Find the parent by uniqueId
+    const parent = await Animal.findOne({ uniqueId });
+
+    if (!parent) {
+      return res.status(404).json({ message: "Parent not found" });
+    }
+
+    // Check if the parent has children
+    if (parent.children && parent.children.length > 0) {
+      return res.status(400).json({
+        message: "Cannot delete parent. It has child records associated.",
+      });
+    }
+
+       
+    // If no children exist, delete the parent
+    await Animal.deleteOne({ uniqueId });
+
+    res.status(200).json({ message: "Parent deleted successfully" });
+  } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 });

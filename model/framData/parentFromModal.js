@@ -60,7 +60,7 @@ const animalSchema = new mongoose.Schema(
     ageMonth: { type: Number, default: null }, 
     ageYear: { type: Number, default: null }, 
     height: { type: Number, default: null }, 
-    heightDate: { type: Date, default: null },
+    // heightDate: { type: Date, default: null },
     purchasDate: { type: Date, default: null },
 
     gender: {
@@ -82,7 +82,7 @@ const animalSchema = new mongoose.Schema(
     vaccine: [{ type: Object, ref: "Vaccine", default: [] }], // References Vaccine
     deworm: [{ type: Object, ref: "Deworm", default: [] }], // References Deworm
     estrusHeat: [{ type: Object, ref: "EstrusHeat", default: [] }], // References EstrusHeat
-    farmSanition: [{ type: Object, ref: "FarmSanition", default: [] }], // References FarmSanition
+    sanitation: [{ type: Object, ref: "Sanitation", default: [] }], // References FarmSanition
   },
   { timestamps: true }
 );

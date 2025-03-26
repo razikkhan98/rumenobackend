@@ -36,15 +36,41 @@ const childSchema = new mongoose.Schema({
   uniqueId: { type: String, required: true },
   parentId: { type: String, ref: "Animal" }, // References Parent
   kidId:{ type : String, required: true},
+  uniqueName: {
+    type: String
+  },
+  animalName: {
+     type: String
+  },
   kidage: {
     type: Number,
   },
+  ageMonth: {
+     type: Number,
+  },
+  ageYear: {
+    type: Number,
+ },
   kidweight: {
     type: Number,
   },
-  heightft:{
+  height:{
     type: Number,
-   
+  },
+  purchasDate: {
+    type: Date,
+  },
+  weightKg:{
+    type: String
+  },
+  weightGm:{
+    type: String
+  },
+  pregnancyDetail:{
+    type: String
+  },
+  maleDetail: {
+    type: String  
   },
   motherage: {
     type: Number,
@@ -63,7 +89,7 @@ const childSchema = new mongoose.Schema({
     type: String,
     // unique: true, // Ensures kidcode is unique
   },
-  kidscore: {
+  bodyScore: {
     type: Number,
   },
   dobtype: {
@@ -89,6 +115,9 @@ const childSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  anyComment:{
+    type: String
+  },
 
   children: [{ type: mongoose.Schema.Types.ObjectId, ref: "ChildAnimal" }], // References other Children (Recursive)
   milk: [{ type: Object, ref: "Milk" }], // References Milk,
@@ -96,7 +125,7 @@ const childSchema = new mongoose.Schema({
   vaccine: [{ type: Object, ref: "Vaccine" }], // References Vaccine
   deworm: [{ type: Object, ref: "Deworm" }], // References deworm
   estrusHeat: [{ type: Object, ref: "EstrusHeat" }], // References EstrusHeat
-  farmSanition: [{ type: Object, ref: "FarmSanition" }], // References farmSanition
+  sanitation: [{ type: Object, ref: "Sanitation" }], // References farmSanition
 });
 
 module.exports = mongoose.model("ChildAnimal", childSchema);

@@ -51,7 +51,6 @@ router.get(
   animalParentController.animalAllDetail
 );
 
-// Get all Parents
 // Update Parent
 
 router.put(
@@ -82,11 +81,7 @@ router.delete(
   animalchildController.deleteChildAnimal
 );
 
-// router.delete("/user/animaldata/child/
-//
-//
-//
-// delete/:uniqueId", animalchildController.deleteAnimalChild);
+
 
 // ===============
 
@@ -109,8 +104,6 @@ router.post(
   animalchildController.promoteChildToParent
 );
 
-// ===============
-// Milk
 
 // ============
 // Post Wean
@@ -120,7 +113,6 @@ router.post(
 router.post("/user/animal/postweandata/add", postweanController.addPostWean);
 
 // Update Post Wean Parent and Child
-
 router.put(
   "/user/animal/postweandata/update/:postWeanId",
   postweanController.updatePostWean
@@ -131,6 +123,8 @@ router.delete(
   "/user/animal/postweandata/delete/:postWeanId",
   postweanController.deletePostWean
 );
+
+
 
 // =============
 //  Milk Routes
@@ -147,6 +141,8 @@ router.delete(
   "/user/animal/milkdata/delete/:milkId",
   milkController.deleteMilk
 );
+
+
 
 // ===========
 // Vaccine Routes

@@ -16,7 +16,6 @@ const dewormModal = require("../../model/framData/dewormModal");
 const estrusHeatModal = require("../../model/framData/estrusHeatModal");
 const sanitationModal = require("../../model/framData/sanitationModal");
 
-
 // POST: Add Child Animal Data
 exports.animalChildDetail = asyncHandler(async (req, res) => {
   // Validate request body
@@ -49,7 +48,7 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
       castration,
       motherweandate,
       motherweandateweight,
-      anyComment
+      anyComment,
     } = req.body;
 
     // Validate required fields
@@ -91,23 +90,21 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
         .json({ message: "Child Unique ID already exists. Try again." });
     }
 
-// Generate Parent Code
-const parentCode = generateParentCode(animalName);
+    // // Generate Parent Code
+    // const parentCode = generateParentCode(animalName);
 
-// Ensure unique parentCode by checking existing records
-let counter = 1;
-while (await ChildAnimal.findOne({ parentId: parentCode })) {
-  parentCode = `${generateParentCode(animalName)}-${counter++}`;
-  counter++;
-}
-
-
+    // // Ensure unique parentCode by checking existing records
+    // let counter = 1;
+    // while (await ChildAnimal.findOne({ parentId: parentCode })) {
+    //   parentCode = `${generateParentCode(animalName)}-${counter++}`;
+    //   counter++;
+    // }
 
     // Create the Child
     const newChild = await ChildAnimal.create({
       kidId,
       uniqueId,
-      parentId:parentCode,
+      parentId,
       uniqueName,
       animalName,
       kidage,
@@ -132,10 +129,9 @@ while (await ChildAnimal.findOne({ parentId: parentCode })) {
       motherweandate,
       motherweandateweight,
       parent: parentExists._id,
-      anyComment
+      anyComment,
     });
 
-    console.log(newChild);
 
     // Update Parent Record
     await Animal.findOneAndUpdate(
@@ -190,7 +186,7 @@ exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
       castration,
       motherweandate,
       motherweandateweight,
-      anyComment
+      anyComment,
     } = req.body;
 
     // Validate required fields
@@ -239,7 +235,7 @@ exports.updateAnimalChildDetail = asyncHandler(async (req, res) => {
           castration,
           motherweandate,
           motherweandateweight,
-          anyComment
+          anyComment,
         },
       },
       { new: true }
@@ -330,8 +326,6 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
         .json({ message: "Child is already promoted to parent." });
     }
 
-
-
     // Step 2: Remove the child from its current parent's `children` array
     // if (child.parentId) {
     //   await Animal.findByIdAndUpdate(
@@ -378,7 +372,7 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
       vaccine: child.vaccine,
       deworm: child.deworm,
       estrusHeat: child.estrusHeat,
-      sanitation: child.sanitation
+      sanitation: child.sanitation,
       // ageMonth: child.age % 12,
       // ageYear: Math.floor(child.age / 12),
       // gender: child.gender.toLowerCase(),
@@ -449,7 +443,6 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
               record[dateField].startsWith(currentMonth)
           )
       );
-
 
       return {
         vaccinated: {
@@ -621,55 +614,62 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
       ),
     };
 
-    
     res.json({
       TotalAnimals: parentDetails.length + childDetails.length,
       TotalParents: parentDetails.length,
       TotalChildren: childDetails.length,
-    
+
       // ✅ Separate count and data for vaccines
-      VaccineCount: vaccines.parents.unvaccinated.count + vaccines.children.unvaccinated.count,
+      VaccineCount:
+        vaccines.parents.unvaccinated.count +
+        vaccines.children.unvaccinated.count,
       VaccineData: {
         parents: vaccines.parents.unvaccinated.data,
         children: vaccines.children.unvaccinated.data,
       },
-    
+
       // ✅ Separate count and data for post-weaning
-      PostWeanCount: postWean.parents.unvaccinated.count + postWean.children.unvaccinated.count,
+      PostWeanCount:
+        postWean.parents.unvaccinated.count +
+        postWean.children.unvaccinated.count,
       PostWeanData: {
         parents: postWean.parents.unvaccinated.data,
         children: postWean.children.unvaccinated.data,
       },
-    
+
       // ✅ Separate count and data for milk
-      MilkCount: milk.parents.unvaccinated.count + milk.children.unvaccinated.count,
+      MilkCount:
+        milk.parents.unvaccinated.count + milk.children.unvaccinated.count,
       MilkData: {
         parents: milk.parents.unvaccinated.data,
         children: milk.children.unvaccinated.data,
       },
-    
+
       // ✅ Separate count and data for heat tracking
-      HeatCount: heat.parents.unvaccinated.count + heat.children.unvaccinated.count,
+      HeatCount:
+        heat.parents.unvaccinated.count + heat.children.unvaccinated.count,
       HeatData: {
         parents: heat.parents.unvaccinated.data,
         children: heat.children.unvaccinated.data,
       },
-    
+
       // ✅ Separate count and data for deworming
-      DewormCount: deworm.parents.unvaccinated.count + deworm.children.unvaccinated.count,
+      DewormCount:
+        deworm.parents.unvaccinated.count + deworm.children.unvaccinated.count,
       DewormData: {
         parents: deworm.parents.unvaccinated.data,
         children: deworm.children.unvaccinated.data,
       },
-    
+
       // ✅ Separate count and data for sanitation
-      SanitationCount: sanitation.parents.unvaccinated.count + sanitation.children.unvaccinated.count,
+      SanitationCount:
+        sanitation.parents.unvaccinated.count +
+        sanitation.children.unvaccinated.count,
       SanitationData: {
         parents: sanitation.parents.unvaccinated.data,
         children: sanitation.children.unvaccinated.data,
       },
     });
-    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

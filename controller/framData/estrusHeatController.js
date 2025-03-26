@@ -62,14 +62,14 @@ exports.addEstrusHeat = asyncHandler(async (req, res) => {
     // Push Milk Data into Parent Record
     const updatedParent = await Animal.findOneAndUpdate(
       { uniqueId: parentUniqueId },
-      { $push: { estrusHeat: AnimalEstrusHeat } }, 
+      { $push: { estrusHeat: AnimalEstrusHeat } },
       { new: true }
     );
 
     // Push Child Data into Parent Record
     const updatedChild = await ChildAnimal.findOneAndUpdate(
       { uniqueId: childUniqueId },
-      { $push: { estrusHeat: AnimalEstrusHeat } }, 
+      { $push: { estrusHeat: AnimalEstrusHeat } },
       { new: true }
     );
 
@@ -85,8 +85,43 @@ exports.addEstrusHeat = asyncHandler(async (req, res) => {
   }
 });
 
-// Delete Milk Parent and Child
+// Update Estrus Heat Parent and Child
+exports.updateEstrusHeat = asyncHandler(async (req, res) => {
+  let { heatId } = req.params;
+  console.log("Received heatId:", heatId);
 
+  // If heatId is numeric or a custom string, skip ObjectId validation
+  if (!mongoose.Types.ObjectId.isValid(heatId) && !isNaN(heatId)) {
+    return res.status(400).json({ message: "Invalid heatId format" });
+  }
+
+  try {
+    const { heat, heatDate, heatResult, breederName, breedDate, dueDate } =
+      req.body;
+
+    const updatedPostWean = await AnimalPostWean.findOneAndUpdate(
+      { heatId }, // ✅ Match `heatId` directly
+      { heat, heatDate, heatResult, breederName, breedDate, dueDate },
+      { new: true }
+    );
+
+    if (!updatedPostWean) {
+      return res.status(404).json({ message: "Estrus Heat not found." });
+    }
+
+    res.json({
+      message: "Estrus Heat updated successfully",
+      data: updatedPostWean,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to update Estrus Heat data.",
+      error: error.message,
+    });
+  }
+});
+
+// Delete Milk Parent and Child
 exports.deleteEstrusHeat = asyncHandler(async (req, res) => {
   const { heatId } = req.params;
 

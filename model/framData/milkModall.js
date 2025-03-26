@@ -5,10 +5,12 @@ const MilkSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  
   milkvolume: {
     type: String,
     default: null,
   },
+
   numberKids: {
     type: Number,
     default: null,

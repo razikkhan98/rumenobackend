@@ -91,8 +91,58 @@ exports.addDeworm = asyncHandler(async (req, res) => {
   }
 });
 
-// Delete Vaccine Parent and Child
+// Update Deworn Parent and Child
 
+exports.updateDeworm = asyncHandler(async (req, res) => {
+  let { dewormId } = req.params;
+  console.log("Received dewormId:", dewormId);
+
+  // If dewormId is numeric or a custom string, skip ObjectId validation
+  if (!mongoose.Types.ObjectId.isValid(dewormId) && !isNaN(dewormId)) {
+    return res.status(400).json({ message: "Invalid dewormId format" });
+  }
+
+  try {
+    const { report,
+      date,
+      endoName,
+      ectoName,
+      endoDate,
+      ectoDate,
+      endoType,
+      ectoType,
+      animalDate, } = req.body;
+
+    const updatedPostWean = await AnimalPostWean.findOneAndUpdate(
+      { dewormId }, // ✅ Match `dewormId` directly
+      { report,
+        date,
+        endoName,
+        ectoName,
+        endoDate,
+        ectoDate,
+        endoType,
+        ectoType,
+        animalDate },
+      { new: true }
+    );
+
+    if (!updatedPostWean) {
+      return res.status(404).json({ message: "Deworn not found." });
+    }
+
+    res.json({ message: "Deworn updated successfully", data: updatedPostWean });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to update Deworn data.",
+      error: error.message,
+    });
+  }
+});
+
+
+
+// Delete Vaccine Parent and Child
 exports.deleteDeworm = asyncHandler(async (req, res) => {
   const { dewormId } = req.params;
 

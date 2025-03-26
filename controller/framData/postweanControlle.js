@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Animal = require("../../model/framData/parentFromModal");
 const AnimalPostWean = require("../../model/framData/postWeanModal");
 const ChildAnimal = require("../../model/framData/childFromModal");
+const mongoose = require("mongoose");
 
 exports.addPostWean = asyncHandler(async (req, res) => {
   if (Object.keys(req.body).length === 0) {
@@ -18,6 +19,7 @@ exports.addPostWean = asyncHandler(async (req, res) => {
       weanDate,
       weanComment,
     } = req.body;
+    
 
     if (!parentUniqueId && !childUniqueId) {
       return res.status(400).json({
@@ -43,6 +45,7 @@ exports.addPostWean = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Child not found." });
       }
     }
+    console.log(childUniqueId,"childUniqueId")
 
     const postWeanId = parentUniqueId || childUniqueId;
 
@@ -86,8 +89,44 @@ exports.addPostWean = asyncHandler(async (req, res) => {
   }
 });
 
-// Delete Post Wean Parent and Child
 
+// Update Post Wean Parent and Child
+
+exports.updatePostWean = asyncHandler(async (req, res) => {
+  let { postWeanId } = req.params;
+  console.log("Received postWeanId:", postWeanId);
+
+  // If postWeanId is numeric or a custom string, skip ObjectId validation
+  if (!mongoose.Types.ObjectId.isValid(postWeanId) && !isNaN(postWeanId)) {
+    return res.status(400).json({ message: "Invalid postWeanId format" });
+  }
+
+  try {
+    const { weightKg, weightGm, bodyScore, weanDate, weanComment } = req.body;
+
+    const updatedPostWean = await AnimalPostWean.findOneAndUpdate(
+      { postWeanId }, // ✅ Match `postWeanId` directly
+      { weightKg, weightGm, bodyScore, weanDate, weanComment },
+      { new: true }
+    );
+
+    if (!updatedPostWean) {
+      return res.status(404).json({ message: "Post Wean not found." });
+    }
+
+    res.json({ message: "Post Wean updated successfully", data: updatedPostWean });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to update Post Wean data.",
+      error: error.message,
+    });
+  }
+});
+
+
+
+
+// Delete Post Wean Parent and Child
 exports.deletePostWean = asyncHandler(async (req, res) => {
   const { postWeanId } = req.params;
   console.log(postWeanId);

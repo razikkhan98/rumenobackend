@@ -10,13 +10,8 @@ exports.addMilk = asyncHandler(async (req, res) => {
   }
 
   try {
-    const {
-      parentUniqueId,
-      childUniqueId,
-      milkVolume,
-      numberKids,
-      milkDate,
-    } = req.body;
+    const { parentUniqueId, childUniqueId, milkVolume, numberKids, milkDate } =
+      req.body;
 
     if (!parentUniqueId && !childUniqueId) {
       return res.status(400).json({
@@ -79,7 +74,40 @@ exports.addMilk = asyncHandler(async (req, res) => {
   }
 });
 
+// Update Milk Parent and Child
 
+exports.updateMilk = asyncHandler(async (req, res) => {
+  let { milkId } = req.params;
+
+  // If milkId is numeric or a custom string, skip ObjectId validation
+  if (!mongoose.Types.ObjectId.isValid(milkId) && !isNaN(milkId)) {
+    return res.status(400).json({ message: "Invalid milkId format" });
+  }
+
+  try {
+    const { numberKids, milkVolume, milkDate } = req.body;
+
+    const updatedPostWean = await AnimalPostWean.findOneAndUpdate(
+      { milkId }, // ✅ Match `milkId` directly
+      { numberKids, milkVolume, milkDate },
+      { new: true }
+    );
+
+    if (!updatedPostWean) {
+      return res.status(404).json({ message: "Milk not found." });
+    }
+
+    res.json({
+      message: "Milk updated successfully",
+      data: updatedPostWean,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to update Milk data.",
+      error: error.message,
+    });
+  }
+});
 
 // Delete Milk Parent and Child
 
@@ -89,7 +117,7 @@ exports.deleteMilk = asyncHandler(async (req, res) => {
   if (!milkId) {
     return res.status(400).json({ message: "No milkId provided" });
   }
-  
+
   try {
     // Find Post Wean Entry
     const milk = await AnimalMilk.findOne({ milkId: milkId });
@@ -97,15 +125,14 @@ exports.deleteMilk = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Milk not found" });
     }
     // Remove references from Parent & Child
-    await Animal.updateMany({ "milk": milkId }, { $pull: { milk: milkId } });
-    await ChildAnimal.updateMany({ "milk": milkId }, { $pull: { milk: milkId } });
-    console.log({ "Milk": milkId }, { $pull: { milk: milkId }} )
-    
+    await Animal.updateMany({ milk: milkId }, { $pull: { milk: milkId } });
+    await ChildAnimal.updateMany({ milk: milkId }, { $pull: { milk: milkId } });
+    console.log({ Milk: milkId }, { $pull: { milk: milkId } });
+
     // Delete Post Wean Entry
     await AnimalMilk.deleteOne({ milkId: milkId });
 
     res.json({ message: "Milk deleted successfully" });
-
   } catch (e) {
     console.error(e);
     res.status(500).json({ message: "Server error", error: e.message });

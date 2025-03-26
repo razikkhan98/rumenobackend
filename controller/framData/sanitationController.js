@@ -58,14 +58,14 @@ exports.addSanitation = asyncHandler(async (req, res) => {
     // Push Milk Data into Parent Record
     const updatedParent = await Animal.findOneAndUpdate(
       { uniqueId: parentUniqueId },
-      { $push: { farmSanition: AnimalSanitationData } }, 
+      { $push: { farmSanition: AnimalSanitationData } },
       { new: true }
     );
 
     // Push Child Data into Parent Record
     const updatedChild = await ChildAnimal.findOneAndUpdate(
       { uniqueId: childUniqueId },
-      { $push: { farmSanition: AnimalSanitationData } }, 
+      { $push: { farmSanition: AnimalSanitationData } },
       { new: true }
     );
 
@@ -81,8 +81,43 @@ exports.addSanitation = asyncHandler(async (req, res) => {
   }
 });
 
-// Delete Post Wean Parent and Child
+// Update Sanitation Parent and Child
+exports.updateSanitation = asyncHandler(async (req, res) => {
+  let { sanitationId } = req.params;
+  console.log("Received sanitationId:", sanitationId);
 
+  // If sanitationId is numeric or a custom string, skip ObjectId validation
+  if (!mongoose.Types.ObjectId.isValid(sanitationId) && !isNaN(sanitationId)) {
+    return res.status(400).json({ message: "Invalid sanitationId format" });
+  }
+
+  try {
+    const { soilDate, limesprinkleDate, insecticideDate, insecticide } =
+      req.body;
+
+    const updatedPostWean = await AnimalPostWean.findOneAndUpdate(
+      { sanitationId }, // ✅ Match `sanitationId` directly
+      { soilDate, limesprinkleDate, insecticideDate, insecticide },
+      { new: true }
+    );
+
+    if (!updatedPostWean) {
+      return res.status(404).json({ message: "Sanitation not found." });
+    }
+
+    res.json({
+      message: "Sanitation updated successfully",
+      data: updatedPostWean,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to update Sanitation data.",
+      error: error.message,
+    });
+  }
+});
+
+// Delete Post Wean Parent and Child
 exports.deleteSanitation = asyncHandler(async (req, res) => {
   const { sanitationId } = req.params;
 

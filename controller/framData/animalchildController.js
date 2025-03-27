@@ -418,8 +418,7 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
       );
     };
 
-    // Create a helper function to categorize animals
-    const categorizeAnimals = (details, records, idField, dateField) => {
+ const categorizeAnimals = (details, records, idField, dateField) => {
       const currentMonth = moment().format("YYYY-MM");
 
       const vaccinated = details.filter((detail) =>
@@ -430,7 +429,7 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
             typeof record[dateField] === "string" &&
             record[dateField].startsWith(currentMonth)
         )
-      );
+      ).map(item => ({ ...item, status: "completed" }));
 
       const unvaccinated = details.filter(
         (detail) =>
@@ -441,7 +440,7 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
               typeof record[dateField] === "string" &&
               record[dateField].startsWith(currentMonth)
           )
-      );
+      ).map(item => ({ ...item, status: "pending" }));
 
       return {
         vaccinated: {
@@ -613,60 +612,113 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
       ),
     };
 
+    
+    
     res.json({
-      TotalAnimals: parentDetails.length + childDetails.length,
-      TotalParents: parentDetails.length,
-      TotalChildren: childDetails.length,
+      totalAnimals: parentDetails.length + childDetails.length,
+      totalParents: parentDetails.length,
+      totalChildren: childDetails.length,
+      totalVaccines: allVaccines.length,
+      totalPostWeans: allPostWean.length,
 
-      // ✅ Separate count and data for vaccines
       VaccineCount:
+        vaccines.parents.vaccinated.count + vaccines.children.vaccinated.count,
+      VaccineData: {
+        parents: vaccines.parents.vaccinated.data,
+        children: vaccines.children.vaccinated.data,
+      },
+
+      UnVaccineCount:
         vaccines.parents.unvaccinated.count +
         vaccines.children.unvaccinated.count,
-      VaccineData: {
+      UnVaccineData: {
         parents: vaccines.parents.unvaccinated.data,
         children: vaccines.children.unvaccinated.data,
       },
 
-      // ✅ Separate count and data for post-weaning
-      PostWeanCount:
-        postWean.parents.unvaccinated.count +
-        postWean.children.unvaccinated.count,
-      PostWeanData: {
-        parents: postWean.parents.unvaccinated.data,
-        children: postWean.children.unvaccinated.data,
+      weanedParents: {
+        count: postWean.parents.vaccinated.count,
+        data: postWean.parents.vaccinated.data,
+      },
+      weanedChildren: {
+        count: postWean.children.vaccinated.count,
+        data: postWean.children.vaccinated.data,
+      },
+      unweanedParents: {
+        count: postWean.parents.unvaccinated.count,
+        data: postWean.parents.unvaccinated.data,
+      },
+      unweanedChildren: {
+        count: postWean.children.unvaccinated.count,
+        data: postWean.children.unvaccinated.data,
       },
 
-      // ✅ Separate count and data for milk
-      MilkCount:
-        milk.parents.unvaccinated.count + milk.children.unvaccinated.count,
-      MilkData: {
-        parents: milk.parents.unvaccinated.data,
-        children: milk.children.unvaccinated.data,
+      milkParents: {
+        count: milk.parents.vaccinated.count,
+        data: milk.parents.vaccinated.data,
+      },
+      milkChildren: {
+        count: milk.children.vaccinated.count,
+        data: milk.children.vaccinated.data,
+      },
+      unMilkParents: {
+        count: milk.parents.unvaccinated.count,
+        data: milk.parents.unvaccinated.data,
+      },
+      unMilkChildren: {
+        count: milk.children.unvaccinated.count,
+        data: milk.children.unvaccinated.data,
       },
 
-      // ✅ Separate count and data for heat tracking
-      HeatCount:
-        heat.parents.unvaccinated.count + heat.children.unvaccinated.count,
-      HeatData: {
-        parents: heat.parents.unvaccinated.data,
-        children: heat.children.unvaccinated.data,
+      heatParents: {
+        count: heat.parents.vaccinated.count,
+        data: heat.parents.vaccinated.data,
+      },
+      heatChildren: {
+        count: heat.children.vaccinated.count,
+        data: heat.children.vaccinated.data,
+      },
+      unHeatParents: {
+        count: heat.parents.unvaccinated.count,
+        data: heat.parents.unvaccinated.data,
+      },
+      unHeatChildren: {
+        count: heat.children.unvaccinated.count,
+        data: heat.children.unvaccinated.data,
       },
 
-      // ✅ Separate count and data for deworming
-      DewormCount:
-        deworm.parents.unvaccinated.count + deworm.children.unvaccinated.count,
-      DewormData: {
-        parents: deworm.parents.unvaccinated.data,
-        children: deworm.children.unvaccinated.data,
+      dewormParents: {
+        count: deworm.parents.vaccinated.count,
+        data: deworm.parents.vaccinated.data,
+      },
+      dewormChildren: {
+        count: deworm.children.vaccinated.count,
+        data: deworm.children.vaccinated.data,
+      },
+      unDewormParents: {
+        count: deworm.parents.unvaccinated.count,
+        data: deworm.parents.unvaccinated.data,
+      },
+      unDewormChildren: {
+        count: deworm.children.unvaccinated.count,
+        data: deworm.children.unvaccinated.data,
       },
 
-      // ✅ Separate count and data for sanitation
-      SanitationCount:
-        sanitation.parents.unvaccinated.count +
-        sanitation.children.unvaccinated.count,
-      SanitationData: {
-        parents: sanitation.parents.unvaccinated.data,
-        children: sanitation.children.unvaccinated.data,
+      sanitationParents: {
+        count: sanitation.parents.vaccinated.count,
+        data: sanitation.parents.vaccinated.data,
+      },
+      sanitationChildren: {
+        count: sanitation.children.vaccinated.count,
+        data: sanitation.children.vaccinated.data,
+      },
+      unSanitationParents: {
+        count: sanitation.parents.unvaccinated.count,
+        data: sanitation.parents.unvaccinated.data,
+      },
+      unSanitationChildren: {
+        count: sanitation.children.unvaccinated.count,
+        data: sanitation.children.unvaccinated.data,
       },
     });
   } catch (error) {

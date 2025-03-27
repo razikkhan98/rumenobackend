@@ -132,7 +132,6 @@ exports.animalChildDetail = asyncHandler(async (req, res) => {
       anyComment,
     });
 
-
     // Update Parent Record
     await Animal.findOneAndUpdate(
       { parentId },
@@ -684,16 +683,27 @@ exports.deleteChildAnimal = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "UniqueId is required" });
     }
 
-    // Find the Child by uniqueId
-    const Child = await ChildAnimal.findOne({ uniqueId });
+    const child = await ChildAnimal.findOne({ uniqueId });
 
-    if (!Child) {
+    if (!child) {
       return res.status(404).json({ message: "Child not found" });
+    }
+
+    const parent = await Animal.findOne({ parentId: child.parentId });
+
+    if (parent) {
+      parent.children = parent.children.filter(
+        (kidId) => kidId !== child.kidId
+      );
+      await parent.save();
     }
 
     await ChildAnimal.deleteOne({ uniqueId });
 
-    res.status(200).json({ message: "Child deleted successfully" });
+    res.status(200).json({
+      message:
+        "Child deleted successfully and removed from parent’s children list",
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

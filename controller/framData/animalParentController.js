@@ -304,7 +304,7 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
     }
 
     res.status(200).json({
-      message: "Parent updated successfully",
+      message: "success",
       data: updated,
     });
   } catch (error) {

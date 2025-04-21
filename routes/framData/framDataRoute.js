@@ -81,8 +81,6 @@ router.delete(
   animalchildController.deleteChildAnimal
 );
 
-
-
 // ===============
 
 // Get only single Child
@@ -104,7 +102,6 @@ router.post(
   animalchildController.promoteChildToParent
 );
 
-
 // ============
 // Post Wean
 // ============
@@ -124,8 +121,6 @@ router.delete(
   postweanController.deletePostWean
 );
 
-
-
 // =============
 //  Milk Routes
 // =============
@@ -142,14 +137,19 @@ router.delete(
   milkController.deleteMilk
 );
 
-
-
 // ===========
 // Vaccine Routes
 // ===========
-
+// -----------------------------------------------------------------------------------------------
 // Add Vaccine Parent and Child
 router.post("/user/animal/vaccinedata/add", vaccineController.addVaccine);
+
+// Check Reminders Vaccine
+router.get(
+  "/user/animal/check-reminders/:userId",
+  vaccineController.checkReminders
+);
+// -----------------------------------------------------------------------------------------------
 
 // Update Vaccine Parent and Child
 router.put(

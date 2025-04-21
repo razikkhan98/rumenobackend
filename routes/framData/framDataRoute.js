@@ -18,16 +18,17 @@ const sanitationController = require("../../controller/framData/sanitationContro
 // Farm Detail
 router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
 
+
 // ================
 // Animal Details
 // ================
 
 // ===============
-// Parent
+// New Entity
 // ===============
 
-// Add Parent
-router.post("/user/animaldata/parent", animalParentController.animalDetail);
+// Add unique Entity
+router.post("/user/animaldata/newEntity", animalParentController.animalDetail);
 // router.get(
 //   "/user/animaldata/parent/getAll",
 //   animalParentController.getAllParents

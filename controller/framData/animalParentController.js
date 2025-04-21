@@ -5,108 +5,227 @@ const asyncHandler = require("express-async-handler");
 const generateParentCode = require("../../utils/parentCode");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
-const generateUniqueldId = require("../../utils/uniqueId");
+const generateUniqueFarmId = require('../../utils/uniqueId'); 
 
-// Add Parent Data
 
+// Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
-  // Validate request body
-
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
   }
   try {
     const {
       uid,
-      animalName,
-      uniqueName,
-      ageMonth,
+      tagId,
       ageYear,
+      ageMonth,
       height,
-      // heightDate,
-      purchasDate,
-      gender,
       weightKg,
-      weightGm,
-      pregnancyDetail,
-      maleDetail,
+      birthDate,
+      motherTag,
+      fatherTag,
+      gender,
+      birthtype,
+      birthWeight,
+      mothersWeanDate,
       bodyScore,
+      purchasDate,
       anyComment,
+      dateMading,
+      currentPregnancyMonth,
+      failed,
+      motherWeanDate,
+      otherDisease,
+      vaccineDate,
+      farmName
     } = req.body;
-
+    
     // Validate required fields
-    const requiredFields = { uid, uniqueName, gender };
+    const requiredFields = { uid, gender };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value) {
         return res.status(400).json({ message: `${key} is a required field.` });
       }
     }
-
+    
     // Check if UID exists in User model
     const existingUser = await User.findOne({ uid });
     if (!existingUser) {
       return res.status(400).json({ message: "UID does not exist." });
     }
-
-    // Check uniqueName exists in User model
-    const existingAnimal = await Animal.findOne({ uniqueName });
-    if (existingAnimal) {
-      return res.status(400).json({ message: "Unique Name already exists." });
-    }
-
     // Generate Parent Code
-    const parentCode = generateParentCode(animalName);
-
-    // Ensure unique parentCode by checking existing records
-    let counter = 1;
-    while (await Animal.findOne({ uniqueId: parentCode })) {
-      parentCode = `${generateParentCode(animalName)}-${counter++}`;
-      counter++;
-    }
-
-    // Generate UniqueId
-    const uniqueId = generateUniqueldId(animalName);
-
-    // Create new Parent Animal
-    const newParent = new Animal({
-      uid,
-      parentId: parentCode,
-      uniqueId,
-      animalName,
-      uniqueName,
-      ageMonth,
-      ageYear,
-      height,
-      // heightDate,
-      purchasDate,
-      gender,
-      weightKg,
-      weightGm,
-      pregnancyDetail,
-      maleDetail,
-      bodyScore,
-      anyComment,
-      children: [], // No children initially
-      milk: [],
-    });
+    // let parentCode = generateParentCode(farmName);
     
-
+    // // Ensure unique parentCode by checking existing records
+    // let counter = 1;
+    // while (await Animal.findOne({ parentId: parentCode })) {
+      //   parentCode = `${generateParentCode(farmName)}-${counter++}`;
+      //   counter++;
+      // }
+      
+      //GEnerate unique Id 
+      const uniqueId = generateUniqueFarmId(farmName);
+      
+      const existID = await Animal.findOne({uniqueId})
+      if(existID){
+       return res.status(400).json({message: "Unique ID already exists."}) 
+      }
+      
+      // Check if gender is female and handle pregnancy-related fields
+      if (gender === "Female") {
+        // Ensure pregnancy-related fields are present for females
+        if (!dateMading || !currentPregnancyMonth || !failed || !motherWeanDate) {
+          return res.status(400).json({
+            message: "For females, required fields: datemading, currentpregnancymonth, and motherweandate."});
+        }
+      }
+      
+      //  Create new Parent Animal
+      const newParent = new Animal({
+        uid,
+        // parentId: parentCode,
+        uniqueId,
+        tagId,
+        ageYear,
+        ageMonth,
+        height,
+        weightKg,
+        birthDate,
+        motherTag,
+        fatherTag,
+      gender,
+      birthtype,
+      birthWeight,
+      mothersWeanDate,
+      bodyScore,
+      purchasDate,
+      anyComment,
+      dateMading,
+      currentPregnancyMonth,
+      failed,
+      motherWeanDate,
+      otherDisease,
+      vaccineDate,
+      farmName
+    });
+    console.log(newParent) 
+  
     // Save the new Parent to the database
-
-    await newParent.save();
-    // Send a success response
-
-    res.status(201).json({
+      await newParent.save();
+    
+      // Send a success response
+      res.status(201).json({
       message: "success",
       data: newParent,
-    });
-  } catch (error) {
+    })
+
+  } catch (error){
     res.status(500).json({
-      message: "Server Error. Failed to add parent animal.",
-      error: error.message,
+      message: "Server Error. Failed to add animal unique entity.",
+      error: error.message
     });
-  }
+  };
+
 });
+
+// exports.animalDetail = asyncHandler(async (req, res) => {
+// // Validate request body
+
+// if (!req.body) {
+//   return res.status(400).json({ message: "No data provided" });
+// }
+// try {
+//   const {
+//     uid,
+//     animalName,
+//     uniqueName,
+//     ageMonth,
+//     ageYear,
+//     height,
+//     // heightDate,
+//     purchasDate,
+//     gender,
+//     weightKg,
+//     weightGm,
+//     pregnancyDetail,
+//     maleDetail,
+//     bodyScore,
+//     anyComment,
+//   } = req.body;
+
+//   // Validate required fields
+//   const requiredFields = { uid, uniqueName, gender };
+//   for (const [key, value] of Object.entries(requiredFields)) {
+//     if (!value) {
+//       return res.status(400).json({ message: `${key} is a required field.` });
+//     }
+//   }
+
+//   // Check if UID exists in User model
+//   const existingUser = await User.findOne({ uid });
+//   if (!existingUser) {
+//     return res.status(400).json({ message: "UID does not exist." });
+//   }
+
+//   // Check uniqueName exists in User model
+//   const existingAnimal = await Animal.findOne({ uniqueName });
+//   if (existingAnimal) {
+//     return res.status(400).json({ message: "Unique Name already exists." });
+//   }
+
+//   // Generate Parent Code
+//   const parentCode = generateParentCode(animalName);
+
+//   // Ensure unique parentCode by checking existing records
+//   let counter = 1;
+//   while (await Animal.findOne({ uniqueId: parentCode })) {
+//     parentCode = `${generateParentCode(animalName)}-${counter++}`;
+//     counter++;
+//   }
+
+//   // Generate UniqueId
+//   const uniqueId = generateUniqueldId(animalName);
+
+//   // Create new Parent Animal
+//   const newParent = new Animal({
+//     uid,
+//     parentId: parentCode,
+//     uniqueId,
+//     animalName,
+//     uniqueName,
+//     ageMonth,
+//     ageYear,
+//     height,
+//     // heightDate,
+//     purchasDate,
+//     gender,
+//     weightKg,
+//     weightGm,
+//     pregnancyDetail,
+//     maleDetail,
+//     bodyScore,
+//     anyComment,
+//     children: [], // No children initially
+//     milk: [],
+//   });
+
+
+//     // Save the new Parent to the database
+
+//     await newParent.save();
+//     // Send a success response
+
+//     res.status(201).json({
+//       message: "success",
+//       data: newParent,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Server Error. Failed to add parent animal.",
+//       error: error.message,
+//     });
+//   }
+// });
 
 // Get all Parent Data
 
@@ -240,7 +359,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       })),
     }));
 
-  
+
 
     res.status(200).json({
       parents: parentsData,
@@ -314,8 +433,8 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
 
 
 
- // Delete parent (if no children)
- 
+// Delete parent (if no children)
+
 exports.deleteAnimalParent = asyncHandler(async (req, res) => {
   try {
     const { uniqueId } = req.params;
@@ -338,7 +457,7 @@ exports.deleteAnimalParent = asyncHandler(async (req, res) => {
       });
     }
 
-       
+
     // If no children exist, delete the parent
     await Animal.deleteOne({ uniqueId });
 

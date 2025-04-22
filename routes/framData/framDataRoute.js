@@ -235,4 +235,64 @@ router.get(
   animalchildController.getTotalCount
 );
 
+// ------------------------------------------------------------------------------------------
+/**
+ * @route POST /api/vaccines/register-animal
+ * @desc Register a new animal and set up its vaccination schedule
+ * @access Private
+ */
+router.post(
+  "/vaccine/register-animal-vaccine",
+  vaccineController.registerAnimal
+);
+
+/**
+ * @route POST /api/vaccines
+ * @desc Add a new vaccine record
+ * @access Private
+ */
+router.post("/vaccine/add-vaccine", vaccineController.addVaccine);
+
+/**
+ * @route PUT /vaccines/:vaccineId/complete
+ * @desc Mark a vaccine as completed (administered)
+ * @access Private
+ */
+router.put("/vaccine/:vaccineId/complete", vaccineController.completeVaccine);
+
+/**
+ * @route PUT /api/vaccines/:vaccineId/pause
+ * @desc Pause reminders for a specific vaccine
+ * @access Private
+ */
+router.put("/vaccine/:vaccineId/pause", vaccineController.pauseReminders);
+
+/**
+ * @route GET /api/vaccines/reminders/:userId
+ * @desc Check and process vaccine reminders for a user
+ * @access Private
+ */
+router.get("/vaccine/reminders/:userId", vaccineController.checkReminders);
+
+/**
+ * @route GET /api/vaccines/animal/:tagId
+ * @desc Get all vaccine records for a specific animal
+ * @access Private
+ */
+// router.get("/animal/:tagId", vaccineController.getAnimalVaccines);
+
+/**
+ * @route GET /api/vaccines/due/:userId
+ * @desc Get all due vaccines for a user
+ * @access Private
+ */
+// router.get("/due/:userId", vaccineController.getDueVaccines);
+
+/**
+ * @route GET /api/vaccines/overdue/:userId
+ * @desc Get all overdue vaccines for a user
+ * @access Private
+ */
+// router.get("/overdue/:userId", vaccineController.getOverdueVaccines);
+
 module.exports = router;

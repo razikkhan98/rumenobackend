@@ -3,7 +3,14 @@ const Animal = require("../../model/framData/parentFromModal");
 const AnimalVaccine = require("../../model/framData/vaccineModal");
 const ChildAnimal = require("../../model/framData/childFromModal");
 const moment = require("moment");
-const { getAlert, sendWhatsappMessage } = require("../../utils/helper");
+const {
+  getAlert,
+  sendWhatsappMessage,
+  getSchedule,
+  getVaccineSchedule,
+  getSchedule_final,
+  calculateVaccineSchedule,
+} = require("../../utils/helper");
 
 // exports.addVaccine = asyncHandler(async (req, res) => {
 //   // Validate request body
@@ -154,79 +161,280 @@ exports.deleteVaccine = asyncHandler(async (req, res) => {
 
 exports.addVaccine = asyncHandler(async (req, res) => {
   try {
-    const { vaccineName, vaccineDate, uId, tagId } = req.body;
+    const { vaccineName, vaccineDate, uId, tagId, animalBirthDate } = req.body;
 
-    const alertData = getAlert(vaccineName, vaccineDate);
+    // Get schedule for this specific vaccine
+    const data = getSchedule_final(vaccineName, vaccineDate);
 
-    const newVaccine = new Vaccine({
+    // Set next reminder date (1 day before due date)
+    const nextReminderDate = data.dueDate
+      ? moment(data.dueDate).subtract(1, "day").format("YYYY-MM-DD")
+      : null;
+
+    const newVaccine = new AnimalVaccine({
       vaccineName,
       vaccineDate,
-      dueDate: alertData.due,
-      booster: alertData.booster,
-      repeat: alertData.repeat,
+      dueDate: data.dueDate,
+      alertDate: data.alertDate,
+      boosterDate: data.boosterDate,
+      repeatDate: data.repeatDate,
+      nextReminderDate,
       uId,
       tagId,
     });
 
     await newVaccine.save();
-    res.status(201).json({ message: "Vaccine added", vaccine: newVaccine });
+    res.status(201).json({
+      message: "Vaccine added successfully",
+      vaccine: newVaccine,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-exports.checkReminders = asyncHandler(async (req, res) => {
-  // router.get("/check-reminders/:userId", async (req, res) => {
+/**
+ * Check and process vaccine reminders for a user
+ */
+exports.checkReminders = async (req, res) => {
   try {
     const { userId } = req.params;
-    const today = moment().format("YYYY-MM-DD");
-    const tomorrow = moment().add(1, "days").format("YYYY-MM-DD");
+    // const today = moment().format("YYYY-MM-DD");
+    // const tomorrow = moment().add(1, "days").format("YYYY-MM-DD");
+    const today = "2025-03-16";
+    const tomorrow = "2025-03-17";
 
-    // testing
-    // const today = "2025-04-27";
-    // const tomorrow = "2025-04-31";
-    const vaccines = await AnimalVaccine.find({ uId: userId });
+    const vaccines = await AnimalVaccine.find({
+      uId: userId,
+      isCompleted: false,
+    });
 
     let remindersSent = [];
+    let reminderErrors = [];
 
-    for (let vac of vaccines) {
-      const isPaused =
-        vac.pauseUntil && moment(today).isBefore(moment(vac.pauseUntil));
-
-      if (isPaused) continue;
-
-      const oneDayBefore =
-        vac.nextReminderDate && vac.nextReminderDate === tomorrow;
-      const isDue =
-        vac.dueDate && moment(today).isSameOrAfter(moment(vac.dueDate));
-      const needsReminder =
-        vac.nextReminderDate &&
-        moment(today).isSameOrAfter(moment(vac.nextReminderDate));
-
-      if (oneDayBefore) {
-        await sendWhatsappMessage(
-          "+91XXXXXXXXXX",
-          ` Reminder: Vaccine "${vac.vaccineName}" due tomorrow for tag ${vac.tagId}`
-        );
+    for (let vaccine of vaccines) {
+      // Skip if reminders are paused
+      if (
+        vaccine.pauseUntil &&
+        moment(today).isBefore(moment(vaccine.pauseUntil))
+      ) {
         continue;
       }
 
-      if (!vac.isCompleted && isDue && needsReminder) {
-        await sendWhatsappMessage(
-          "+91XXXXXXXXXX",
-          `Missed Vaccine Alert!\nVaccine: ${vac.vaccineName}\nTag ID: ${vac.tagId}\nDue on: ${vac.dueDate}`
-        );
-        vac.nextReminderDate = moment().add(3, "days").format("YYYY-MM-DD");
-        await vac.save();
-        remindersSent.push(vac);
+      try {
+        // 1. Send tomorrow's due date reminders
+        if (vaccine.dueDate && moment(vaccine.dueDate).isSame(tomorrow)) {
+          const messageSent = await sendWhatsappMessage(
+            `+91${userId}`, // Assuming userId is the phone number without country code
+            `REMINDER: Vaccine "${vaccine.vaccineName}" is due TOMORROW for animal with tag ${vaccine.tagId}.`
+          );
+
+          if (messageSent) {
+            remindersSent.push({
+              vaccineId: vaccine._id,
+              type: "due-tomorrow",
+              message: `Reminder sent for ${vaccine.vaccineName}`,
+            });
+          }
+        }
+
+        // 2. Send overdue reminders
+        const isDue =
+          vaccine.dueDate && moment(today).isAfter(moment(vaccine.dueDate));
+        const needsReminder =
+          vaccine.nextReminderDate &&
+          moment(today).isSameOrAfter(moment(vaccine.nextReminderDate));
+
+        if (isDue && needsReminder) {
+          const messageSent = await sendWhatsappMessage(
+            `+91${userId}`, // Assuming userId is the phone number without country code
+            `OVERDUE ALERT: Vaccine "${vaccine.vaccineName}" for animal with tag ${vaccine.tagId} was due on ${vaccine.dueDate} and is now OVERDUE. Please vaccinate as soon as possible.`
+          );
+
+          if (messageSent) {
+            // Update next reminder date to 3 days later
+            vaccine.nextReminderDate = moment()
+              .add(3, "days")
+              .format("YYYY-MM-DD");
+            await vaccine.save();
+
+            remindersSent.push({
+              vaccineId: vaccine._id,
+              type: "overdue",
+              message: `Overdue reminder sent for ${vaccine.vaccineName}`,
+            });
+          }
+        }
+
+        // 3. Send booster reminders
+        if (
+          vaccine.boosterDate &&
+          moment(vaccine.boosterDate).isSame(tomorrow)
+        ) {
+          const messageSent = await sendWhatsappMessage(
+            `+91${userId}`,
+            `BOOSTER REMINDER: Booster dose for "${vaccine.vaccineName}" is due TOMORROW for animal with tag ${vaccine.tagId}.`
+          );
+
+          if (messageSent) {
+            remindersSent.push({
+              vaccineId: vaccine._id,
+              type: "booster-tomorrow",
+              message: `Booster reminder sent for ${vaccine.vaccineName}`,
+            });
+          }
+        }
+      } catch (error) {
+        reminderErrors.push({
+          vaccineId: vaccine._id,
+          error: error.message,
+        });
       }
     }
 
-    res.json({ message: "Reminders processed", count: remindersSent.length });
+    res.json({
+      message: "Reminders processed",
+      remindersSent,
+      reminderErrors,
+      totalSent: remindersSent.length,
+    });
+  } catch (error) {
+    console.log('error: ', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+/**
+ * Register a new animal and set up its complete vaccination schedule
+ */
+exports.registerAnimal = async (req, res) => {
+  try {
+    const { animalTagId, birthDate, uId } = req.body;
+
+    if (!animalTagId || !birthDate || !uId) {
+      return res.status(400).json({
+        error:
+          "Missing required fields: animalTagId, birthDate, and uId are required",
+      });
+    }
+
+    // Calculate complete vaccination schedule
+    const completeSchedule = calculateVaccineSchedule(birthDate);
+
+    // Create vaccine records for all scheduled vaccines
+    const vaccinePromises = Object.entries(completeSchedule).map(
+      ([vaccineName, schedule]) => {
+        const nextReminderDate = schedule.alertDate || schedule.dueDate;
+
+        return new AnimalVaccine({
+          vaccineName,
+          vaccineDate: null, // Will be filled when vaccine is administered
+          dueDate: schedule.dueDate,
+          alertDate: schedule.alertDate,
+          boosterDate: schedule.boosterDate,
+          repeatDate: schedule.repeatDate,
+          nextReminderDate: moment(nextReminderDate)
+            .subtract(1, "day")
+            .format("YYYY-MM-DD"),
+          uId,
+          tagId: animalTagId,
+          isCompleted: false,
+        }).save();
+      }
+    );
+
+    const savedVaccines = await Promise.all(vaccinePromises);
+
+    res.status(201).json({
+      message: "Animal registered and vaccination schedule created",
+      animalTagId,
+      vaccineSchedule: savedVaccines,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+};
+
+/**
+ * Mark a vaccine as completed
+ */
+exports.completeVaccine = async (req, res) => {
+  try {
+    const { vaccineId } = req.params;
+    const { administeredDate } = req.body;
+
+    const vaccine = await AnimalVaccine.findById(vaccineId);
+
+    if (!vaccine) {
+      return res.status(404).json({ error: "Vaccine record not found" });
+    }
+
+    // Update vaccine record
+    vaccine.isCompleted = true;
+    vaccine.vaccineDate = administeredDate || moment().format("YYYY-MM-DD");
+
+    // Check if there's a booster needed
+    if (vaccine.boosterDate) {
+      // Create a booster reminder record
+      const boosterVaccine = new AnimalVaccine({
+        vaccineName: `${vaccine.vaccineName} (Booster)`,
+        vaccineDate: null,
+        dueDate: vaccine.boosterDate,
+        alertDate: moment(vaccine.boosterDate)
+          .subtract(1, "day")
+          .format("YYYY-MM-DD"),
+        nextReminderDate: moment(vaccine.boosterDate)
+          .subtract(1, "day")
+          .format("YYYY-MM-DD"),
+        uId: vaccine.uId,
+        tagId: vaccine.tagId,
+        isCompleted: false,
+      });
+
+      await boosterVaccine.save();
+    }
+
+    // Save the updated vaccine record
+    await vaccine.save();
+
+    res.json({
+      message: "Vaccine marked as completed",
+      vaccine,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+/**
+ * Pause reminders for a specific vaccine
+ */
+exports.pauseReminders = async (req, res) => {
+  try {
+    const { vaccineId } = req.params;
+    const { pauseUntil } = req.body;
+
+    if (!pauseUntil) {
+      return res.status(400).json({ error: "pauseUntil date is required" });
+    }
+
+    const vaccine = await AnimalVaccine.findById(vaccineId);
+
+    if (!vaccine) {
+      return res.status(404).json({ error: "Vaccine record not found" });
+    }
+
+    vaccine.pauseUntil = pauseUntil;
+    await vaccine.save();
+
+    res.json({
+      message: "Reminders paused until " + pauseUntil,
+      vaccine,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 exports.updateVaccineById = asyncHandler(async (req, res) => {
   // router.put("/vaccine/:id/complete", async (req, res) => {

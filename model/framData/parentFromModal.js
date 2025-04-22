@@ -44,16 +44,13 @@ const mongoose = require("mongoose");
 
 const animalSchema = new mongoose.Schema(
   {
-       uid: { type: String, 
-              required: true
-        },
+       uid: { type: String, required: true },
        parentId: { type: String, 
            // required: true
-        },
-       uniqueId: { type: String, 
-        // required: true, unique: true
-        },
-        tagId: { type: String, required:true },
+            },
+       uniqueId: { type: String, required: true, unique: true },
+       animalName: { type: String, required:true },
+       tagId: { type: String, required:true },
        ageYear: { type: Number, default: null },
        ageMonth: { type: Number, default: null },
        height: { type:Number, default: null },
@@ -61,10 +58,9 @@ const animalSchema = new mongoose.Schema(
        birthDate: {type:Date, required:true},
        motherTag: { type: String, default: null },
        fatherTag: { type: String, default: null },
-       gender: {
-          type: String,
+       gender: { type: String, 
           enum: ["Male", "Female"], 
-          required: true },
+        required: true },
        birthType: { type: String, default: null },
        birthweight: { type: String, default: null },
        mothersWeanDate: { type: String, default: null },
@@ -74,23 +70,10 @@ const animalSchema = new mongoose.Schema(
        otherDisease: { type: String, default: null },
        vaccineDate: { type: Date, default: null },
        farmName: {type: String, required: true},
-
-       dateMading: {
-        type: Date,
-        required: function() { return this.gender === 'Female'; }, 
-      },
-      currentPregnancyMonth: {
-        type: Number,
-        required: function() { return this.gender === 'Female'; }, 
-      },
-      failed: {
-        type: String,
-        required: function() { return this.gender === 'Female'; }, 
-      },
-      motherWeanDate: {
-        type: Date,
-        required: function() { return this.gender === 'Female'; }, 
-      },
+       dateMading: { type: Date, },
+       currentPregnancyMonth: { type: Number, },
+       failed: { type: String, },
+       motherWeanDate: { type: Date, },
 
 
 
@@ -116,13 +99,13 @@ const animalSchema = new mongoose.Schema(
     // bodyScore: { type: Number, default: null }, 
     // anyComment: { type: String, default: null },
 
-    children: [{ type: String, ref: "ChildAnimal", default: [] }], // References Child
-    milk: [{ type: Object, ref: "Milk", default: [] }], // References Milk
-    postWean: [{ type: Object, ref: "PostWean", default: [] }], // References Post Wean
-    vaccine: [{ type: Object, ref: "Vaccine", default: [] }], // References Vaccine
-    deworm: [{ type: Object, ref: "Deworm", default: [] }], // References Deworm
-    estrusHeat: [{ type: Object, ref: "EstrusHeat", default: [] }], // References EstrusHeat
-    sanitation: [{ type: Object, ref: "Sanitation", default: [] }], // References FarmSanition
+    // children: [{ type: String, ref: "ChildAnimal", default: [] }], // References Child
+    // milk: [{ type: Object, ref: "Milk", default: [] }], // References Milk
+    // postWean: [{ type: Object, ref: "PostWean", default: [] }], // References Post Wean
+    // vaccine: [{ type: Object, ref: "Vaccine", default: [] }], // References Vaccine
+    // deworm: [{ type: Object, ref: "Deworm", default: [] }], // References Deworm
+    // estrusHeat: [{ type: Object, ref: "EstrusHeat", default: [] }], // References EstrusHeat
+    // sanitation: [{ type: Object, ref: "Sanitation", default: [] }], // References FarmSanition
   },
   { timestamps: true }
 );

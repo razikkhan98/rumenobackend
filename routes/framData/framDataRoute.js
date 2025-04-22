@@ -34,25 +34,26 @@ router.post("/user/animaldata/newEntity", animalParentController.animalDetail);
 //   animalParentController.getAllParents
 // );
 
-// Get only single Parent
+// Get only single Entity
 router.get(
   "/user/animaldata/newEntity/getAll/:uniqueId",
   animalParentController.animalAllDetail
 );
 
-// Get all Parents
+// Get all new Entity
 router.get(
-  "/user/animaldata/newEnity/getAll",
+  "/user/animaldata/newEntity/getAll",
   animalParentController.getAllParents
 );
 
-// Get only single Parent
-router.get(
-  "/user/animaldata/newEntity/getAll/:uniqueId",
-  animalParentController.animalAllDetail
-);
 
-// Update Parent
+// // Get only single 
+// router.get(
+//   "/user/animaldata/newEntity/getAll/:uniqueId",
+//   animalParentController.animalAllDetail
+// );
+
+// Update new entity
 
 router.put(
   "/user/animaldata/newEntity/update/:uniqueId",

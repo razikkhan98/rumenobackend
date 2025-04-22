@@ -2,7 +2,7 @@
 // POST /rumeno/user/animaldata/parent
 
 const asyncHandler = require("express-async-handler");
-const generateParentCode = require("../../utils/parentCode");
+// const generateParentCode = require("../../utils/parentCode");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
 const generateUniqueFarmId = require('../../utils/uniqueId');
@@ -11,11 +11,14 @@ const generateUniqueFarmId = require('../../utils/uniqueId');
 // Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
+    
     return res.status(400).json({ message: "No data provided" });
   }
+  
   try {
     const {
       uid,
+      animalName,
       tagId,
       ageYear,
       ageMonth,
@@ -25,7 +28,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       motherTag,
       fatherTag,
       gender,
-      birthtype,
+      birthType,
       birthWeight,
       mothersWeanDate,
       bodyScore,
@@ -41,7 +44,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    const requiredFields = { uid, uniqueId, farmName, gender };
+    const requiredFields = { uid,animalName, farmName, gender };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value) {
         return res.status(400).json({ message: `${key} is a required field.` });
@@ -79,6 +82,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       // parentId: parentCode,
       uniqueId,
       tagId,
+      animalName,
       ageYear,
       ageMonth,
       height,
@@ -87,16 +91,16 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       motherTag,
       fatherTag,
       gender,
-      birthtype,
+      birthType,
       birthWeight,
       mothersWeanDate,
       bodyScore,
       purchasDate,
       anyComment,
-      dateMading,
-      currentPregnancyMonth,
-      failed,
-      motherWeanDate,
+      dateMading: gender === "Female" ? dateMading: null,
+      currentPregnancyMonth:gender === "Female" ? currentPregnancyMonth: null,
+      failed: gender === "Female" ? failed: null,
+      motherWeanDate:gender === "Female" ? motherWeanDate: null,
       otherDisease,
       vaccineDate,
       farmName
@@ -245,10 +249,9 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
   if (!req.params) {
     return res.status(400).json({ message: "No data provided" });
   }
-
-  try {
+    try {
     const { uniqueId } = req.params;
-
+    
     const parents = await Animal.aggregate([
       {
         $match: { uniqueId: uniqueId }, // Find the parent by uniqueId
@@ -262,31 +265,42 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         },
       },
     ]);
-
+    
     if (!parents || parents.length === 0) {
       return res.status(404).json({ message: "No parent found" });
     }
-
+    
     // Formatting response with full details
     const parentsData = parents.map((parent) => ({
-      parentId: parent._id,
+      // parentId: parent._id,
       uniqueId: parent.uniqueId,
-      uniqueName: parent.uniqueName,
-      ageMonth: parent.ageMonth,
+      tagId: parent.tagId,
+      animalName: parent.animalName,
       ageYear: parent.ageYear,
+      ageMonth: parent.ageMonth,
       height: parent.height,
-      purchasDate: parent.purchasDate,
+      weightKg: parent.weightKg,
+      birthDate: parent.birthDate,
+      motherTag: parent.motherTag,
+      fatherTag: parent.fatherTag,
       gender: parent.gender,
-      weightMonth: parent.weightMonth,
-      weightYear: parent.weightYear,
-      pregnancyDetail: parent.pregnancyDetail,
-      maleDetail: parent.maleDetail,
+      birthType: parent.birthType,
+      birthWeight: parent.birthWeight,
+      mothersWeanDate: parent.mothersWeanDate,
       bodyScore: parent.bodyScore,
+      purchasDate: parent.purchasDate,
       anyComment: parent.anyComment,
+      dateMading: parent.dateMading,
+      currentPregnancyMonth: parent.currentPregnancyMonth,
+      failed: parent.failed,
+      motherWeanDate: parent.motherWeanDate,
+      otherDisease: parent.otherDisease,
+      vaccineDate: parent.vaccineDate,
+      farmName: parent.farmName,
       createdAt: parent.createdAt,
       updatedAt: parent.updatedAt,
       // Children
-      children: parent.children.map((child) => ({
+      children: (parent.children || []).map((child) => ({
         uniqueId: child.uniqueId,
         kidId: child.kidId,
         uniqueName: child.uniqueName,
@@ -310,7 +324,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         updatedAt: child.updatedAt,
       })),
       // Post Wean
-      postWean: parent.postWean.map((postWean) => ({
+      postWean: (parent.postWean || []).map((postWean) => ({
         postWeanId: postWean._id,
         weightKg: postWean.weightKg,
         weightGm: postWean.weightGm,
@@ -319,7 +333,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         weanComment: postWean.weanComment,
       })),
       // milk
-      milk: parent.milk.map((milk) => ({
+      milk: (parent.milk || []).map((milk) => ({
         milkId: milk._id,
         name: milk.name,
         milkVolume: milk.milkVolume,
@@ -328,7 +342,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         updatedAt: milk.updatedAt,
       })),
       // Vaccine
-      vaccine: parent.vaccine.map((vaccine) => ({
+      vaccine: (parent.vaccine|| []).map((vaccine) => ({
         vaccineId: vaccine._id,
         name: vaccine.name,
         date: vaccine.date,
@@ -336,7 +350,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         updatedAt: vaccine.updatedAt,
       })),
       // Deworm
-      deworm: parent.deworm.map((deworm) => ({
+      deworm: (parent.deworm|| [] ).map((deworm) => ({
         dewormId: deworm._id,
         report: deworm.report, // Assuming 'report' is the name of the deworming record
         endoName: deworm.endoName, // Endoparasitic treatment name
@@ -353,7 +367,6 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
     }));
 
 
-
     res.status(200).json({
       parents: parentsData,
     });
@@ -362,6 +375,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
+
 
 // Update Parent
 exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {

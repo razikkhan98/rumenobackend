@@ -5,7 +5,7 @@ const asyncHandler = require("express-async-handler");
 const generateParentCode = require("../../utils/parentCode");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
-const generateUniqueFarmId = require('../../utils/uniqueId'); 
+const generateUniqueFarmId = require('../../utils/uniqueId');
 
 
 // Add Uniquie entites Data
@@ -39,60 +39,53 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       vaccineDate,
       farmName
     } = req.body;
-    
+
     // Validate required fields
-    const requiredFields = { uid, gender };
+    const requiredFields = { uid, uniqueId, farmName, gender };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value) {
         return res.status(400).json({ message: `${key} is a required field.` });
       }
     }
-    
+
     // Check if UID exists in User model
     const existingUser = await User.findOne({ uid });
     if (!existingUser) {
       return res.status(400).json({ message: "UID does not exist." });
     }
-    // Generate Parent Code
-    // let parentCode = generateParentCode(farmName);
-    
-    // // Ensure unique parentCode by checking existing records
-    // let counter = 1;
-    // while (await Animal.findOne({ parentId: parentCode })) {
-      //   parentCode = `${generateParentCode(farmName)}-${counter++}`;
-      //   counter++;
-      // }
-      
-      //GEnerate unique Id 
-      const uniqueId = generateUniqueFarmId(farmName);
-      
-      const existID = await Animal.findOne({uniqueId})
-      if(existID){
-       return res.status(400).json({message: "Unique ID already exists."}) 
+
+
+    //GEnerate unique Id 
+    const uniqueId = generateUniqueFarmId(farmName);
+
+    const existID = await Animal.findOne({ uniqueId })
+    if (existID) {
+      return res.status(400).json({ message: "Unique ID already exists." })
+    }
+
+    // Check if gender is female and handle pregnancy-related fields
+    if (gender === "Female") {
+      // Ensure pregnancy-related fields are present for females
+      if (!dateMading || !currentPregnancyMonth || !failed || !motherWeanDate) {
+        return res.status(400).json({
+          message: "For females, required fields: datemading, currentpregnancymonth, and motherweandate."
+        });
       }
-      
-      // Check if gender is female and handle pregnancy-related fields
-      if (gender === "Female") {
-        // Ensure pregnancy-related fields are present for females
-        if (!dateMading || !currentPregnancyMonth || !failed || !motherWeanDate) {
-          return res.status(400).json({
-            message: "For females, required fields: datemading, currentpregnancymonth, and motherweandate."});
-        }
-      }
-      
-      //  Create new Parent Animal
-      const newParent = new Animal({
-        uid,
-        // parentId: parentCode,
-        uniqueId,
-        tagId,
-        ageYear,
-        ageMonth,
-        height,
-        weightKg,
-        birthDate,
-        motherTag,
-        fatherTag,
+    }
+
+    //  Create new Parent Animal
+    const newParent = new Animal({
+      uid,
+      // parentId: parentCode,
+      uniqueId,
+      tagId,
+      ageYear,
+      ageMonth,
+      height,
+      weightKg,
+      birthDate,
+      motherTag,
+      fatherTag,
       gender,
       birthtype,
       birthWeight,
@@ -108,18 +101,18 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       vaccineDate,
       farmName
     });
-    console.log(newParent) 
-  
+    console.log(newParent)
+
     // Save the new Parent to the database
-      await newParent.save();
-    
-      // Send a success response
-      res.status(201).json({
+    await newParent.save();
+
+    // Send a success response
+    res.status(201).json({
       message: "success",
       data: newParent,
     })
 
-  } catch (error){
+  } catch (error) {
     res.status(500).json({
       message: "Server Error. Failed to add animal unique entity.",
       error: error.message

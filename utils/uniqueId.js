@@ -18,23 +18,65 @@
 
 
 
-// Generate Unique Id
+// // Generate Unique Id
 
-const farmCounts = {}; // Tracks count per full farm name
+// const farmCounts = {}; // Tracks count per full farm name
+
+// function generateUniqueFarmId(farmName) {
+//   const name = farmName.trim().toLowerCase();
+
+//   // Initialize count if this is the first animal for this farm
+//   if (!farmCounts[name]) {
+//     farmCounts[name] = 1;
+//   } else {
+//     farmCounts[name]++;
+//   }
+
+//   const count = farmCounts[name].toString().padStart(2, '0');
+
+//   return `${name.slice(0,4)}-${count}`;
+// }
+
+// module.exports = generateUniqueFarmId;
+
+
+
+
+
+
+
+
+
+const farmCounts = {}; // Track count for each UID prefix
+const baseNames = {};  // Map original farm names to their UID prefix
 
 function generateUniqueFarmId(farmName) {
-  const cleanName = farmName.trim().toLowerCase();
+  const name = farmName.trim().toLowerCase();
+  const base = name.slice(0, 4); // take first 4 letters for ID prefix
 
-  // Initialize count if this is the first animal for this farm
-  if (!farmCounts[cleanName]) {
-    farmCounts[cleanName] = 1;
+  let prefix;
+
+  // If this exact farm name is already registered, reuse its prefix
+  if (baseNames[name]) {
+    prefix = baseNames[name];
   } else {
-    farmCounts[cleanName]++;
+    // Check how many prefixes already start with the same base
+    const similarPrefixes = Object.values(baseNames).filter(p => p.startsWith(base));
+    const suffix = similarPrefixes.length === 0 ? '' : similarPrefixes.length.toString();
+
+    prefix = `${base}${suffix}`;
+    baseNames[name] = prefix;
   }
 
-  const count = farmCounts[cleanName].toString().padStart(2, '0');
+  // Initialize count for this prefix if needed
+  if (!farmCounts[prefix]) {
+    farmCounts[prefix] = 1;
+  } else {
+    farmCounts[prefix]++;
+  }
 
-  return `${cleanName}-${count}`;
+  const count = farmCounts[prefix].toString().padStart(2, '0');
+  return `${prefix}-${count}`;
 }
 
 module.exports = generateUniqueFarmId;

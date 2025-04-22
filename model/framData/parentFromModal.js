@@ -73,23 +73,23 @@ const animalSchema = new mongoose.Schema(
        anyComment: { type: String, default: null },
        otherDisease: { type: String, default: null },
        vaccineDate: { type: Date, default: null },
-       farmDate: {type: String, default: null},
+       farmName: {type: String, required: true},
 
        dateMading: {
         type: Date,
-        required: function() { return this.gender === 'Female'; }, // Required if female
+        required: function() { return this.gender === 'Female'; }, 
       },
       currentPregnancyMonth: {
         type: Number,
-        required: function() { return this.gender === 'Female'; }, // Required if female
+        required: function() { return this.gender === 'Female'; }, 
       },
       failed: {
         type: String,
-        required: function() { return this.gender === 'Female'; }, // Required if female
+        required: function() { return this.gender === 'Female'; }, 
       },
       motherWeanDate: {
         type: Date,
-        required: function() { return this.gender === 'Female'; }, // Required if female
+        required: function() { return this.gender === 'Female'; }, 
       },
 
 

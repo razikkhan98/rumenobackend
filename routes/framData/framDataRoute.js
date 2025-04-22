@@ -30,39 +30,39 @@ router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
 // Add unique Entity
 router.post("/user/animaldata/newEntity", animalParentController.animalDetail);
 // router.get(
-//   "/user/animaldata/parent/getAll",
+//   "/user/animaldata/newEntity/getAll",
 //   animalParentController.getAllParents
 // );
 
 // Get only single Parent
 router.get(
-  "/user/animaldata/parent/getAll/:uniqueId",
+  "/user/animaldata/newEntity/getAll/:uniqueId",
   animalParentController.animalAllDetail
 );
 
 // Get all Parents
 router.get(
-  "/user/animaldata/parent/getAll",
+  "/user/animaldata/newEnity/getAll",
   animalParentController.getAllParents
 );
 
 // Get only single Parent
 router.get(
-  "/user/animaldata/parent/getAll/:uniqueId",
+  "/user/animaldata/newEntity/getAll/:uniqueId",
   animalParentController.animalAllDetail
 );
 
 // Update Parent
 
 router.put(
-  "/user/animaldata/parent/update/:uniqueId",
+  "/user/animaldata/newEntity/update/:uniqueId",
   animalParentController.updateAnimalParentDetail
 );
 
 // Delete parent (if no children)
 
 router.delete(
-  "/user/animaldata/parent/delete/:uniqueId",
+  "/user/animaldata/newEntity/delete/:uniqueId",
   animalParentController.deleteAnimalParent
 );
 

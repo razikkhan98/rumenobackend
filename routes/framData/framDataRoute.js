@@ -18,7 +18,6 @@ const sanitationController = require("../../controller/framData/sanitationContro
 // Farm Detail
 router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
 
-
 // ================
 // Animal Details
 // ================
@@ -46,8 +45,7 @@ router.get(
   animalParentController.getAllParents
 );
 
-
-// // Get only single 
+// // Get only single
 // router.get(
 //   "/user/animaldata/newEntity/getAll/:uniqueId",
 //   animalParentController.animalAllDetail
@@ -296,5 +294,53 @@ router.get("/vaccine/reminders/:userId", vaccineController.checkReminders);
  * @access Private
  */
 // router.get("/overdue/:userId", vaccineController.getOverdueVaccines);
+
+// ------------------------------- Postwean route start -------------------------------------
+
+/**
+ * @route POST /postweans
+ * @desc Create a new PostWean record
+ * @access Private
+ */
+router.post("/post-wean/post-wean-add", postweanController.createPostWean);
+
+/**
+ * @route GET /postweans
+ * @desc Get all PostWean records
+ * @access Private
+ */
+router.get("/post-wean/get-all-post-wean", postweanController.getAllPostWeans);
+
+/**
+ * @route GET /postweans/:id
+ * @desc Get a single PostWean record by ID
+ * @access Private
+ */
+router.get(
+  "/post-wean/get-post-wean-by-id/:id",
+  postweanController.getPostWeanById
+);
+
+/**
+ * @route PUT /postweans/:id
+ * @desc Update a PostWean record by ID
+ * @access Private
+ */
+router.put(
+  "/post-wean/update-post-wean-by-id/:id",
+  postweanController.updatePostWean
+);
+
+/**
+ * @route DELETE /postweans/:id
+ * @desc Delete a PostWean record by ID
+ * @access Private
+ */
+router.delete(
+  "/post-wean/delete-post-wean-by-id/:id",
+  postweanController.deletePostWean
+);
+
+// ------------------------------- Postwean route end ---------------------------------------
 
 module.exports = router;

@@ -18,50 +18,52 @@ const sanitationController = require("../../controller/framData/sanitationContro
 // Farm Detail
 router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
 
+
 // ================
 // Animal Details
 // ================
 
 // ===============
-// Parent
+// New Entity
 // ===============
 
-// Add Parent
-router.post("/user/animaldata/parent", animalParentController.animalDetail);
+// Add unique Entity
+router.post("/user/animaldata/newEntity", animalParentController.animalDetail);
 // router.get(
-//   "/user/animaldata/parent/getAll",
+//   "/user/animaldata/newEntity/getAll",
 //   animalParentController.getAllParents
 // );
 
-// Get only single Parent
+// Get only single Entity
 router.get(
-  "/user/animaldata/parent/getAll/:uniqueId",
+  "/user/animaldata/newEntity/getAll/:uniqueId",
   animalParentController.animalAllDetail
 );
 
-// Get all Parents
+// Get all new Entity
 router.get(
-  "/user/animaldata/parent/getAll",
+  "/user/animaldata/newEntity/getAll",
   animalParentController.getAllParents
 );
 
-// Get only single Parent
-router.get(
-  "/user/animaldata/parent/getAll/:uniqueId",
-  animalParentController.animalAllDetail
-);
 
-// Update Parent
+// // Get only single 
+// router.get(
+//   "/user/animaldata/newEntity/getAll/:uniqueId",
+//   animalParentController.animalAllDetail
+// );
+
+// Update new entity
 
 router.put(
-  "/user/animaldata/parent/update/:uniqueId",
+  "/user/animaldata/newEntity/update/:uniqueId",
   animalParentController.updateAnimalParentDetail
 );
 
 // Delete parent (if no children)
 
 router.delete(
-  "/user/animaldata/parent/delete/:uniqueId",
+  "/user/animaldata/newEntity/delete/:uniqueId",
   animalParentController.deleteAnimalParent
 );
 

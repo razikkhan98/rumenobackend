@@ -60,7 +60,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 
     //GEnerate unique Id 
     const uniqueId = generateUniqueFarmId(farmName);
-
+   
+    // Check if Unique ID exists or not 
     const existID = await Animal.findOne({ uniqueId })
     if (existID) {
       return res.status(400).json({ message: "Unique ID already exists." })
@@ -75,6 +76,36 @@ exports.animalDetail = asyncHandler(async (req, res) => {
         });
       }
     }
+
+//nnnnnnnnnnnnnnn
+ // Initialize parents array
+ const parents = [];
+    
+ // Check if mother exists and add to parents array
+ if (motherTag) {
+   const mother = await Animal.findOne({ tagId: motherTag, gender: "Female" });
+   if (!mother) {
+     return res.status(400).json({ message: "Mother with provided tag ID not found or not female." });
+   }
+   console.log(motherTag)
+   parents.push({
+     parentUniqueId: mother.uniqueId,
+     parentType: "mother" 
+   });
+ }
+   console.log(motherTag)
+ // Check if father exists and add to parents array
+ if (fatherTag) {
+   const father = await Animal.findOne({ tagId: fatherTag, gender: "Male" });
+   if (!father) {
+     return res.status(400).json({ message: "Father with provided tag ID not found or not male." });
+   }
+   parents.push({
+     parentUniqueId: father.uniqueId,
+     parentType: "father"
+   });
+ }
+//nnnnnnnnnnn
 
     //  Create new Parent Animal
     const newParent = new Animal({
@@ -103,12 +134,26 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       motherWeanDate:gender === "Female" ? motherWeanDate: null,
       otherDisease,
       vaccineDate,
-      farmName
+      farmName,
+      parents: parents, // Add parents array to the animal record
+      children: [] // Initialize empty children array
     });
     console.log(newParent)
 
     // Save the new Parent to the database
     await newParent.save();
+
+//nnnnnnnnnnn
+// Update parent records to include this animal as a child
+if (parents.length > 0) {
+  for (const parent of parents) {
+    await Animal.findOneAndUpdate(
+      { uniqueId: parent.parentUniqueId },
+      { $push: { children: newParent.uniqueId } }
+    );
+  }
+}
+///nnnnnnnnnnnnn
 
     // Send a success response
     res.status(201).json({
@@ -224,7 +269,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 //   }
 // });
 
-// Get all Parent Data
+// Get all animal Data
 
 exports.getAllParents = asyncHandler(async (req, res) => {
   try {
@@ -242,7 +287,7 @@ exports.getAllParents = asyncHandler(async (req, res) => {
   }
 });
 
-// Get Parent Data by UniqueId
+// Get animal Data by UniqueId
 exports.animalAllDetail = asyncHandler(async (req, res) => {
   // Validate request body
 
@@ -302,26 +347,51 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       // Children
       children: (parent.children || []).map((child) => ({
         uniqueId: child.uniqueId,
-        kidId: child.kidId,
-        uniqueName: child.uniqueName,
-        age: child.age,
-        DOB: child.DOB,
+        tagId: child.tagId,
+        animalName: child.animalName,
+        ageYear: child.ageYear,
+        ageMonth: child.ageMonth,
+        height: child.height,
+        weightKg: child.weightKg,
+        birthDate: child.birthDate,
+        motherTag: child.motherTag,
+        fatherTag: child.fatherTag,
         gender: child.gender,
-        kidCode: child.kidCode,
-        bodyScore: child.bodyScore,
-        BODType: child.BODType,
-        kidWeight: child.kidWeight,
-        weanDate: child.weanDate,
-        weanWeight: child.weanWeight,
-        motherWeanWeight: child.motherWeanWeight,
-        motherWeanDate: child.motherWeanDate,
-        castration: child.castration,
+        birthType: child.birthType,
         birthWeight: child.birthWeight,
-        breed: child.breed,
-        motherAge: child.motherAge,
+        mothersWeanDate: child.mothersWeanDate,
+        bodyScore: child.bodyScore,
+        purchasDate: child.purchasDate,
         anyComment: child.anyComment,
+        dateMading: child.dateMading,
+        currentPregnancyMonth: child.currentPregnancyMonth,
+        failed: child.failed,
+        motherWeanDate: child.motherWeanDate,
+        otherDisease: child.otherDisease,
+        vaccineDate: child.vaccineDate,
+        farmName: child.farmName,
         createdAt: child.createdAt,
         updatedAt: child.updatedAt,
+        // kidId: child.kidId,
+        // uniqueName: child.uniqueName,
+        // age: child.age,
+        // DOB: child.DOB,
+        // gender: child.gender,
+        // kidCode: child.kidCode,
+        // bodyScore: child.bodyScore,
+        // BODType: child.BODType,
+        // kidWeight: child.kidWeight,
+        // weanDate: child.weanDate,
+        // weanWeight: child.weanWeight,
+        // motherWeanWeight: child.motherWeanWeight,
+        // motherWeanDate: child.motherWeanDate,
+        // castration: child.castration,
+        // birthWeight: child.birthWeight,
+        // breed: child.breed,
+        // motherAge: child.motherAge,
+        // anyComment: child.anyComment,
+        // createdAt: child.createdAt,
+        // updatedAt: child.updatedAt,
       })),
       // Post Wean
       postWean: (parent.postWean || []).map((postWean) => ({
@@ -377,7 +447,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
 });
 
 
-// Update Parent
+// Update animal
 exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });

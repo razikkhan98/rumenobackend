@@ -234,8 +234,8 @@ function getSchedule_final(vaccineName, referenceDate, isFromBirth = false) {
       schedule.dueDate = isFromBirth
         ? date.clone().add(85, "days").format("YYYY-MM-DD")
         : date.clone().add(85, "days").format("YYYY-MM-DD");
-      schedule.boosterDate = date.clone().add(30, "days").format("YYYY-MM-DD");
-      schedule.repeatDate = date.clone().add(2, "years").format("YYYY-MM-DD");
+      schedule.boosterDate = date.clone().add(2, "years").format("YYYY-MM-DD");
+      schedule.repeatDate = null;
       break;
 
     case "enterotoxaemia (et) + tt":

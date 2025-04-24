@@ -2,31 +2,20 @@ const mongoose = require("mongoose");
 
 const EstrusHeatSchema = new mongoose.Schema(
   {
-    heatId: {
+    tagId: {
       type: String,
       required: true,
     },
-    heat: {
+    estrusHeatDate: {
       type: String,
       default: null,
     },
-    heatDate: {
-      type: String,
-    },
-    heatResult: {
+    estrusHeatNextDate: {
       type: String,
       default: null,
     },
-    breederName: {
+    uId: {
       type: String,
-      default: null,
-    },
-    breedDate: {
-      type: Date,
-      default: null,
-    },
-    dueDate: {
-      type: Date,
       default: null,
     },
   },

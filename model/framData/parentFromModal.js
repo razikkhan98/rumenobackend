@@ -86,7 +86,7 @@ const animalSchema = new mongoose.Schema(
         enum: ["mother", "father"]
       }
     }],
-    children: [String]
+    children: [{ type: String, ref: "Animal", default: [] }],
   }, {
 
 

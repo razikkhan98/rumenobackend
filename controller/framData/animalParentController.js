@@ -7,7 +7,6 @@ const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
 const generateUniqueFarmId = require('../../utils/uniqueId');
 
-
 // Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
@@ -77,7 +76,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       }
     }
 
-//nnnnnnnnnnnnnnn
+
  // Initialize parents array
  const parents = [];
     
@@ -105,7 +104,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
      parentType: "father"
    });
  }
-//nnnnnnnnnnn
+
 
     //  Create new Parent Animal
     const newParent = new Animal({
@@ -143,7 +142,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     // Save the new Parent to the database
     await newParent.save();
 
-//nnnnnnnnnnn
+
 // Update parent records to include this animal as a child
 if (parents.length > 0) {
   for (const parent of parents) {
@@ -153,7 +152,7 @@ if (parents.length > 0) {
     );
   }
 }
-///nnnnnnnnnnnnn
+
 
     // Send a success response
     res.status(201).json({
@@ -290,33 +289,42 @@ exports.getAllParents = asyncHandler(async (req, res) => {
 // Get animal Data by UniqueId
 exports.animalAllDetail = asyncHandler(async (req, res) => {
   // Validate request body
-
+  
   if (!req.params) {
     return res.status(400).json({ message: "No data provided" });
   }
-    try {
+  try {
     const { uniqueId } = req.params;
     
-    const parents = await Animal.aggregate([
+    // // First, find the animal by uniqueId
+    const animal = await Animal.findOne({ uniqueId: uniqueId });
+    console.log(animal)
+    
+    if (!animal) {
+      return res.status(404).json({ message: "Animal not found" });
+    }
+    
+   
+    const animals = await Animal.aggregate([
       {
         $match: { uniqueId: uniqueId }, // Find the parent by uniqueId
       },
       {
         $lookup: {
-          from: "childanimals", // Collection name of ChildAnimal (check lowercase plural)
-          localField: "parentId", // The _id field of Animal (parent)
-          foreignField: "parentId", // The parent field in ChildAnimal referencing Animal
-          as: "children",
+          from: "animals", // Collection name of ChildAnimal (check lowercase plural)
+          localField: "children", // The _id field of Animal (parent)
+          foreignField: "uniqueId", // The parent field in ChildAnimal referencing Animal
+          as: "childrenDetails",
         },
       },
     ]);
     
-    if (!parents || parents.length === 0) {
+    if (!animals || animals.length === 0) {
       return res.status(404).json({ message: "No parent found" });
     }
-    
+   
     // Formatting response with full details
-    const parentsData = parents.map((parent) => ({
+    const parentsData = animals.map((parent) => ({
       // parentId: parent._id,
       uniqueId: parent.uniqueId,
       tagId: parent.tagId,
@@ -345,7 +353,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       createdAt: parent.createdAt,
       updatedAt: parent.updatedAt,
       // Children
-      children: (parent.children || []).map((child) => ({
+      children: (parent.childrenDetails || []).map((child) => ({
         uniqueId: child.uniqueId,
         tagId: child.tagId,
         animalName: child.animalName,
@@ -372,27 +380,8 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         farmName: child.farmName,
         createdAt: child.createdAt,
         updatedAt: child.updatedAt,
-        // kidId: child.kidId,
-        // uniqueName: child.uniqueName,
-        // age: child.age,
-        // DOB: child.DOB,
-        // gender: child.gender,
-        // kidCode: child.kidCode,
-        // bodyScore: child.bodyScore,
-        // BODType: child.BODType,
-        // kidWeight: child.kidWeight,
-        // weanDate: child.weanDate,
-        // weanWeight: child.weanWeight,
-        // motherWeanWeight: child.motherWeanWeight,
-        // motherWeanDate: child.motherWeanDate,
-        // castration: child.castration,
-        // birthWeight: child.birthWeight,
-        // breed: child.breed,
-        // motherAge: child.motherAge,
-        // anyComment: child.anyComment,
-        // createdAt: child.createdAt,
-        // updatedAt: child.updatedAt,
       })),
+       
       // Post Wean
       postWean: (parent.postWean || []).map((postWean) => ({
         postWeanId: postWean._id,
@@ -434,11 +423,12 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         createdAt: deworm.createdAt,
         updatedAt: deworm.updatedAt,
       })),
-    }));
+    }
+  ));
 
 
     res.status(200).json({
-      parents: parentsData,
+      animals: parentsData,
     });
   } catch (error) {
     console.error("Error fetching parent and child data:", error);

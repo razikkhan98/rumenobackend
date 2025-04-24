@@ -42,6 +42,7 @@ exports.userLogin = asyncHandler(async (req, res) => {
       user: {
         id: user._id,
         name: user.firstName,
+        email: user.email,
         uid: user.uid,
       },
       date: new Date().toISOString(), // Current timestamp

@@ -13,7 +13,6 @@ const estrusHeatModal = require("../../model/framData/estrusHeatModal");
 const sanitationModal = require("../../model/framData/sanitationModal");
 const dewormModal = require("../../model/framData/dewormModal");
 
-
 // Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
@@ -66,7 +65,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 
     //GEnerate unique Id 
     const uniqueId = generateUniqueFarmId(farmName);
-
+   
+    // Check if Unique ID exists or not 
     const existID = await Animal.findOne({ uniqueId })
     if (existID) {
       return res.status(400).json({ message: "Unique ID already exists." })
@@ -81,6 +81,36 @@ exports.animalDetail = asyncHandler(async (req, res) => {
         });
       }
     }
+
+
+ // Initialize parents array
+ const parents = [];
+    
+ // Check if mother exists and add to parents array
+ if (motherTag) {
+   const mother = await Animal.findOne({ tagId: motherTag, gender: "Female" });
+   if (!mother) {
+     return res.status(400).json({ message: "Mother with provided tag ID not found or not female." });
+   }
+   console.log(motherTag)
+   parents.push({
+     parentUniqueId: mother.uniqueId,
+     parentType: "mother" 
+   });
+ }
+   console.log(motherTag)
+ // Check if father exists and add to parents array
+ if (fatherTag) {
+   const father = await Animal.findOne({ tagId: fatherTag, gender: "Male" });
+   if (!father) {
+     return res.status(400).json({ message: "Father with provided tag ID not found or not male." });
+   }
+   parents.push({
+     parentUniqueId: father.uniqueId,
+     parentType: "father"
+   });
+ }
+
 
     //  Create new Parent Animal
     const newParent = new Animal({
@@ -109,12 +139,26 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       motherWeanDate:gender === "Female" ? motherWeanDate: null,
       otherDisease,
       vaccineDate,
-      farmName
+      farmName,
+      parents: parents, // Add parents array to the animal record
+      children: [] // Initialize empty children array
     });
     console.log(newParent)
 
     // Save the new Parent to the database
     await newParent.save();
+
+
+// Update parent records to include this animal as a child
+if (parents.length > 0) {
+  for (const parent of parents) {
+    await Animal.findOneAndUpdate(
+      { uniqueId: parent.parentUniqueId },
+      { $push: { children: newParent.uniqueId } }
+    );
+  }
+}
+
 
     // Send a success response
     res.status(201).json({
@@ -230,7 +274,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 //   }
 // });
 
-// Get all Parent Data
+// Get all animal Data
 
 exports.getAllParents = asyncHandler(async (req, res) => {
   try {
@@ -248,36 +292,45 @@ exports.getAllParents = asyncHandler(async (req, res) => {
   }
 });
 
-// Get Parent Data by UniqueId
+// Get animal Data by UniqueId
 exports.animalAllDetail = asyncHandler(async (req, res) => {
   // Validate request body
-
+  
   if (!req.params) {
     return res.status(400).json({ message: "No data provided" });
   }
-    try {
+  try {
     const { uniqueId } = req.params;
     
-    const parents = await Animal.aggregate([
+    // // First, find the animal by uniqueId
+    const animal = await Animal.findOne({ uniqueId: uniqueId });
+    console.log(animal)
+    
+    if (!animal) {
+      return res.status(404).json({ message: "Animal not found" });
+    }
+    
+   
+    const animals = await Animal.aggregate([
       {
         $match: { uniqueId: uniqueId }, // Find the parent by uniqueId
       },
       {
         $lookup: {
-          from: "childanimals", // Collection name of ChildAnimal (check lowercase plural)
-          localField: "parentId", // The _id field of Animal (parent)
-          foreignField: "parentId", // The parent field in ChildAnimal referencing Animal
-          as: "children",
+          from: "animals", // Collection name of ChildAnimal (check lowercase plural)
+          localField: "children", // The _id field of Animal (parent)
+          foreignField: "uniqueId", // The parent field in ChildAnimal referencing Animal
+          as: "childrenDetails",
         },
       },
     ]);
     
-    if (!parents || parents.length === 0) {
+    if (!animals || animals.length === 0) {
       return res.status(404).json({ message: "No parent found" });
     }
-    
+   
     // Formatting response with full details
-    const parentsData = parents.map((parent) => ({
+    const parentsData = animals.map((parent) => ({
       // parentId: parent._id,
       uniqueId: parent.uniqueId,
       tagId: parent.tagId,
@@ -306,29 +359,35 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       createdAt: parent.createdAt,
       updatedAt: parent.updatedAt,
       // Children
-      children: (parent.children || []).map((child) => ({
+      children: (parent.childrenDetails || []).map((child) => ({
         uniqueId: child.uniqueId,
-        kidId: child.kidId,
-        uniqueName: child.uniqueName,
-        age: child.age,
-        DOB: child.DOB,
+        tagId: child.tagId,
+        animalName: child.animalName,
+        ageYear: child.ageYear,
+        ageMonth: child.ageMonth,
+        height: child.height,
+        weightKg: child.weightKg,
+        birthDate: child.birthDate,
+        motherTag: child.motherTag,
+        fatherTag: child.fatherTag,
         gender: child.gender,
-        kidCode: child.kidCode,
-        bodyScore: child.bodyScore,
-        BODType: child.BODType,
-        kidWeight: child.kidWeight,
-        weanDate: child.weanDate,
-        weanWeight: child.weanWeight,
-        motherWeanWeight: child.motherWeanWeight,
-        motherWeanDate: child.motherWeanDate,
-        castration: child.castration,
+        birthType: child.birthType,
         birthWeight: child.birthWeight,
-        breed: child.breed,
-        motherAge: child.motherAge,
+        mothersWeanDate: child.mothersWeanDate,
+        bodyScore: child.bodyScore,
+        purchasDate: child.purchasDate,
         anyComment: child.anyComment,
+        dateMading: child.dateMading,
+        currentPregnancyMonth: child.currentPregnancyMonth,
+        failed: child.failed,
+        motherWeanDate: child.motherWeanDate,
+        otherDisease: child.otherDisease,
+        vaccineDate: child.vaccineDate,
+        farmName: child.farmName,
         createdAt: child.createdAt,
         updatedAt: child.updatedAt,
       })),
+       
       // Post Wean
       postWean: (parent.postWean || []).map((postWean) => ({
         postWeanId: postWean._id,
@@ -370,11 +429,12 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         createdAt: deworm.createdAt,
         updatedAt: deworm.updatedAt,
       })),
-    }));
+    }
+  ));
 
 
     res.status(200).json({
-      parents: parentsData,
+      animals: parentsData,
     });
   } catch (error) {
     console.error("Error fetching parent and child data:", error);
@@ -383,7 +443,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
 });
 
 
-// Update Parent
+// Update animal
 exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });

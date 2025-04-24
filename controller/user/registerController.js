@@ -18,7 +18,7 @@
 //       email,
 //       password,
 //       mobile,
-     
+
 //     } = req.body;
 //     // Validate required fields
 //     if (!firstName || !email || !password || !mobile) {
@@ -34,7 +34,7 @@
 //     if (existingMobile) {
 //       return res.status(400).json({ message: "Mobile number already exists" });
 //     }
-    
+
 //     // Validate email format
 //     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 //     if (!emailRegex.test(email)) {
@@ -48,17 +48,17 @@
 //         "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number",
 //       });
 //     }
-    
-   
-   
+
+
+
 //     // Generate code based on , firstName(2) , mobile last 4 digit of mobile number
 //     let mobileString = String(mobile);
 //     const code = firstName.slice(0, 3) + mobileString.slice(-4);
-    
+
 //     // Hash password
 //     const salt = await bcrypt.genSalt(10);
 //     const hashedPassword = await bcrypt.hash(password, salt);
-    
+
 //     // Create new user
 //     const user = new registerModel({
 //       firstName,
@@ -70,7 +70,7 @@
 //     });
 //     console.log(user);
 
-    
+
 //     // Save user to the database
 //     await user.save();
 //     res.status(201).json({ message: "User registered successfully" });
@@ -154,3 +154,15 @@ exports.userRegister = expressAsyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+// // get register 
+// exports.getAllUsers = expressAsyncHandler(async (req, res) => {
+//   try {
+//     const user = await registerModel.find();
+
+//     res.status(200).json({ success: true, data: user });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message })
+//   }
+// });

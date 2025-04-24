@@ -6,6 +6,12 @@ const asyncHandler = require("express-async-handler");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
 const generateUniqueFarmId = require('../../utils/uniqueId');
+const milkModall = require("../../model/framData/milkModall");
+const postWeanModal = require("../../model/framData/postWeanModal");
+const vaccineModal = require("../../model/framData/vaccineModal");
+const estrusHeatModal = require("../../model/framData/estrusHeatModal");
+const sanitationModal = require("../../model/framData/sanitationModal");
+const dewormModal = require("../../model/framData/dewormModal");
 
 // Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
@@ -498,8 +504,6 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 // Delete parent (if no children)
 
 exports.deleteAnimalParent = asyncHandler(async (req, res) => {
@@ -524,7 +528,7 @@ exports.deleteAnimalParent = asyncHandler(async (req, res) => {
       });
     }
 
-
+       
     // If no children exist, delete the parent
     await Animal.deleteOne({ uniqueId });
 
@@ -533,3 +537,19 @@ exports.deleteAnimalParent = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
+
+const removeRelatedRecords = async (parent, model, fieldName) => {
+  try {
+    const uniqueId = parent?.uniqueId;
+
+    if (parent[fieldName]) {
+      parent[fieldName] = parent[fieldName].filter(
+        (item) => item[fieldName] !== uniqueId
+      );
+      await parent.save();
+    }
+    await model.deleteMany({ [fieldName]: uniqueId });
+  } catch (error) {
+    console.error(`Error removing ${fieldName} records:`, error);
+  }
+};

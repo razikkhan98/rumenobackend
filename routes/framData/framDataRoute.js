@@ -18,7 +18,6 @@ const sanitationController = require("../../controller/framData/sanitationContro
 // Farm Detail
 router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
 
-
 // ================
 // Animal Details
 // ================
@@ -46,8 +45,7 @@ router.get(
   animalParentController.getAllParents
 );
 
-
-// // Get only single 
+// // Get only single
 // router.get(
 //   "/user/animaldata/newEntity/getAll/:uniqueId",
 //   animalParentController.animalAllDetail
@@ -296,5 +294,178 @@ router.get("/vaccine/reminders/:userId", vaccineController.checkReminders);
  * @access Private
  */
 // router.get("/overdue/:userId", vaccineController.getOverdueVaccines);
+
+// ------------------------------- Postwean route start -------------------------------------
+
+/**
+ * @route POST /postweans
+ * @desc Create a new PostWean record
+ * @access Private
+ */
+router.post("/post-wean/post-wean-add", postweanController.createPostWean);
+
+/**
+ * @route GET /postweans
+ * @desc Get all PostWean records
+ * @access Private
+ */
+router.get("/post-wean/get-all-post-wean", postweanController.getAllPostWeans);
+
+/**
+ * @route GET /postweans/:id
+ * @desc Get a single PostWean record by ID
+ * @access Private
+ */
+router.get(
+  "/post-wean/get-post-wean-by-id/:id",
+  postweanController.getPostWeanById
+);
+
+/**
+ * @route PUT /postweans/:id
+ * @desc Update a PostWean record by ID
+ * @access Private
+ */
+router.put(
+  "/post-wean/update-post-wean-by-id/:id",
+  postweanController.updatePostWean
+);
+
+/**
+ * @route DELETE /postweans/:id
+ * @desc Delete a PostWean record by ID
+ * @access Private
+ */
+router.delete(
+  "/post-wean/delete-post-wean-by-id/:id",
+  postweanController.deletePostWean
+);
+
+// ------------------------------- Postwean route end ---------------------------------------
+
+// ------------------------------- Milk route start -------------------------------------
+
+/**
+ * @route POST /milk-record/create-milk-record
+ * @desc Create a new milk record
+ * @access Private
+ */
+router.post("/milk-record/create-milk-record", milkController.addMilk);
+
+/**
+ * @route GET /milk-record/get-all-milk-records
+ * @desc Get all milk records
+ * @access Private
+ */
+router.get(
+  "/milk-record/get-all-milk-records",
+  milkController.getAllMilkRecord
+);
+
+/**
+ * @route GET /milk-record/get-milk-record-by-id/:id
+ * @desc Get a milk record by ID
+ * @access Private
+ */
+router.get(
+  "/milk-record/get-milk-record-by-id/:id",
+  milkController.getMilkRecordById
+);
+
+/**
+ * @route GET /milk-record/get-milk-records-by-tag/:tagId
+ * @desc Get milk records by tag ID
+ * @access Private
+ */
+router.get(
+  "/milk-record/get-milk-records-by-tag/:tagId",
+  milkController.getMilkRecordByTagId
+);
+
+/**
+ * @route PUT /milk-record/update-milk-record/:id
+ * @desc Update a milk record by ID
+ * @access Private
+ */
+router.put(
+  "/milk-record/update-milk-record/:id",
+  milkController.updateMilkRecord
+);
+
+/**
+ * @route DELETE /milk-record/delete-milk-record-by-id/:id
+ * @desc Delete a milk record by ID
+ * @access Private
+ */
+router.delete(
+  "/milk-record/delete-milk-record-by-id/:id",
+  milkController.deleteMilkRecord
+);
+
+// ------------------------------- Milk route end ---------------------------------------
+
+// ----------------------------- Estrus heat start -----------------------------------------
+
+/**
+ * @route POST /estrus-heat/create-heat-record
+ * @desc Create a new estrus heat record
+ * @access Private
+ */
+router.post(
+  "/estrus-heat/create-heat-record",
+  estrusHeatController.createEstrusHeat
+);
+
+/**
+ * @route GET /estrus-heat/get-all-heat-records
+ * @desc Get all estrus heat records
+ * @access Private
+ */
+router.get(
+  "/estrus-heat/get-all-heat-records",
+  estrusHeatController.getAllEstrusHeats
+);
+
+/**
+ * @route GET /estrus-heat/get-heat-record-by-id/:id
+ * @desc Get an estrus heat record by ID
+ * @access Private
+ */
+router.get(
+  "/estrus-heat/get-heat-record-by-id/:id",
+  estrusHeatController.getEstrusHeatById
+);
+
+/**
+ * @route GET /estrus-heat/get-heat-records-by-tag/:tagId
+ * @desc Get estrus heat records by tag ID
+ * @access Private
+ */
+router.get(
+  "/estrus-heat/get-heat-records-by-tag/:tagId",
+  estrusHeatController.getEstrusHeatsByTag
+);
+
+/**
+ * @route PUT /estrus-heat/update-heat-record/:id
+ * @desc Update an estrus heat record by ID
+ * @access Private
+ */
+router.put(
+  "/estrus-heat/update-heat-record/:id",
+  estrusHeatController.updateEstrusHeat
+);
+
+/**
+ * @route DELETE /estrus-heat/delete-heat-record/:id
+ * @desc Delete an estrus heat record by ID
+ * @access Private
+ */
+router.delete(
+  "/estrus-heat/delete-heat-record-by-id/:id",
+  estrusHeatController.deleteEstrusHeat
+);
+
+// ----------------------------- Estrus heat end -----------------------------------------
 
 module.exports = router;

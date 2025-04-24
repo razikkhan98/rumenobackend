@@ -19,7 +19,6 @@ exports.addPostWean = asyncHandler(async (req, res) => {
       weanDate,
       weanComment,
     } = req.body;
-    
 
     if (!parentUniqueId && !childUniqueId) {
       return res.status(400).json({
@@ -45,7 +44,7 @@ exports.addPostWean = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "Child not found." });
       }
     }
-    console.log(childUniqueId,"childUniqueId")
+    console.log(childUniqueId, "childUniqueId");
 
     const postWeanId = parentUniqueId || childUniqueId;
 
@@ -89,7 +88,6 @@ exports.addPostWean = asyncHandler(async (req, res) => {
   }
 });
 
-
 // Update Post Wean Parent and Child
 
 exports.updatePostWean = asyncHandler(async (req, res) => {
@@ -114,7 +112,10 @@ exports.updatePostWean = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Post Wean not found." });
     }
 
-    res.json({ message: "Post Wean updated successfully", data: updatedPostWean });
+    res.json({
+      message: "Post Wean updated successfully",
+      data: updatedPostWean,
+    });
   } catch (error) {
     res.status(500).json({
       message: "Server Error. Failed to update Post Wean data.",
@@ -122,9 +123,6 @@ exports.updatePostWean = asyncHandler(async (req, res) => {
     });
   }
 });
-
-
-
 
 // Delete Post Wean Parent and Child
 exports.deletePostWean = asyncHandler(async (req, res) => {
@@ -161,3 +159,110 @@ exports.deletePostWean = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error: e.message });
   }
 });
+
+// --------------------------------------------------latest codes------------------------------------
+
+exports.createPostWean = async (req, res) => {
+  const { tagId, kidWeight, bodyScore, weanDate, uId } = req.body;
+
+  if (!tagId || typeof tagId !== "string") {
+    return res
+      .status(400)
+      .json({ error: "tagId is required and must be a string" });
+  }
+
+  if (kidWeight && isNaN(kidWeight)) {
+    return res.status(400).json({ error: "kidWeight must be a number" });
+  }
+
+  if (bodyScore && isNaN(bodyScore)) {
+    return res.status(400).json({ error: "bodyScore must be a number" });
+  }
+
+  if (weanDate && !/^\d{4}-\d{2}-\d{2}$/.test(weanDate)) {
+    return res
+      .status(400)
+      .json({ error: "weanDate must be in YYYY-MM-DD format" });
+  }
+
+  try {
+    const newPost = await AnimalPostWean.create({
+      tagId,
+      kidWeight,
+      bodyScore,
+      weanDate,
+      uId,
+    });
+    res.status(201).json(newPost);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getAllPostWeans = async (req, res) => {
+  try {
+    const posts = await AnimalPostWean.find().sort({ createdAt: -1 });
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getPostWeanById = async (req, res) => {
+  try {
+    const post = await AnimalPostWean.findById(req.params.id);
+    if (!post) return res.status(404).json({ error: "PostWean not found" });
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.updatePostWean = async (req, res) => {
+  const { tagId, kidWeight, bodyScore, weanDate, uId } = req.body;
+
+  if (tagId && typeof tagId !== "string") {
+    return res.status(400).json({ error: "tagId must be a string" });
+  }
+
+  if (kidWeight && isNaN(kidWeight)) {
+    return res.status(400).json({ error: "kidWeight must be a number" });
+  }
+
+  if (bodyScore && isNaN(bodyScore)) {
+    return res.status(400).json({ error: "bodyScore must be a number" });
+  }
+
+  if (weanDate && !/^\d{4}-\d{2}-\d{2}$/.test(weanDate)) {
+    return res
+      .status(400)
+      .json({ error: "weanDate must be in YYYY-MM-DD format" });
+  }
+
+  try {
+    const updatedPost = await AnimalPostWean.findByIdAndUpdate(
+      req.params.id,
+      { tagId, kidWeight, bodyScore, weanDate, uId },
+      { new: true }
+    );
+
+    if (!updatedPost)
+      return res.status(404).json({ error: "PostWean not found" });
+
+    res.status(200).json(updatedPost);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deletePostWean = async (req, res) => {
+  try {
+    const deleted = await AnimalPostWean.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: "PostWean not found" });
+
+    res.status(200).json({ message: "PostWean deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

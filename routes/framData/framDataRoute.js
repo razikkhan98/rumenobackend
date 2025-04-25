@@ -14,6 +14,7 @@ const vaccineController = require("../../controller/framData/vaccineController")
 const dewormController = require("../../controller/framData/dewormController");
 const estrusHeatController = require("../../controller/framData/estrusHeatController");
 const sanitationController = require("../../controller/framData/sanitationController");
+const transferAnimalController = require("../../controller/framData/transferAnimalController"); 
 
 // Farm Detail
 router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
@@ -66,6 +67,16 @@ router.delete(
   "/user/animaldata/newEntity/delete/:uniqueId",
   animalParentController.deleteAnimalParent
 );
+
+
+
+// transfer Animals 
+router.post("/user/animaldata/transferAnimal",transferAnimalController.transferAnimal)
+
+
+
+
+
 
 // Add Child
 router.post("/user/animaldata/child", animalchildController.animalChildDetail);

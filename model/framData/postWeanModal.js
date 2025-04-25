@@ -1,34 +1,29 @@
 const mongoose = require("mongoose");
 
-const PostWeanSchema = new mongoose.Schema({
-  postWeanId: {
-    type: String,
-    required: true,
+const PostWeanSchema = new mongoose.Schema(
+  {
+    tagId: {
+      type: String,
+      required: true,
+    },
+    kidWeight: {
+      type: String,
+      default: null,
+    },
+    bodyScore: {
+      type: String,
+      default: null,
+    },
+    weanDate: {
+      type: String,
+      default: null,
+    },
+    uId: {
+      type: String,
+      default: null,
+    },
   },
-  weightKg: {
-    type: String,
-    default: null,
-  },
-  weightGm: {
-    type: String,
-    default: null,
-  },
-  bodyScore: {
-    type: String,
-    default: null,
-  },
-  weanDate: {
-    type: String,
-    default: null,
-  },
-  weanComment: {
-    type: String,
-    default: null,
-  },
-  uId: {
-    type: String,
-    default: null,
-  },
-});
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("PostWean", PostWeanSchema);

@@ -6,11 +6,11 @@ const EstrusHeatSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    estrusHeatDate: {
+    heatDate: {
       type: String,
       default: null,
     },
-    estrusHeatNextDate: {
+    heatNextDate: {
       type: String,
       default: null,
     },

@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Animal = require("../../model/framData/parentFromModal");
 const AnimalEstrusHea = require("../../model/framData/estrusHeatModal");
 const ChildAnimal = require("../../model/framData/childFromModal");
+const { calculateDateToDays } = require("../../utils/helper");
 
 exports.addEstrusHeat = asyncHandler(async (req, res) => {
   // Validate request body
@@ -165,18 +166,22 @@ exports.deleteEstrusHeat = asyncHandler(async (req, res) => {
  */
 exports.createEstrusHeat = async (req, res) => {
   try {
-    const { tagId, estrusHeatDate, estrusHeatNextDate, uId } = req.body;
-
-    if (!tagId) {
+    const { tagId, heatDate, uId } = req.body;
+    if (!tagId)
       return res
         .status(400)
         .json({ success: false, message: "tagId is required" });
-    }
 
+    if (!heatDate)
+      return res
+        .status(400)
+        .json({ success: false, message: "Heat date is required" });
+
+    const nextDate = await calculateDateToDays(heatDate, 24);
     const newEstrusHeat = new AnimalEstrusHea({
       tagId,
-      estrusHeatDate,
-      estrusHeatNextDate,
+      heatDate,
+      heatNextDate: nextDate,
       uId,
     });
 
@@ -226,11 +231,10 @@ exports.getEstrusHeatById = async (req, res) => {
 
     const estrusHeat = await AnimalEstrusHea.findById(id);
 
-    if (!estrusHeat) {
+    if (!estrusHeat)
       return res
         .status(404)
         .json({ success: false, message: "Estrus heat record not found" });
-    }
 
     res.status(200).json({ success: true, data: estrusHeat });
   } catch (error) {
@@ -256,12 +260,11 @@ exports.getEstrusHeatsByTag = async (req, res) => {
       createdAt: -1,
     });
 
-    if (estrusHeats.length === 0) {
+    if (estrusHeats.length === 0)
       return res.status(404).json({
         success: false,
         message: "No estrus heat records found for this tag",
       });
-    }
 
     res
       .status(200)
@@ -284,20 +287,20 @@ exports.getEstrusHeatsByTag = async (req, res) => {
 exports.updateEstrusHeat = async (req, res) => {
   try {
     const { id } = req.params;
+    const { heatDate } = req.body;
 
-    const updateData = req.body;
-
+    const heatNextDate = await calculateDateToDays(heatDate, 24);
     const updatedEstrusHeat = await AnimalEstrusHea.findByIdAndUpdate(
       id,
-      updateData,
+      heatDate,
+      heatNextDate,
       { new: true, runValidators: true }
     );
 
-    if (!updatedEstrusHeat) {
+    if (!updatedEstrusHeat)
       return res
         .status(404)
         .json({ success: false, message: "Estrus heat record not found" });
-    }
 
     res.status(200).json({ success: true, data: updatedEstrusHeat });
   } catch (error) {
@@ -321,11 +324,10 @@ exports.deleteEstrusHeat = async (req, res) => {
 
     const deletedEstrusHeat = await AnimalEstrusHea.findByIdAndDelete(id);
 
-    if (!deletedEstrusHeat) {
+    if (!deletedEstrusHeat)
       return res
         .status(404)
         .json({ success: false, message: "Estrus heat record not found" });
-    }
 
     res.status(200).json({
       success: true,

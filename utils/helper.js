@@ -345,6 +345,23 @@ async function sendWhatsappMessage(phoneNumber, message) {
   }
 }
 
+/**
+ * Calculate date to next date
+ * @param {string} date - Current date..
+ * @param {number} days - How many days (10,20) etc...
+ */
+async function calculateDateToDays(date, days) {
+  try {
+    if (!date) throw new Error("Please provide a date");
+    if (!days) throw new Error("Please provide a days");
+
+    return moment(date).clone().add(days, "days").format("YYYY-MM-DD");
+  } catch (error) {
+    console.error(`Failed to calculateDateToDays: ${error.message}`);
+    throw error;
+  }
+}
+
 module.exports = {
   getSchedule,
   getAlert,
@@ -352,4 +369,5 @@ module.exports = {
   getVaccineSchedule,
   getSchedule_final,
   calculateVaccineSchedule,
+  calculateDateToDays,
 };

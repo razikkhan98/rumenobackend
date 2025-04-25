@@ -177,7 +177,7 @@ exports.createEstrusHeat = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Heat date is required" });
 
-    const nextDate = await calculateDateToDays(heatDate, 24);
+    const nextDate = await calculateDateToDays(heatDate, 18);
     const newEstrusHeat = new AnimalEstrusHea({
       tagId,
       heatDate,
@@ -289,7 +289,7 @@ exports.updateEstrusHeat = async (req, res) => {
     const { id } = req.params;
     const { heatDate } = req.body;
 
-    const heatNextDate = await calculateDateToDays(heatDate, 24);
+    const heatNextDate = await calculateDateToDays(heatDate, 18);
     const updatedEstrusHeat = await AnimalEstrusHea.findByIdAndUpdate(
       id,
       heatDate,

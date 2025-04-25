@@ -65,7 +65,7 @@ const animalSchema = new mongoose.Schema(
       required: true
     },
     birthType: { type: String, default: null },
-    birthweight: { type: String, default: null },
+    birthWeight: { type: String, default: null },
     mothersWeanDate: { type: String, default: null },
     bodyScore: { type: Number, default: null },
     purchasDate: { type: Date, default: null },

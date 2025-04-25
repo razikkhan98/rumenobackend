@@ -71,7 +71,9 @@ router.delete(
 // transfer Animals 
 router.post("/user/animaldata/transferAnimal",transferAnimalController.transferAnimal)
 
+router.get("/user/animaldata/getAllTransferAnimal",transferAnimalController.getAllTransferAnimal);
 
+router.get("/user/animaldata/getAllTransferAnimal/:uniqueId",transferAnimalController.getTransferAnimalByUniqueId);
 
 
 

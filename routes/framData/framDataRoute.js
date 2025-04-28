@@ -350,7 +350,7 @@ router.delete(
  * @desc Create a new milk record
  * @access Private
  */
-router.post("/milk-record/create-milk-record", milkController.addMilk);
+router.post("/milk-record/create-milk-record", milkController.createMilkRecord);
 
 /**
  * @route GET /milk-record/get-all-milk-records

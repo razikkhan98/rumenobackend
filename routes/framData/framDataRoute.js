@@ -66,7 +66,7 @@ router.delete(
   animalParentController.deleteAnimalParent
 );
 
-
+// -----------------------------------------------------------------------------------------------------------
 
 // transfer Animals 
 router.post("/user/animaldata/transferAnimal",transferAnimalController.transferAnimal)
@@ -75,52 +75,55 @@ router.get("/user/animaldata/getAllTransferAnimal",transferAnimalController.getA
 
 router.get("/user/animaldata/getAllTransferAnimal/:uniqueId",transferAnimalController.getTransferAnimalByUniqueId);
 
+//---------------------------------------------------------------------------------------------------------------------
 
 
 
-// Add Child
-router.post("/user/animaldata/child", animalchildController.animalChildDetail);
+// // Add Child
+// router.post("/user/animaldata/child", animalchildController.animalChildDetail);
 
-// Update Child
-router.put(
-  "/user/animaldata/child/update/:uniqueId",
-  animalchildController.updateAnimalChildDetail
-);
+// // Update Child
+// router.put(
+//   "/user/animaldata/child/update/:uniqueId",
+//   animalchildController.updateAnimalChildDetail
+// );
 
-// Delete Child
+// // Delete Child
 
-router.delete(
-  "/user/animaldata/child/delete/:uniqueId",
-  animalchildController.deleteChildAnimal
-);
+// router.delete(
+//   "/user/animaldata/child/delete/:uniqueId",
+//   animalchildController.deleteChildAnimal
+// );
 
-// ===============
+// // ===============
 
-// Get only single Child
+// // Get only single Child
 
-router.get(
-  "/user/animaldata/child/getAll/:uniqueId",
-  animalchildController.getAnimalChildDetail
-);
+// router.get(
+//   "/user/animaldata/child/getAll/:uniqueId",
+//   animalchildController.getAnimalChildDetail
+// );
 
-// Get all Child
-router.get(
-  "/user/animaldata/child/getAll",
-  animalchildController.getAllChildren
-);
+// // Get all Child
+// router.get(
+//   "/user/animaldata/child/getAll",
+//   animalchildController.getAllChildren
+// );
 
-// Promote Child to Parent
-router.post(
-  "/user/animaldata/child/:childId",
-  animalchildController.promoteChildToParent
-);
+// // Promote Child to Parent
+// router.post(
+//   "/user/animaldata/child/:childId",
+//   animalchildController.promoteChildToParent
+// );
+
+
 
 // ============
 // Post Wean
 // ============
 
 // Add Post Wean Parent and Child
-router.post("/user/animal/postweandata/add", postweanController.addPostWean);
+router.post("/user/animal/postweandata/add", postweanController.createPostWean);
 
 // Update Post Wean Parent and Child
 router.put(

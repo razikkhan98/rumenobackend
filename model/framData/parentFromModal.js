@@ -40,6 +40,7 @@
 
 
 
+
 const mongoose = require("mongoose");
 
 const animalSchema = new mongoose.Schema(
@@ -77,6 +78,7 @@ const animalSchema = new mongoose.Schema(
     currentPregnancyMonth: { type: Number, },
     failed: { type: String, },
     motherWeanDate: { type: Date, },
+    isPregnant: { type: Boolean, default:false },
 
     // Added parent-child relationship fields
     parents: [{

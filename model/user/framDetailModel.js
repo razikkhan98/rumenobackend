@@ -5,7 +5,7 @@ const framDetailSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    framerName: {
+    farmerName: {
         type: String,
         required: true,
     },
@@ -13,15 +13,15 @@ const framDetailSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    framHouseName: {
+    farmHouseName: {
         type: String,
         required: true,
     },
-    framHouseType: {
+    farmHouseType: {
         type: String,
         required: true,
     },
-    framAddress: {
+    farmAddress: {
         type: String,
         required: true,
     },

@@ -36,7 +36,7 @@ router.post("/user/animaldata/newEntity", animalParentController.animalDetail);
 
 // Get only single Entity
 router.get(
-  "/user/animaldata/newEntity/getAll/:uniqueId",
+  "/user/animaldata/newEntity/getAllById",
   animalParentController.animalAllDetail
 );
 
@@ -118,7 +118,6 @@ router.get("/user/animaldata/getAllTransferAnimal/:uniqueId",transferAnimalContr
 
 
 
-// ============
 // Post Wean
 // ============
 

@@ -14,14 +14,10 @@ const vaccineController = require("../../controller/framData/vaccineController")
 const dewormController = require("../../controller/framData/dewormController");
 const estrusHeatController = require("../../controller/framData/estrusHeatController");
 const sanitationController = require("../../controller/framData/sanitationController");
-const transferAnimalController = require("../../controller/framData/transferAnimalController"); 
+const transferAnimalController = require("../../controller/framData/transferAnimalController");
 
 // Farm Detail
 router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
-
-// ================
-// Animal Details
-// ================
 
 // ===============
 // New Entity
@@ -66,18 +62,21 @@ router.delete(
   animalParentController.deleteAnimalParent
 );
 
-// -----------------------------------------------------------------------------------------------------------
+// transfer Animals
+router.post(
+  "/user/animaldata/transferAnimal",
+  transferAnimalController.transferAnimal
+);
 
-// transfer Animals 
-router.post("/user/animaldata/transferAnimal",transferAnimalController.transferAnimal)
+router.get(
+  "/user/animaldata/getAllTransferAnimal",
+  transferAnimalController.getAllTransferAnimal
+);
 
-router.get("/user/animaldata/getAllTransferAnimal",transferAnimalController.getAllTransferAnimal);
-
-router.get("/user/animaldata/getAllTransferAnimal/:uniqueId",transferAnimalController.getTransferAnimalByUniqueId);
-
-//---------------------------------------------------------------------------------------------------------------------
-
-
+router.get(
+  "/user/animaldata/getAllTransferAnimal/:uniqueId",
+  transferAnimalController.getTransferAnimalByUniqueId
+);
 
 // // Add Child
 // router.post("/user/animaldata/child", animalchildController.animalChildDetail);
@@ -99,10 +98,10 @@ router.get("/user/animaldata/getAllTransferAnimal/:uniqueId",transferAnimalContr
 
 // // Get only single Child
 
-// router.get(
-//   "/user/animaldata/child/getAll/:uniqueId",
-//   animalchildController.getAnimalChildDetail
-// );
+router.get(
+  "/user/animaldata/child/getAll/:uniqueId",
+  animalchildController.getAnimalChildDetail
+);
 
 // // Get all Child
 // router.get(

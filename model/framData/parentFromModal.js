@@ -40,6 +40,7 @@
 
 
 
+
 const mongoose = require("mongoose");
 
 const animalSchema = new mongoose.Schema(
@@ -73,10 +74,11 @@ const animalSchema = new mongoose.Schema(
     otherDisease: { type: String, default: null },
     vaccineDate: { type: Date, default: null },
     farmName: { type: String, required: true },
-    dateMading: { type: Date, default: null},
-    currentPregnancyMonth: { type: String, },
-    failed: { type: String, default: null},
-    motherWeanDate: { type: Date, default: null},
+    dateMading: { type: Date, },
+    currentPregnancyMonth: { type: Number, },
+    failed: { type: String, },
+    motherWeanDate: { type: Date, },
+    isPregnant: { type: Boolean, default:false },
 
     // Added parent-child relationship fields
     parents: [{

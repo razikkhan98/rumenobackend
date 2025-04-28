@@ -12,9 +12,9 @@ exports.farmDetail = expressAsyncHandler(async (req, res) => {
         return res.status(400).json({ message: "No data provided" });
     }
     try {
-        const {uid, framerName, mobileNumber, framHouseName , framHouseType , framAddress, animalsNumber } = req.body;
+        const {uid, farmerName, mobileNumber, farmHouseName , farmHouseType , farmAddress, animalsNumber } = req.body;
         // Validate required fields
-        if (!uid || !framerName || !mobileNumber || !framHouseName || !framHouseType || !framAddress || !animalsNumber) {
+        if (!uid || !farmerName || !mobileNumber || !farmHouseName || !farmHouseType || !farmAddress || !animalsNumber) {
             return res.status(400).json({ message: "Please provide all required fields" });
         }
         console.log(req.body);
@@ -22,11 +22,11 @@ exports.farmDetail = expressAsyncHandler(async (req, res) => {
         //New user
         const newFarm = new framDetailModel({
           uid,
-          framerName,
+          farmerName,
           mobileNumber,
-          framHouseName,
-          framHouseType,
-          framAddress,
+          farmHouseName,
+          farmHouseType,
+          farmAddress,
           animalsNumber  
         })
     

@@ -8,12 +8,10 @@ const transferAnimalSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    // uniqueId: {
-      // type: mongoose.Schema.Types.ObjectId,
-      // ref: "Animal",
-      // type: String,
-      // required: true
-    // },
+    uniqueId: {
+      type: String,
+      required: true
+    },
     animalStatus: {
       type: String,
       trim: true,
@@ -26,7 +24,7 @@ const transferAnimalSchema = new mongoose.Schema(
        required: true
     },
 
-    uniqueId:String,
+    // uniqueId:String,
     animalName: String,
     ageYear: Number,
     ageMonth: Number,

@@ -61,7 +61,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     if (!existingUser) {
       return res.status(400).json({ message: "UID does not exist." });
     }
-
+    
 
     //GEnerate unique Id 
     const uniqueId = generateUniqueFarmId(farmName);

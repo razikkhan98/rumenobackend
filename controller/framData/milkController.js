@@ -146,66 +146,65 @@ exports.deleteMilk = asyncHandler(async (req, res) => {
   @param {Object} req - Express request object with milk data in body
   @param {Object} res - Express response object
   @returns {Object} - JSON response with created milk record or error
- 
-e.createMilkRecord = async (req, res) => {
-  {
-  {
- ,
- ,
- ,
- ,
- ,
-  = req.body;
- (
- tagId,
- ,
- ,
- ,
- )
-  {
-  res
- (400)
- ({ success: false, message: "field is required" });
- 
- newMilk = new AnimalMilk({
- ,
- ,
- ,
- ,
- ,
- 
- savedMilk = await newMilk.save();
-.status(201).json({ success: true, data: savedMilk });
-  catch (error) {
- .error("Error creating milk record:", error);
- .status(500).json({
- : false,
- : "Failed to create milk record",
- : error.message,
- 
- 
-}
+ */
 
+(exports.createMilkRecord = async (req, res) => {
+  try {
+    const {
+      tagId,
+      milkvolume,
+      numberOfKidsSuckingMilk,
+      kiddingDeliveryDate,
+      uId,
+    } = req.body;
+
+    if (!tagId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "tagId is required" });
+    }
+
+    const newMilk = new AnimalMilk({
+      tagId,
+      milkvolume,
+      numberOfKidsSuckingMilk,
+      kiddingDeliveryDate,
+      uId,
+    });
+
+    const savedMilk = await newMilk.save();
+
+    res.status(201).json({ success: true, data: savedMilk });
+  } catch (error) {
+    console.error("Error creating milk record:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create milk record",
+      error: error.message,
+    });
+  }
+}),
+  /** 
   READ operation (all) - Get all milk records
   GET /api/milk
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @returns {Object} - JSON response with all milk records or error
  */
-exports.getAllMilkRecord = async (req, res) => {
-  try {
-    const milk = await AnimalMilk.find().sort({ createdAt: -1 }); // Sort by newest first
+  (exports.getAllMilkRecord = async (req, res) => {
+    try {
+      const milk = await AnimalMilk.find().sort({ createdAt: -1 }); // Sort by newest first
 
-    res.status(200).json({ success: true, count: milk.length, data: milk });
-  } catch (error) {
-    console.error("Error fetching milk records:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch milk records",
-      error: error.message,
-    });
-  }
-};
+      res.status(200).json({ success: true, count: milk.length, data: milk });
+    } catch (error) {
+      console.error("Error fetching milk records:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch milk records",
+        error: error.message,
+      });
+    }
+  });
 
 /**
  * READ operation (single) - Get a specific milk record by ID
@@ -334,18 +333,3 @@ exports.deleteMilkRecord = async (req, res) => {
     });
   }
 };
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  

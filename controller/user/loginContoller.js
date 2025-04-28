@@ -36,7 +36,7 @@ exports.userLogin = asyncHandler(async (req, res) => {
     const farmDetail = await framDetailModel.findOne({ uid: user.uid });
 
     // If farmDetail not found, fallback empty
-    const farmHouseName = farmDetail ? farmDetail.framHouseName : "";
+    const farmHouseName = farmDetail ? farmDetail.farmHouseName : "";
     
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "default_secret_key", {

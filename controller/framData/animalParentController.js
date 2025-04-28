@@ -45,12 +45,12 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       motherWeanDate,
       otherDisease,
       vaccineDate,
-      farmName,
+      farmHouseName,
       isPregnant
     } = req.body;
 
     // Validate required fields
-    const requiredFields = { uid, animalName, farmName, gender };
+    const requiredFields = { uid, animalName, farmHouseName, gender };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value) {
         return res.status(400).json({ message: `${key} is a required field.` });
@@ -65,7 +65,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 
 
     //GEnerate unique Id 
-    const uniqueId = generateUniqueFarmId(farmName);
+    const uniqueId = generateUniqueFarmId(farmHouseName);
 
     // Check if Unique ID exists or not 
     const existID = await Animal.findOne({ uniqueId })
@@ -137,11 +137,12 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       motherWeanDate: gender === "Female" && isPregnant ? motherWeanDate : null,
       otherDisease,
       vaccineDate,
-      farmName,
+      farmHouseName,
       parents: parents, // Add parents array to the animal record
       children: [] // Initialize empty children array
     });
-
+    console.log('newParent: ', newParent);
+    
     // Save the new Parent to the database
     await newParent.save();
 
@@ -297,11 +298,11 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "No data provided" });
   }
   try {
-    const { uniqueId, uid } = req.query;
+    const { animalName, uid } = req.query;
 
     // // First, find the animal by uniqueId
-    const animal = await Animal.find({ uniqueId , uid });
-    console.log(animal)
+    const animal = await Animal.find({ animalName , uid });
+   
 
     if (!animal) {
       return res.status(404).json({ message: "Animal not found" });
@@ -310,21 +311,21 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
 
     const animals = await Animal.aggregate([
       {
-        $match: { uniqueId: uniqueId }, // Find the parent by uniqueId
+        $match: { uid: uid }, // Find the parent by uniqueId
       },
       {
         $lookup: {
           from: "animals", // Collection name of ChildAnimal (check lowercase plural)
           localField: "children", // The _id field of Animal (parent)
-          foreignField: "uniqueId", // The parent field in ChildAnimal referencing Animal
+          foreignField: "uid", // The parent field in ChildAnimal referencing Animal
           as: "childrenDetails",
         },
       },
     ]);
 
-    if (!animals || animals.length === 0) {
-      return res.status(404).json({ message: "No parent found" });
-    }
+    // if (!animals || animals.length === 0) {
+    //   return res.status(404).json({ message: "No parent found" });
+    // }
 
     // Formatting response with full details
     const parentsData = animals.map((parent) => ({

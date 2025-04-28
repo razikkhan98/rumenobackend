@@ -50,8 +50,8 @@
 const farmCounts = {}; // Track count for each UID prefix
 const baseNames = {};  // Map original farm names to their UID prefix
 
-function generateUniqueFarmId(farmName) {
-  const name = farmName.trim().toLowerCase();
+function generateUniqueFarmId(farmHouseName) {
+  const name = farmHouseName.trim().toLowerCase();
   const base = name.slice(0, 4); // take first 4 letters for ID prefix
 
   let prefix;

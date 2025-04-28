@@ -73,7 +73,7 @@ const animalSchema = new mongoose.Schema(
     anyComment: { type: String, default: null },
     otherDisease: { type: String, default: null },
     vaccineDate: { type: Date, default: null },
-    farmName: { type: String, required: true },
+    farmHouseName: { type: String, required: true },
     dateMading: { type: Date, },
     currentPregnancyMonth: { type: Number, },
     failed: { type: String, },

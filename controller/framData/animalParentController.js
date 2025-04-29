@@ -474,9 +474,9 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       purchasDate,
       gender,
       weightKg,
-      weightGm,
       pregnancyDetail,
-      maleDetail,
+      // weightGm,
+      // maleDetail,
       bodyScore,
       anyComment,
     };

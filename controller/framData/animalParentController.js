@@ -276,7 +276,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 
 exports.getAllParents = asyncHandler(async (req, res) => {
   try {
-    const parents = await Animal.find({ uid }); // Get all parents from the database
+    const parents = await Animal.find({  }); // Get all parents from the database
 
     res.json({
       message: "All parent animals fetched successfully",
@@ -456,30 +456,32 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       ageMonth,
       ageYear,
       height,
-      heightDate,
+      // heightDate,
       purchasDate,
       gender,
       weightKg,
-      weightGm,
       pregnancyDetail,
-      maleDetail,
+      // weightGm,
+      // maleDetail,
       bodyScore,
       anyComment,
+      birthDate
     } = req.body;
 
     const updatedFields = {
       ageMonth,
       ageYear,
       height,
-      heightDate,
+      // heightDate,
       purchasDate,
       gender,
       weightKg,
-      weightGm,
       pregnancyDetail,
-      maleDetail,
+      // weightGm,
+      // maleDetail,
       bodyScore,
       anyComment,
+      birthDate
     };
 
     const updated = await Animal.findOneAndUpdate(

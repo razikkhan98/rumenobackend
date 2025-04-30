@@ -11,7 +11,7 @@ const {
 
 exports.addVaccine = asyncHandler(async (req, res) => {
   try {
-    const { vaccineName, vaccineDate, uId, tagId, animalBirthDate } = req.body;
+    const { vaccineName, vaccineDate, uid, tagId, animalBirthDate } = req.body;
 
     // Get schedule for this specific vaccine
     const data = getSchedule_final(vaccineName, vaccineDate);
@@ -29,7 +29,7 @@ exports.addVaccine = asyncHandler(async (req, res) => {
       boosterDate: data.boosterDate,
       repeatDate: data.repeatDate,
       nextReminderDate,
-      uId,
+      uid,
       tagId,
     });
 
@@ -55,7 +55,7 @@ exports.checkReminders = async (req, res) => {
     const tomorrow = "2025-03-17";
 
     const vaccines = await AnimalVaccine.find({
-      uId: userId,
+      uid: userId,
       isCompleted: false,
     });
 
@@ -159,12 +159,12 @@ exports.checkReminders = async (req, res) => {
  */
 exports.registerAnimal = async (req, res) => {
   try {
-    const { animalTagId, birthDate, uId } = req.body;
+    const { animalTagId, birthDate, uid } = req.body;
 
-    if (!animalTagId || !birthDate || !uId) {
+    if (!animalTagId || !birthDate || !uid) {
       return res.status(400).json({
         error:
-          "Missing required fields: animalTagId, birthDate, and uId are required",
+          "Missing required fields: animalTagId, birthDate, and uid are required",
       });
     }
 
@@ -186,7 +186,7 @@ exports.registerAnimal = async (req, res) => {
           nextReminderDate: moment(nextReminderDate)
             .subtract(1, "day")
             .format("YYYY-MM-DD"),
-          uId,
+          uid,
           tagId: animalTagId,
           isCompleted: false,
         }).save();
@@ -236,7 +236,7 @@ exports.completeVaccine = async (req, res) => {
         nextReminderDate: moment(vaccine.boosterDate)
           .subtract(1, "day")
           .format("YYYY-MM-DD"),
-        uId: vaccine.uId,
+        uid: vaccine.uid,
         tagId: vaccine.tagId,
         isCompleted: false,
       });

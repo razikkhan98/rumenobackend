@@ -4,7 +4,7 @@ const VaccineSchema = new mongoose.Schema(
   {
     vaccineName: { type: String,  },
     vaccineDate: { type: String,  },
-    uId: { type: String, required: true }, // User ID
+    uid: { type: String, required: true }, // User ID
     tagId: { type: String, required: true }, // Animal tag ID
     dueDate: { type: String },
     alertDate: { type: String },

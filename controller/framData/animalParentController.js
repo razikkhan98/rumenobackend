@@ -276,7 +276,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 
 exports.getAllParents = asyncHandler(async (req, res) => {
   try {
-    const parents = await Animal.find({ uid }); // Get all parents from the database
+    const parents = await Animal.find({  }); // Get all parents from the database
 
     res.json({
       message: "All parent animals fetched successfully",

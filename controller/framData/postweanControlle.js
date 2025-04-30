@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 // --------------------------------------------------latest codes------------------------------------
 
 exports.createPostWean = async (req, res) => {
-  const { tagId, kidWeight, bodyScore, weanDate, uId } = req.body;
+  const { tagId, kidWeight, bodyScore, weanDate, uid } = req.body;
 
   if (!tagId || typeof tagId !== "string") {
     return res
@@ -35,9 +35,9 @@ exports.createPostWean = async (req, res) => {
       kidWeight,
       bodyScore,
       weanDate,
-      uId,
+      uid,
     });
-    res.status(201).json(newPost);
+    res.status(201).json({success:true, message:"Post wean added successfully",newPost});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -45,10 +45,10 @@ exports.createPostWean = async (req, res) => {
 
 exports.getAllPostWeans = async (req, res) => {
   try {
-    const posts = await AnimalPostWean.find({ uId: req?.query.uId }).sort({
+    const posts = await AnimalPostWean.find({ uid: req?.query.uid }).sort({
       createdAt: -1,
     });
-    res.status(200).json(posts);
+    res.status(200).json({success:true, data:posts});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -65,7 +65,7 @@ exports.getPostWeanById = async (req, res) => {
 };
 
 exports.updatePostWean = async (req, res) => {
-  const { tagId, kidWeight, bodyScore, weanDate, uId } = req.body;
+  const { tagId, kidWeight, bodyScore, weanDate, uid } = req.body;
 
   if (tagId && typeof tagId !== "string") {
     return res.status(400).json({ error: "tagId must be a string" });
@@ -88,7 +88,7 @@ exports.updatePostWean = async (req, res) => {
   try {
     const updatedPost = await AnimalPostWean.findByIdAndUpdate(
       req.params.id,
-      { tagId, kidWeight, bodyScore, weanDate, uId },
+      { tagId, kidWeight, bodyScore, weanDate, uid },
       { new: true }
     );
 

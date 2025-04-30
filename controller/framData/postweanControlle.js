@@ -58,7 +58,7 @@ exports.getPostWeanById = async (req, res) => {
   try {
     const post = await AnimalPostWean.findById(req.params.id);
     if (!post) return res.status(404).json({ error: "PostWean not found" });
-    res.status(200).json(post);
+    res.status(200).json({ success: true, data: post });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

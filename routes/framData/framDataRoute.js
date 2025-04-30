@@ -17,7 +17,7 @@ const sanitationController = require("../../controller/framData/sanitationContro
 const transferAnimalController = require("../../controller/framData/transferAnimalController");
 
 // Farm Detail
-router.post("/user/farmdata", validateToken, framDetailController.farmDetail);
+router.post("/user/farmdata", framDetailController.farmDetail);
 
 // ===============
 // New Entity

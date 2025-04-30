@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const registerModel = require("../../model/user/registerModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const framDetailModel = require("../../model/user/framDetailModel");
+
 
 exports.userLogin = asyncHandler(async (req, res) => {
   // Validate request body
@@ -29,6 +31,12 @@ exports.userLogin = asyncHandler(async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid password" });
     }
+
+    // Find farmHouseName from framDetailModel
+    const farmDetail = await framDetailModel.findOne({ uid: user.uid });
+
+    // If farmDetail not found, fallback empty
+    const farmHouseName = farmDetail ? farmDetail.farmHouseName : "";
     
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "default_secret_key", {
@@ -44,6 +52,7 @@ exports.userLogin = asyncHandler(async (req, res) => {
         name: user.firstName,
         email: user.email,
         uid: user.uid,
+        farmHouseName: farmHouseName,
       },
       date: new Date().toISOString(), // Current timestamp
       token,

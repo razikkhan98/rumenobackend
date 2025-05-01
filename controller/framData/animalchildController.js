@@ -617,7 +617,6 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
     };
 
     res.json({
-
       TotalAnimals: parentDetails.length + childDetails.length,
       TotalParents: parentDetails.length,
       TotalChildren: childDetails.length,
@@ -676,33 +675,69 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
 exports.deleteChildAnimal = asyncHandler(async (req, res) => {
   try {
     const { uniqueId } = req.params;
-
     if (!uniqueId) {
       return res.status(400).json({ message: "UniqueId is required" });
     }
 
     const child = await ChildAnimal.findOne({ uniqueId });
-
     if (!child) {
       return res.status(404).json({ message: "Child not found" });
     }
 
-    const parent = await Animal.findOne({ parentId: child.parentId });
+    await removeChildFromParent(child.parentId, child.kidId);
 
-    if (parent) {
-      parent.children = parent.children.filter(
-        (kidId) => kidId !== child.kidId
-      );
-      await parent.save();
-    }
+    const relatedRecords = [
+      { model: milkModall, field: "milkId" },
+      { model: postWeanModal, field: "postWeanId" },
+      { model: vaccineModal, field: "vaccineId" },
+      { model: estrusHeatModal, field: "heatId" },
+      { model: sanitationModal, field: "sanitationId" },
+      { model: dewormModal, field: "dewormId" },
+    ];
+
+    await Promise.all(
+      relatedRecords.map(({ model, field }) =>
+        removeRelatedRecords(child, model, field)
+      )
+    );
 
     await ChildAnimal.deleteOne({ uniqueId });
 
     res.status(200).json({
-      message:
-        "Child deleted successfully and removed from parent’s children list",
+      message: "Child deleted successfully along with related records",
     });
   } catch (error) {
+    console.error("Error deleting child animal:", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
+
+const removeRelatedRecords = async (child, model, fieldName) => {
+  try {
+    const uniqueId = child.uniqueId;
+
+    if (child[fieldName]) {
+      child[fieldName] = child[fieldName].filter(
+        (item) => item[fieldName] !== uniqueId
+      );
+      await child.save();
+    }
+    await model.deleteMany({ [fieldName]: uniqueId });
+  } catch (error) {
+    console.error(`Error removing ${fieldName} records:`, error);
+  }
+};
+
+const removeChildFromParent = async (parentId, kidId) => {
+  try {
+    if (!parentId) return;
+
+    const parent = await Animal.findOne({ parentId });
+    if (parent) {
+      parent.children = parent.children.filter((id) => id !== kidId);
+      await parent.save();
+    }
+  } catch (error) {
+    console.error("Error removing child from parent:", error);
+  }
+};

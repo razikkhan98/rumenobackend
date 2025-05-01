@@ -2,40 +2,61 @@
 // POST /rumeno/user/animaldata/parent
 
 const asyncHandler = require("express-async-handler");
-const generateParentCode = require("../../utils/parentCode");
+// const generateParentCode = require("../../utils/parentCode");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
-const generateUniqueldId = require("../../utils/uniqueId");
+const generateUniqueFarmId = require('../../utils/uniqueId');
+const milkModall = require("../../model/framData/milkModall");
+const postWeanModal = require("../../model/framData/postWeanModal");
+const vaccineModal = require("../../model/framData/vaccineModal");
+const estrusHeatModal = require("../../model/framData/estrusHeatModal");
+const sanitationModal = require("../../model/framData/sanitationModal");
+const dewormModal = require("../../model/framData/dewormModal");
 
-// Add Parent Data
-
+// Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
-  // Validate request body
-
   if (!req.body) {
+
     return res.status(400).json({ message: "No data provided" });
   }
+
   try {
     const {
       uid,
       animalName,
-      uniqueName,
-      ageMonth,
+      tagId,
       ageYear,
+      ageMonth,
       height,
-      // heightDate,
-      purchasDate,
-      gender,
       weightKg,
-      weightGm,
-      pregnancyDetail,
-      maleDetail,
+      birthDate,
+      motherTag,
+      fatherTag,
+      gender,
+      birthType,
+      birthWeight,
+      mothersWeanDate,
       bodyScore,
-      anyComment,
+      purchaseDate,
+      comments,
+      dateMading,
+      currentPregnancyMonth,
+      failed,
+      motherWeanDate,
+      otherDisease,
+      vaccineDate,
+      vaccineName,
+      farmHouseName,
+      isPregnant,
+      siblingDetails,
+      childWeanWeight,
+      childWeanDate,
+      lastVaccineDate,
+      lastVaccineName
     } = req.body;
 
     // Validate required fields
-    const requiredFields = { uid, uniqueName, gender };
+    const requiredFields = { uid, animalName, farmHouseName, gender };
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value) {
         return res.status(400).json({ message: `${key} is a required field.` });
@@ -48,157 +69,343 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "UID does not exist." });
     }
 
-    // Check uniqueName exists in User model
-    const existingAnimal = await Animal.findOne({ uniqueName });
-    if (existingAnimal) {
-      return res.status(400).json({ message: "Unique Name already exists." });
+
+    //GEnerate unique Id 
+    const uniqueId = generateUniqueFarmId(farmHouseName);
+
+    // Check if Unique ID exists or not 
+    const existID = await Animal.findOne({ uniqueId })
+    if (existID) {
+      return res.status(400).json({ message: "Unique ID already exists." })
     }
 
-    // Generate Parent Code
-    const parentCode = generateParentCode(animalName);
-
-    // Ensure unique parentCode by checking existing records
-    let counter = 1;
-    while (await Animal.findOne({ uniqueId: parentCode })) {
-      parentCode = `${generateParentCode(animalName)}-${counter++}`;
-      counter++;
+    // Check if gender is female and handle pregnancy-related fields
+    if (gender === "Female" && isPregnant) {
+      if (!dateMading || !currentPregnancyMonth || !failed || !motherWeanDate) {
+        return res.status(400).json({
+          message: "For paregnant females, required fields: datemading, currentpregnancymonth, and motherweandate."
+        });
+      }
     }
 
-    // Generate UniqueId
-    const uniqueId = generateUniqueldId(animalName);
 
-    // Create new Parent Animal
+    // Initialize parents array
+    const parents = [];
+
+    // Check if mother exists and add to parents array
+    if (motherTag) {
+      const mother = await Animal.findOne({ tagId: motherTag, gender: "Female" });
+      if (!mother) {
+        return res.status(400).json({ message: "Mother with provided tag ID not found or not female." });
+      }
+      parents.push({
+        parentUniqueId: mother.uniqueId,
+        parentType: "mother"
+      });
+    }
+
+    // Check if father exists and add to parents array
+    if (fatherTag) {
+      const father = await Animal.findOne({ tagId: fatherTag, gender: "Male" });
+      if (!father) {
+        return res.status(400).json({ message: "Father with provided tag ID not found or not male." });
+      }
+      parents.push({
+        parentUniqueId: father.uniqueId,
+        parentType: "father"
+      });
+    }
+
+
+    //  Create new Parent Animal
     const newParent = new Animal({
       uid,
-      parentId: parentCode,
       uniqueId,
+      tagId,
       animalName,
-      uniqueName,
-      ageMonth,
       ageYear,
+      ageMonth,
       height,
-      // heightDate,
-      purchasDate,
-      gender,
       weightKg,
-      weightGm,
-      pregnancyDetail,
-      maleDetail,
+      birthDate,
+      motherTag,
+      fatherTag,
+      gender,
+      birthType,
+      birthWeight,
+      mothersWeanDate,
       bodyScore,
-      anyComment,
-      children: [], // No children initially
-      milk: [],
+      purchaseDate,
+      comments,
+      dateMading: gender === "Female" && isPregnant ? dateMading : null,
+      currentPregnancyMonth: gender === "Female" && isPregnant ? currentPregnancyMonth : null,
+      failed: gender === "Female" && isPregnant ? failed : null,
+      motherWeanDate: gender === "Female" && isPregnant ? motherWeanDate : null,
+      otherDisease,
+      vaccineName,
+      vaccineDate,
+      farmHouseName,
+      isPregnant: gender === "Female" ? isPregnant : false,
+      siblingDetails,
+      childWeanWeight,
+      childWeanDate,
+      lastVaccineDate,
+      lastVaccineName,
+      parents: parents, // Add parents array to the animal record
+      children: [] // Initialize empty children array
     });
     
-
     // Save the new Parent to the database
-
     await newParent.save();
-    // Send a success response
 
-    res.status(201).json({
-      message: "success",
+
+    // Update parent records to include this animal as a child
+    if (parents.length > 0) {
+      for (const parent of parents) {
+        await Animal.findOneAndUpdate(
+          { uniqueId: parent.parentUniqueId },
+          { $push: { children: newParent.uniqueId } }
+        );
+      }
+    }
+
+    // Send a success response
+    res.status(200).json({
+      message: "Animal added successfully",
       data: newParent,
-    });
+    })
+
   } catch (error) {
     res.status(500).json({
-      message: "Server Error. Failed to add parent animal.",
-      error: error.message,
+      message: "Server Error. Failed to add animal .",
+      error: error.message
     });
-  }
+  };
+
 });
 
-// Get all Parent Data
+// exports.animalDetail = asyncHandler(async (req, res) => {
+// // Validate request body
+
+// if (!req.body) {
+//   return res.status(400).json({ message: "No data provided" });
+// }
+// try {
+//   const {
+//     uid,
+//     animalName,
+//     uniqueName,
+//     ageMonth,
+//     ageYear,
+//     height,
+//     // heightDate,
+//     purchasDate,
+//     gender,
+//     weightKg,
+//     weightGm,
+//     pregnancyDetail,
+//     maleDetail,
+//     bodyScore,
+//     anyComment,
+//   } = req.body;
+
+//   // Validate required fields
+//   const requiredFields = { uid, uniqueName, gender };
+//   for (const [key, value] of Object.entries(requiredFields)) {
+//     if (!value) {
+//       return res.status(400).json({ message: `${key} is a required field.` });
+//     }
+//   }
+
+//   // Check if UID exists in User model
+//   const existingUser = await User.findOne({ uid });
+//   if (!existingUser) {
+//     return res.status(400).json({ message: "UID does not exist." });
+//   }
+
+//   // Check uniqueName exists in User model
+//   const existingAnimal = await Animal.findOne({ uniqueName });
+//   if (existingAnimal) {
+//     return res.status(400).json({ message: "Unique Name already exists." });
+//   }
+
+//   // Generate Parent Code
+//   const parentCode = generateParentCode(animalName);
+
+//   // Ensure unique parentCode by checking existing records
+//   let counter = 1;
+//   while (await Animal.findOne({ uniqueId: parentCode })) {
+//     parentCode = `${generateParentCode(animalName)}-${counter++}`;
+//     counter++;
+//   }
+
+//   // Generate UniqueId
+//   const uniqueId = generateUniqueldId(animalName);
+
+//   // Create new Parent Animal
+//   const newParent = new Animal({
+//     uid,
+//     parentId: parentCode,
+//     uniqueId,
+//     animalName,
+//     uniqueName,
+//     ageMonth,
+//     ageYear,
+//     height,
+//     // heightDate,
+//     purchasDate,
+//     gender,
+//     weightKg,
+//     weightGm,
+//     pregnancyDetail,
+//     maleDetail,
+//     bodyScore,
+//     anyComment,
+//     children: [], // No children initially
+//     milk: [],
+//   });
+
+
+//     // Save the new Parent to the database
+
+//     await newParent.save();
+//     // Send a success response
+
+//     res.status(201).json({
+//       message: "success",
+//       data: newParent,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Server Error. Failed to add parent animal.",
+//       error: error.message,
+//     });
+//   }
+// });
+
+// Get all animal Data
 
 exports.getAllParents = asyncHandler(async (req, res) => {
   try {
-    const parents = await Animal.find({}); // Get all parents from the database
+    const animals = await Animal.find({  }); // Get all parents from the database
 
     res.json({
-      message: "All parent animals fetched successfully",
-      data: parents,
+      message: "All animals fetched successfully",
+      data: animals,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Server Error. Failed to fetch parent animals.",
+      message: "Server Error. Failed to fetch animals.",
       error: error.message,
     });
   }
 });
 
-// Get Parent Data by UniqueId
+// Get animal Data by uId
 exports.animalAllDetail = asyncHandler(async (req, res) => {
   // Validate request body
 
-  if (!req.params) {
+  if (!req.query) {
     return res.status(400).json({ message: "No data provided" });
   }
-
   try {
-    const { uniqueId } = req.params;
+    const { animalName, uid } = req.query;
 
-    const parents = await Animal.aggregate([
+    // // First, find the animal by uniqueId
+    const animal = await Animal.find({ animalName , uid });
+   
+    if (!animal) {
+      return res.status(404).json({ message: "Animal not found" });
+    }
+
+
+    const animals = await Animal.aggregate([
       {
-        $match: { uniqueId: uniqueId }, // Find the parent by uniqueId
+        $match: { uid: uid }, // Find the parent by uniqueId
       },
       {
         $lookup: {
-          from: "childanimals", // Collection name of ChildAnimal (check lowercase plural)
-          localField: "parentId", // The _id field of Animal (parent)
-          foreignField: "parentId", // The parent field in ChildAnimal referencing Animal
-          as: "children",
+          from: "animals", // Collection name of ChildAnimal (check lowercase plural)
+          localField: "children", // The _id field of Animal (parent)
+          foreignField: "uid", // The parent field in ChildAnimal referencing Animal
+          as: "childrenDetails",
         },
       },
     ]);
 
-    if (!parents || parents.length === 0) {
-      return res.status(404).json({ message: "No parent found" });
-    }
+    // if (!animals || animals.length === 0) {
+    //   return res.status(404).json({ message: "No parent found" });
+    // }
 
     // Formatting response with full details
-    const parentsData = parents.map((parent) => ({
-      parentId: parent._id,
+    const parentsData = animals.map((parent) => ({
       uniqueId: parent.uniqueId,
-      uniqueName: parent.uniqueName,
-      ageMonth: parent.ageMonth,
+      tagId: parent.tagId,
+      animalName: parent.animalName,
       ageYear: parent.ageYear,
+      ageMonth: parent.ageMonth,
       height: parent.height,
-      purchasDate: parent.purchasDate,
+      weightKg: parent.weightKg,
+      birthDate: parent.birthDate,
+      motherTag: parent.motherTag,
+      fatherTag: parent.fatherTag,
       gender: parent.gender,
-      weightMonth: parent.weightMonth,
-      weightYear: parent.weightYear,
-      pregnancyDetail: parent.pregnancyDetail,
-      maleDetail: parent.maleDetail,
+      birthType: parent.birthType,
+      birthWeight: parent.birthWeight,
+      mothersWeanDate: parent.mothersWeanDate,
       bodyScore: parent.bodyScore,
-      anyComment: parent.anyComment,
+      purchaseDate: parent.purchaseDate,
+      comments: parent.comments,
+      dateMading: parent.dateMading,
+      currentPregnancyMonth: parent.currentPregnancyMonth,
+      failed: parent.failed,
+      motherWeanDate: parent.motherWeanDate,
+      otherDisease: parent.otherDisease,
+      vaccineDate: parent.vaccineDate,
+      vaccineName: parent.vaccineName,
+      siblingDetails: parent.siblingDetails,
+      childWeanWeight: parent.childWeanWeight,
+      childWeanDate: parent.childWeanDate,
+      lastVaccineDate: parent.lastVaccineDate,
+      lastVaccineName: parent.lastVaccineName,
+      farmName: parent.farmName,
       createdAt: parent.createdAt,
       updatedAt: parent.updatedAt,
       // Children
-      children: parent.children.map((child) => ({
+      children: (parent.childrenDetails || []).map((child) => ({
         uniqueId: child.uniqueId,
-        kidId: child.kidId,
-        uniqueName: child.uniqueName,
-        age: child.age,
-        DOB: child.DOB,
+        tagId: child.tagId,
+        animalName: child.animalName,
+        ageYear: child.ageYear,
+        ageMonth: child.ageMonth,
+        height: child.height,
+        weightKg: child.weightKg,
+        birthDate: child.birthDate,
+        motherTag: child.motherTag,
+        fatherTag: child.fatherTag,
         gender: child.gender,
-        kidCode: child.kidCode,
-        bodyScore: child.bodyScore,
-        BODType: child.BODType,
-        kidWeight: child.kidWeight,
-        weanDate: child.weanDate,
-        weanWeight: child.weanWeight,
-        motherWeanWeight: child.motherWeanWeight,
-        motherWeanDate: child.motherWeanDate,
-        castration: child.castration,
+        birthType: child.birthType,
         birthWeight: child.birthWeight,
-        breed: child.breed,
-        motherAge: child.motherAge,
-        anyComment: child.anyComment,
+        mothersWeanDate: child.mothersWeanDate,
+        bodyScore: child.bodyScore,
+        purchaseDate: child.purchaseDate,
+        comments: child.comments,
+        dateMading: child.dateMading,
+        currentPregnancyMonth: child.currentPregnancyMonth,
+        failed: child.failed,
+        motherWeanDate: child.motherWeanDate,
+        otherDisease: child.otherDisease,
+        vaccineDate: child.vaccineDate,
+        vaccineName: child.vaccineName,
+        farmName: child.farmName,
+        lastVaccineDate: child.lastVaccineDate,
+        lastVaccineName: child.lastVaccineName,
         createdAt: child.createdAt,
         updatedAt: child.updatedAt,
       })),
+
       // Post Wean
-      postWean: parent.postWean.map((postWean) => ({
+      postWean: (parent.postWean || []).map((postWean) => ({
         postWeanId: postWean._id,
         weightKg: postWean.weightKg,
         weightGm: postWean.weightGm,
@@ -207,7 +414,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         weanComment: postWean.weanComment,
       })),
       // milk
-      milk: parent.milk.map((milk) => ({
+      milk: (parent.milk || []).map((milk) => ({
         milkId: milk._id,
         name: milk.name,
         milkVolume: milk.milkVolume,
@@ -216,7 +423,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         updatedAt: milk.updatedAt,
       })),
       // Vaccine
-      vaccine: parent.vaccine.map((vaccine) => ({
+      vaccine: (parent.vaccine || []).map((vaccine) => ({
         vaccineId: vaccine._id,
         name: vaccine.name,
         date: vaccine.date,
@@ -224,7 +431,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         updatedAt: vaccine.updatedAt,
       })),
       // Deworm
-      deworm: parent.deworm.map((deworm) => ({
+      deworm: (parent.deworm || []).map((deworm) => ({
         dewormId: deworm._id,
         report: deworm.report, // Assuming 'report' is the name of the deworming record
         endoName: deworm.endoName, // Endoparasitic treatment name
@@ -238,25 +445,25 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         createdAt: deworm.createdAt,
         updatedAt: deworm.updatedAt,
       })),
-    }));
+    }
+    ));
 
-  
 
     res.status(200).json({
-      parents: parentsData,
+      animals: parentsData,
     });
   } catch (error) {
-    console.error("Error fetching parent and child data:", error);
+    console.error("Error fetching animal data:", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
 
-// Update Parent
+
+// Update animal
 exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
   }
-
   try {
     const { uniqueId } = req.params; // Extract uniqueId from URL params
     if (!uniqueId) {
@@ -264,43 +471,75 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
     }
 
     const {
-      ageMonth,
+      animalName,
       ageYear,
+      ageMonth,
       height,
-      heightDate,
-      purchasDate,
-      gender,
       weightKg,
-      weightGm,
-      pregnancyDetail,
-      maleDetail,
+      birthDate,
+      motherTag,
+      fatherTag,
+      gender,
+      birthType,
+      birthWeight,
+      mothersWeanDate,
       bodyScore,
-      anyComment,
+      purchaseDate,
+      comments,
+      dateMading,
+      currentPregnancyMonth,
+      failed,
+      motherWeanDate,
+      otherDisease,
+      vaccineName,
+      vaccineDate,
+      siblingDetails,
+      childWeanDate,
+      childWeanWeight,
+      lastVaccineDate,
+      lastVaccineName,
+      farmHouseName
     } = req.body;
 
     const updatedFields = {
-      ageMonth,
+      animalName,
       ageYear,
+      ageMonth,
       height,
-      heightDate,
-      purchasDate,
-      gender,
       weightKg,
-      weightGm,
-      pregnancyDetail,
-      maleDetail,
+      birthDate,
+      motherTag,
+      fatherTag,
+      gender,
+      birthType,
+      birthWeight,
+      mothersWeanDate,
       bodyScore,
-      anyComment,
+      purchaseDate,
+      comments,
+      dateMading,
+      currentPregnancyMonth,
+      failed,
+      motherWeanDate,
+      otherDisease,
+      vaccineDate,
+      vaccineName,
+      siblingDetails,
+      childWeanDate,
+      childWeanWeight,
+      lastVaccineDate,
+      lastVaccineName,
+      farmHouseName
     };
-
     const updated = await Animal.findOneAndUpdate(
       { uniqueId: uniqueId }, // Ensure you pass uniqueId properly
       { $set: updatedFields },
       { new: true }
     );
+    console.log(updated)
 
     if (!updated) {
-      return res.status(404).json({ message: "No parent found" });
+      return res.status(404).json({ message: "No animal found" });
     }
 
     res.status(200).json({
@@ -312,10 +551,8 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
   }
 });
 
+// Delete parent (if no children)
 
-
- // Delete parent (if no children)
- 
 exports.deleteAnimalParent = asyncHandler(async (req, res) => {
   try {
     const { uniqueId } = req.params;
@@ -338,7 +575,7 @@ exports.deleteAnimalParent = asyncHandler(async (req, res) => {
       });
     }
 
-       
+
     // If no children exist, delete the parent
     await Animal.deleteOne({ uniqueId });
 
@@ -347,3 +584,19 @@ exports.deleteAnimalParent = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
+
+const removeRelatedRecords = async (parent, model, fieldName) => {
+  try {
+    const uniqueId = parent?.uniqueId;
+
+    if (parent[fieldName]) {
+      parent[fieldName] = parent[fieldName].filter(
+        (item) => item[fieldName] !== uniqueId
+      );
+      await parent.save();
+    }
+    await model.deleteMany({ [fieldName]: uniqueId });
+  } catch (error) {
+    console.error(`Error removing ${fieldName} records:`, error);
+  }
+};

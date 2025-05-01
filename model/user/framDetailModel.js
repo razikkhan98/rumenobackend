@@ -5,23 +5,23 @@ const framDetailSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    framName: {
+    farmerName: {
         type: String,
         required: true,
     },
-    framNumber: {
+    mobileNumber: {
         type: Number,
         required: true,
     },
-    framHouse: {
+    farmHouseName: {
         type: String,
         required: true,
     },
-    framType: {
+    farmHouseType: {
         type: String,
         required: true,
     },
-    framAddress: {
+    farmAddress: {
         type: String,
         required: true,
     },

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const MilkSchema = new mongoose.Schema(
   {
-    milkId: {
+    tagId: {
       type: String,
       required: true,
     },
@@ -12,12 +12,12 @@ const MilkSchema = new mongoose.Schema(
       default: null,
     },
 
-    numberKids: {
+    numberOfKidsSuckingMilk: {
       type: Number,
       default: null,
     },
 
-    milkDate: {
+    kiddingDeliveryDate: {
       type: String,
       default: null,
     },

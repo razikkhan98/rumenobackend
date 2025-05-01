@@ -39,16 +39,25 @@ const mongoose = require("mongoose");
 
 const DewormSchema = new mongoose.Schema(
   {
-    dewormId: {
+    tagId: {
       type: String,
       required: true,
     },
+    uid:{
+       type: String,
+       required: true,
+    },
+    // uniqueId: {
+    //  type: String,
+    //  required: true,
+    // },
     report: {
       type: String,
       default: null,
     },
     date: {
       type: String,
+      default: null
     },
     endoName: {
       type: String,
@@ -60,9 +69,11 @@ const DewormSchema = new mongoose.Schema(
     },
     endoDate: {
       type: Date,
+      default: null,
     },
     ectoDate: {
       type: Date,
+      default: null,
     },
     endoType: {
       type: String,
@@ -74,6 +85,7 @@ const DewormSchema = new mongoose.Schema(
     },
     animalDate: {
       type: Date,
+      default: null,
     },
   },
 

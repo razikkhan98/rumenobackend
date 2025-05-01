@@ -38,7 +38,7 @@ router.get(
 
 // Get all new Entity
 router.get(
-  "/user/animaldata/newEntity/getAll",
+  "/user/animaldata/newEntity/getAllAnimal",
   animalParentController.getAllParents
 );
 
@@ -177,24 +177,7 @@ router.get(
 //   vaccineController.deleteVaccine
 // );
 
-// ===========
-// Deworm Routes
-// ===========
 
-// Add Deworm Parent and Child
-router.post("/user/animal/dewormdata/add", dewormController.addDeworm);
-
-// Update Deworm Parent and Child
-router.put(
-  "/user/animal/dewormdata/update/:dewormId",
-  dewormController.updateDeworm
-);
-
-// Delete Deworm Parent and Child
-router.delete(
-  "/user/animal/dewormdata/delete/:dewormId",
-  dewormController.deleteDeworm
-);
 
 // =============
 // Estrus Heat
@@ -481,5 +464,29 @@ router.delete(
 );
 
 // ----------------------------- Estrus heat end -----------------------------------------
+
+
+
+//--------------------------------------------------------------------------------------------
+                         
+
+
+// Add Deworm Animal
+router.post("/dewormdata/addDeworm", dewormController.addDeworm);
+
+// Get All Deworm Data
+router.get("/dewormdata/getAllDeworm", dewormController.getAllDeworm);
+
+// Update Deworm Animal
+router.put("/dewormdata/update/:id", dewormController.updateDeworm);
+
+// Delete Deworm Animal
+router.delete("/dewormdata/delete/:id", dewormController.deleteDeworm);
+
+
+
+
+
+
 
 module.exports = router;

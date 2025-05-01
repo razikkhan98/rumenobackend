@@ -37,16 +37,22 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       birthWeight,
       mothersWeanDate,
       bodyScore,
-      purchasDate,
-      anyComment,
+      purchaseDate,
+      comments,
       dateMading,
       currentPregnancyMonth,
       failed,
       motherWeanDate,
       otherDisease,
       vaccineDate,
+      vaccineName,
       farmHouseName,
-      isPregnant
+      isPregnant,
+      siblingDetails,
+      childWeanWeight,
+      childWeanDate,
+      lastVaccineDate,
+      lastVaccineName
     } = req.body;
 
     // Validate required fields
@@ -129,19 +135,25 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       birthWeight,
       mothersWeanDate,
       bodyScore,
-      purchasDate,
-      anyComment,
+      purchaseDate,
+      comments,
       dateMading: gender === "Female" && isPregnant ? dateMading : null,
       currentPregnancyMonth: gender === "Female" && isPregnant ? currentPregnancyMonth : null,
       failed: gender === "Female" && isPregnant ? failed : null,
       motherWeanDate: gender === "Female" && isPregnant ? motherWeanDate : null,
       otherDisease,
+      vaccineName,
       vaccineDate,
       farmHouseName,
+      isPregnant: gender === "Female" ? isPregnant : false,
+      siblingDetails,
+      childWeanWeight,
+      childWeanDate,
+      lastVaccineDate,
+      lastVaccineName,
       parents: parents, // Add parents array to the animal record
       children: [] // Initialize empty children array
     });
-    console.log('newParent: ', newParent);
     
     // Save the new Parent to the database
     await newParent.save();
@@ -157,16 +169,15 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       }
     }
 
-
     // Send a success response
-    res.status(201).json({
-      message: "success",
+    res.status(200).json({
+      message: "Animal added successfully",
       data: newParent,
     })
 
   } catch (error) {
     res.status(500).json({
-      message: "Server Error. Failed to add animal unique entity.",
+      message: "Server Error. Failed to add animal .",
       error: error.message
     });
   };
@@ -276,21 +287,21 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 
 exports.getAllParents = asyncHandler(async (req, res) => {
   try {
-    const parents = await Animal.find({  }); // Get all parents from the database
+    const animals = await Animal.find({  }); // Get all parents from the database
 
     res.json({
-      message: "All parent animals fetched successfully",
-      data: parents,
+      message: "All animals fetched successfully",
+      data: animals,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Server Error. Failed to fetch parent animals.",
+      message: "Server Error. Failed to fetch animals.",
       error: error.message,
     });
   }
 });
 
-// Get animal Data by UniqueId
+// Get animal Data by uId
 exports.animalAllDetail = asyncHandler(async (req, res) => {
   // Validate request body
 
@@ -303,7 +314,6 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
     // // First, find the animal by uniqueId
     const animal = await Animal.find({ animalName , uid });
    
-
     if (!animal) {
       return res.status(404).json({ message: "Animal not found" });
     }
@@ -344,14 +354,20 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       birthWeight: parent.birthWeight,
       mothersWeanDate: parent.mothersWeanDate,
       bodyScore: parent.bodyScore,
-      purchasDate: parent.purchasDate,
-      anyComment: parent.anyComment,
+      purchaseDate: parent.purchaseDate,
+      comments: parent.comments,
       dateMading: parent.dateMading,
       currentPregnancyMonth: parent.currentPregnancyMonth,
       failed: parent.failed,
       motherWeanDate: parent.motherWeanDate,
       otherDisease: parent.otherDisease,
       vaccineDate: parent.vaccineDate,
+      vaccineName: parent.vaccineName,
+      siblingDetails: parent.siblingDetails,
+      childWeanWeight: parent.childWeanWeight,
+      childWeanDate: parent.childWeanDate,
+      lastVaccineDate: parent.lastVaccineDate,
+      lastVaccineName: parent.lastVaccineName,
       farmName: parent.farmName,
       createdAt: parent.createdAt,
       updatedAt: parent.updatedAt,
@@ -372,15 +388,18 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         birthWeight: child.birthWeight,
         mothersWeanDate: child.mothersWeanDate,
         bodyScore: child.bodyScore,
-        purchasDate: child.purchasDate,
-        anyComment: child.anyComment,
+        purchaseDate: child.purchaseDate,
+        comments: child.comments,
         dateMading: child.dateMading,
         currentPregnancyMonth: child.currentPregnancyMonth,
         failed: child.failed,
         motherWeanDate: child.motherWeanDate,
         otherDisease: child.otherDisease,
         vaccineDate: child.vaccineDate,
+        vaccineName: child.vaccineName,
         farmName: child.farmName,
+        lastVaccineDate: child.lastVaccineDate,
+        lastVaccineName: child.lastVaccineName,
         createdAt: child.createdAt,
         updatedAt: child.updatedAt,
       })),
@@ -434,7 +453,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       animals: parentsData,
     });
   } catch (error) {
-    console.error("Error fetching parent and child data:", error);
+    console.error("Error fetching animal data:", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
@@ -445,7 +464,6 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
   }
-
   try {
     const { uniqueId } = req.params; // Extract uniqueId from URL params
     if (!uniqueId) {
@@ -453,45 +471,75 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
     }
 
     const {
-      ageMonth,
+      animalName,
       ageYear,
+      ageMonth,
       height,
-      // heightDate,
-      purchasDate,
-      gender,
       weightKg,
-      pregnancyDetail,
-      // weightGm,
-      // maleDetail,
+      birthDate,
+      motherTag,
+      fatherTag,
+      gender,
+      birthType,
+      birthWeight,
+      mothersWeanDate,
       bodyScore,
-      anyComment,
-      birthDate
+      purchaseDate,
+      comments,
+      dateMading,
+      currentPregnancyMonth,
+      failed,
+      motherWeanDate,
+      otherDisease,
+      vaccineName,
+      vaccineDate,
+      siblingDetails,
+      childWeanDate,
+      childWeanWeight,
+      lastVaccineDate,
+      lastVaccineName,
+      farmHouseName
     } = req.body;
 
     const updatedFields = {
-      ageMonth,
+      animalName,
       ageYear,
+      ageMonth,
       height,
-      // heightDate,
-      purchasDate,
-      gender,
       weightKg,
-      pregnancyDetail,
-      // weightGm,
-      // maleDetail,
+      birthDate,
+      motherTag,
+      fatherTag,
+      gender,
+      birthType,
+      birthWeight,
+      mothersWeanDate,
       bodyScore,
-      anyComment,
-      birthDate
+      purchaseDate,
+      comments,
+      dateMading,
+      currentPregnancyMonth,
+      failed,
+      motherWeanDate,
+      otherDisease,
+      vaccineDate,
+      vaccineName,
+      siblingDetails,
+      childWeanDate,
+      childWeanWeight,
+      lastVaccineDate,
+      lastVaccineName,
+      farmHouseName
     };
-
     const updated = await Animal.findOneAndUpdate(
       { uniqueId: uniqueId }, // Ensure you pass uniqueId properly
       { $set: updatedFields },
       { new: true }
     );
+    console.log(updated)
 
     if (!updated) {
-      return res.status(404).json({ message: "No parent found" });
+      return res.status(404).json({ message: "No animal found" });
     }
 
     res.status(200).json({

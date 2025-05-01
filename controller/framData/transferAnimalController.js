@@ -113,7 +113,7 @@ exports.getAllTransferAnimal = expressAsyncHandler(async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Server error, failed to fetch transfer animals" });
     }
-})
+});
 
 
 // Get transfer animal by Unique ID 

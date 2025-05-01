@@ -49,8 +49,11 @@ exports.getAllPostWeans = async (req, res) => {
       createdAt: -1,
     });
     res.status(200).json({success:true, data:posts});
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Error fetching postwean records:", error);
+    res.status(500).json({success: false,
+      message: "Failed to fetch postwean records",
+       error: error.message });
   }
 };
 

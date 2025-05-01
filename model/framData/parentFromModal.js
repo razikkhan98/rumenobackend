@@ -69,16 +69,23 @@ const animalSchema = new mongoose.Schema(
     birthWeight: { type: String, default: null },
     mothersWeanDate: { type: String, default: null },
     bodyScore: { type: Number, default: null },
-    purchasDate: { type: Date, default: null },
-    anyComment: { type: String, default: null },
+    purchaseDate: { type: Date, default: null },
+    comments: { type: String, default: null },
     otherDisease: { type: String, default: null },
     vaccineDate: { type: Date, default: null },
+    vaccineName: { type: String, default: null },
     farmHouseName: { type: String, required: true },
     dateMading: { type: Date, },
-    currentPregnancyMonth: { type: Number, },
+    currentPregnancyMonth: { type: String, },
     failed: { type: String, },
     motherWeanDate: { type: Date, },
     isPregnant: { type: Boolean, default:false },
+    siblingDetails: { type: String, default:false },
+    childWeanWeight:{ type: String, default:false },
+    childWeanDate:{ type: String, default:false },
+    lastVaccineDate: { type: String, default:false },
+    lastVaccineName: { type: String, default:false },
+
 
     // Added parent-child relationship fields
     parents: [{
@@ -92,27 +99,6 @@ const animalSchema = new mongoose.Schema(
   }, {
 
 
-  // uniqueName: { type: String, default: null },
-  // animalName: { type: String, default: null },
-
-  // ageMonth: { type: Number, default: null }, 
-  // ageYear: { type: Number, default: null }, 
-  // height: { type: Number, default: null }, 
-  // // heightDate: { type: Date, default: null },
-  // purchasDate: { type: Date, default: null },
-
-  // gender: {
-  //   type: String,
-  //   enum: ["Male", "Female", "Other"], // Ensure only these values are accepted
-  //   // required: true,
-  // },
-
-  // weightKg: { type: Number, default: null },
-  // weightGm: { type: Number, default: null }, 
-  // pregnancyDetail: { type: String, default: null },
-  // maleDetail: { type: String, default: null }, 
-  // bodyScore: { type: Number, default: null }, 
-  // anyComment: { type: String, default: null },
 
   // children: [{ type: String, ref: "ChildAnimal", default: [] }], // References Child
   // milk: [{ type: Object, ref: "Milk", default: [] }], // References Milk

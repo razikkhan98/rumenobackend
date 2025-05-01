@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
-const Animal = require("../../model/framData/parentFromModal");
 const AnimalDeworm = require("../../model/framData/dewormModal");
+// const Animal = require("../../model/framData/parentFromModal");
 // const ChildAnimal = require("../../model/framData/childFromModal");
 
 exports.addDeworm = asyncHandler(async (req, res) => {
@@ -13,7 +13,7 @@ exports.addDeworm = asyncHandler(async (req, res) => {
     const {
       tagId,
       uid,
-      uniqueId,
+      // uniqueId,
       report,
       date,
       endoName,
@@ -25,9 +25,9 @@ exports.addDeworm = asyncHandler(async (req, res) => {
       animalDate,
     } = req.body;
 
-    if (!uid && !tagId && !uniqueId) {
+    if (!uid && !tagId) {
       return res.status(400).json({
-        message: "Uid and tagid, uniqueId is required.",
+        message: "Uid and tagId is required.",
       });
     }
 
@@ -56,7 +56,7 @@ exports.addDeworm = asyncHandler(async (req, res) => {
     const AnimalDewornData = await AnimalDeworm.create({
       tagId,
       uid,
-      uniqueId,
+      // uniqueId,
       report,
       date,
       endoName,
@@ -89,7 +89,7 @@ exports.addDeworm = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Server Error. Failed to add Post Wean data.",
+      message: "Server Error. Failed to add deworm data.",
       error: error.message,
     });
   }
@@ -98,19 +98,19 @@ exports.addDeworm = asyncHandler(async (req, res) => {
 
 
 exports.getAllDeworm = async (req, res) => {
-    try {
-      const deworm = await AnimalDeworm.find({uid: req?.query.uid}).sort({ createdAt: -1 }); // Sort by newest first
+  try {
+    const deworm = await AnimalDeworm.find({ uid: req?.query.uid }).sort({ createdAt: -1 }); // Sort by newest first
 
-      res.status(200).json({ success: true, data: deworm });
-    } catch (error) {
-      console.error("Error fetching deworm records:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to fetch deworm records",
-        error: error.message,
-      });
-    }
-  };
+    res.status(200).json({ success: true, count: deworm.length, data: deworm });
+  } catch (error) {
+    console.error("Error fetching deworm records:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch deworm records",
+      error: error.message,
+    });
+  }
+};
 
 
 
@@ -122,13 +122,13 @@ exports.updateDeworm = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "No data provided" });
     }
 
-  const { uniqueId } = req.params;
-  console.log("id", uniqueId);
- if (!uniqueId){
-    return res. status(400).json({message: "UniqueId is required"})
- }
-  
-    const { 
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Id is required" })
+    }
+
+    const {
       report,
       date,
       endoName,
@@ -138,25 +138,24 @@ exports.updateDeworm = asyncHandler(async (req, res) => {
       endoType,
       ectoType,
       animalDate,
-     } = req.body;
+    } = req.body;
 
     const deworm = {
-        report,
-        date,
-        endoName,
-        ectoName,
-        endoDate,
-        ectoDate,
-        endoType,
-        ectoType,
-        animalDate
-       };
-      
-    const updatedDeworm = await AnimalDeworm.findOneAndUpdate(
-          { uniqueId: uniqueId }, // Ensure you pass uniqueId properly
-          { $set: deworm },
-          { new: true }
-        );
+      report,
+      date,
+      endoName,
+      ectoName,
+      endoDate,
+      ectoDate,
+      endoType,
+      ectoType,
+      animalDate
+    };
+
+    const updatedDeworm = await AnimalDeworm.findByIdAndUpdate(id, // Ensure you pass Id properly
+      { $set: deworm },
+      { new: true }
+    );
 
     if (!updatedDeworm) {
       return res.status(404).json({ message: "Deworn not found." });
@@ -174,37 +173,36 @@ exports.updateDeworm = asyncHandler(async (req, res) => {
 
 
 // Delete Deworm data
-exports.deleteDeworm = asyncHandler(async (req ,res) => {
+exports.deleteDeworm = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
     return res.status(400).json({ message: "Id is required" });
   }
-console.log(id)
   try {
     // Find Deworm Entry
     const deworm = await AnimalDeworm.findByIdAndDelete(id);
     if (!deworm) {
-      return res.status(404).json({ message: "Deworn not found" });
+      return res.status(400).json({ message: "Deworn not found" });
     }
-    
-    res.status(200).json({success: true, message: "deworm deleted successfully" });
+
+    res.status(200).json({ success: true, message: "deworm deleted successfully" });
   } catch (error) {
-    console.error("Error deleting deworm record" ,error);
-    res.status(500).json({status:false ,message: "Server error", error: error.message });
+    console.error("Error deleting deworm record", error);
+    res.status(500).json({ status: false, message: "Server error", error: error.message });
   }
 });
 
 
-    // // Remove references from Parent & Child
-    // await Animal.updateMany(
-    //   { uniqueId: dewormId },
-    //   { $pull: { dewormId: dewormId } }
-    // );
-    // await ChildAnimal.updateMany(
-    //   { uniqueId: dewormId },
-    //   { $pull: { dewormId: dewormId } }
-    // );
+// // Remove references from Parent & Child
+// await Animal.updateMany(
+//   { uniqueId: dewormId },
+//   { $pull: { dewormId: dewormId } }
+// );
+// await ChildAnimal.updateMany(
+//   { uniqueId: dewormId },
+//   { $pull: { dewormId: dewormId } }
+// );
 
-    // // Delete Post Wean Entry
-    // await AnimalDeworn.deleteOne({ dewormId: dewormId });
+// // Delete Post Wean Entry
+// await AnimalDeworn.deleteOne({ dewormId: dewormId });

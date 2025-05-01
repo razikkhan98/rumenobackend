@@ -38,7 +38,7 @@ router.get(
 
 // Get all new Entity
 router.get(
-  "/user/animaldata/newEntity/getAll",
+  "/user/animaldata/newEntity/getAllAnimal",
   animalParentController.getAllParents
 );
 
@@ -478,7 +478,7 @@ router.post("/dewormdata/addDeworm", dewormController.addDeworm);
 router.get("/dewormdata/getAllDeworm", dewormController.getAllDeworm);
 
 // Update Deworm Animal
-router.put("/dewormdata/update/:uniqueId", dewormController.updateDeworm);
+router.put("/dewormdata/update/:id", dewormController.updateDeworm);
 
 // Delete Deworm Animal
 router.delete("/dewormdata/delete/:id", dewormController.deleteDeworm);

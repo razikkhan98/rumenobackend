@@ -47,10 +47,10 @@ const DewormSchema = new mongoose.Schema(
        type: String,
        required: true,
     },
-    uniqueId: {
-     type: String,
-     required: true,
-    },
+    // uniqueId: {
+    //  type: String,
+    //  required: true,
+    // },
     report: {
       type: String,
       default: null,

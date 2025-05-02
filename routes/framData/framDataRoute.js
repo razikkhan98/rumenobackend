@@ -365,7 +365,7 @@ router.get(
  * @access Private
  */
 router.get(
-  "/milk-record/get-milk-record-by-id/:id",
+  "/milk-record/get-milk-record-by-id/:uid",
   milkController.getMilkRecordById
 );
 

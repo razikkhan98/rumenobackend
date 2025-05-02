@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const AnimalMilk = require("../../model/framData/milkModall");
+const Animal = require("../../model/framData/parentFromModal");
 
 // --------------------------------- latest code  ---------------------------------------------------
 /**
@@ -77,9 +78,11 @@ const AnimalMilk = require("../../model/framData/milkModall");
  */
 exports.getMilkRecordById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { uid } = req.params;
+    console.log('req.params:', req.params);
 
-    const milk = await AnimalMilk.findById(id);
+    const milk = await AnimalMilk.findOne({uid});
+    console.log('milk:', milk);
 
     if (!milk) {
       return res

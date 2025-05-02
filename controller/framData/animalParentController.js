@@ -74,10 +74,15 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     const uniqueId = generateUniqueFarmId(farmHouseName);
 
     // Check if Unique ID exists or not 
-    const existID = await Animal.findOne({ uniqueId })
+    // const existID = await Animal.findOne({ uniqueId })
+    // if (existID) {
+    //   return res.status(400).json({ message: "Unique ID already exists." })
+    // }
+    const existID = await Animal.findOne({ tagId })
     if (existID) {
-      return res.status(400).json({ message: "Unique ID already exists." })
+      return res.status(400).json({ message: "tagId already exists." })
     }
+
 
     // Check if gender is female and handle pregnancy-related fields
     if (gender === "Female" && isPregnant) {
@@ -154,7 +159,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       parents: parents, // Add parents array to the animal record
       children: [] // Initialize empty children array
     });
-    
+
     // Save the new Parent to the database
     await newParent.save();
 
@@ -287,7 +292,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 
 exports.getAllParents = asyncHandler(async (req, res) => {
   try {
-    const animals = await Animal.find({  }); // Get all parents from the database
+    const animals = await Animal.find({}); // Get all parents from the database
 
     res.json({
       message: "All animals fetched successfully",
@@ -312,8 +317,8 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
     const { animalName, uid } = req.query;
 
     // // First, find the animal by uniqueId
-    const animal = await Animal.find({ animalName , uid });
-   
+    const animal = await Animal.find({ animalName, uid });
+
     if (!animal) {
       return res.status(404).json({ message: "Animal not found" });
     }

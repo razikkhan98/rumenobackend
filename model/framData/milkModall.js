@@ -21,7 +21,7 @@ const MilkSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    uId: {
+    uid: {
       type: String,
       default: null,
     },

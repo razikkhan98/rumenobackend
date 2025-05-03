@@ -5,7 +5,7 @@ const asyncHandler = require("express-async-handler");
 // const generateParentCode = require("../../utils/parentCode");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
-const generateUniqueFarmId = require('../../utils/uniqueId');
+const generateUniqueFarmId = require("../../utils/uniqueId");
 const milkModall = require("../../model/framData/milkModall");
 const postWeanModal = require("../../model/framData/postWeanModal");
 const vaccineModal = require("../../model/framData/vaccineModal");
@@ -16,7 +16,6 @@ const dewormModal = require("../../model/framData/dewormModal");
 // Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
   if (!req.body) {
-
     return res.status(400).json({ message: "No data provided" });
   }
 
@@ -52,7 +51,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       // childWeanWeight,
       // childWeanDate,
       lastVaccineDate,
-      lastVaccineName
+      lastVaccineName,
     } = req.body;
 
     // Validate required fields
@@ -69,43 +68,53 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "UID does not exist." });
     }
 
-
-    //GEnerate unique Id 
+    //GEnerate unique Id
     const uniqueId = generateUniqueFarmId(farmHouseName);
 
-    // Check if Unique ID exists or not 
+    // Check if Unique ID exists or not
     // const existID = await Animal.findOne({ uniqueId })
     // if (existID) {
     //   return res.status(400).json({ message: "Unique ID already exists." })
     // }
-    const existID = await Animal.findOne({ tagId })
-    if (existID) {
-      return res.status(400).json({ message: "tagId already exists." })
-    }
 
+    // Check if Tag ID exists or not
+
+
+    const existID = await Animal.findOne({ tagId, uid });
+
+    if (existID) {
+      return res.status(400).json({ message: "Tag ID already exists" });
+    }
 
     // Check if gender is female and handle pregnancy-related fields
     if (gender === "Female" && isPregnant) {
       if (!dateMading || !currentPregnancyMonth || !failed || !motherWeanDate) {
         return res.status(400).json({
-          message: "For paregnant females, required fields: datemading, currentpregnancymonth, and motherweandate."
+          message:
+            "For paregnant females, required fields: datemading, currentpregnancymonth, and motherweandate.",
         });
       }
     }
-
 
     // Initialize parents array
     const parents = [];
 
     // Check if mother exists and add to parents array
     if (motherTag) {
-      const mother = await Animal.findOne({ tagId: motherTag, gender: "Female" });
+      const mother = await Animal.findOne({
+        tagId: motherTag,
+        gender: "Female",
+      });
       if (!mother) {
-        return res.status(400).json({ message: "Mother with provided tag ID not found or not female." });
+        return res
+          .status(400)
+          .json({
+            message: "Mother with provided tag ID not found or not female.",
+          });
       }
       parents.push({
         parentUniqueId: mother.uniqueId,
-        parentType: "mother"
+        parentType: "mother",
       });
     }
 
@@ -113,14 +122,17 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     if (fatherTag) {
       const father = await Animal.findOne({ tagId: fatherTag, gender: "Male" });
       if (!father) {
-        return res.status(400).json({ message: "Father with provided tag ID not found or not male." });
+        return res
+          .status(400)
+          .json({
+            message: "Father with provided tag ID not found or not male.",
+          });
       }
       parents.push({
         parentUniqueId: father.uniqueId,
-        parentType: "father"
+        parentType: "father",
       });
     }
-
 
     //  Create new Parent Animal
     const newParent = new Animal({
@@ -143,7 +155,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       purchaseDate,
       comments,
       dateMading: gender === "Female" && isPregnant ? dateMading : null,
-      currentPregnancyMonth: gender === "Female" && isPregnant ? currentPregnancyMonth : null,
+      currentPregnancyMonth:
+        gender === "Female" && isPregnant ? currentPregnancyMonth : null,
       failed: gender === "Female" && isPregnant ? failed : null,
       motherWeanDate: gender === "Female" && isPregnant ? motherWeanDate : null,
       otherDisease,
@@ -157,12 +170,11 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       lastVaccineDate,
       lastVaccineName,
       parents: parents, // Add parents array to the animal record
-      children: [] // Initialize empty children array
+      children: [], // Initialize empty children array
     });
 
     // Save the new Parent to the database
     await newParent.save();
-
 
     // Update parent records to include this animal as a child
     if (parents.length > 0) {
@@ -178,15 +190,13 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     res.status(200).json({
       message: "Animal added successfully",
       data: newParent,
-    })
-
+    });
   } catch (error) {
     res.status(500).json({
       message: "Server Error. Failed to add animal .",
-      error: error.message
+      error: error.message,
     });
-  };
-
+  }
 });
 
 // exports.animalDetail = asyncHandler(async (req, res) => {
@@ -270,7 +280,6 @@ exports.animalDetail = asyncHandler(async (req, res) => {
 //     milk: [],
 //   });
 
-
 //     // Save the new Parent to the database
 
 //     await newParent.save();
@@ -322,7 +331,6 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
     if (!animal) {
       return res.status(404).json({ message: "Animal not found" });
     }
-
 
     const animals = await Animal.aggregate([
       {
@@ -450,9 +458,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         createdAt: deworm.createdAt,
         updatedAt: deworm.updatedAt,
       })),
-    }
-    ));
-
+    }));
 
     res.status(200).json({
       animals: parentsData,
@@ -462,7 +468,6 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
-
 
 // Update animal
 exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
@@ -503,7 +508,7 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       // childWeanWeight,
       lastVaccineDate,
       lastVaccineName,
-      farmHouseName
+      farmHouseName,
     } = req.body;
 
     const updatedFields = {
@@ -534,14 +539,13 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       // childWeanWeight,
       lastVaccineDate,
       lastVaccineName,
-      farmHouseName
+      farmHouseName,
     };
     const updated = await Animal.findOneAndUpdate(
       { uniqueId: uniqueId }, // Ensure you pass uniqueId properly
       { $set: updatedFields },
       { new: true }
     );
-    console.log(updated)
 
     if (!updated) {
       return res.status(404).json({ message: "No animal found" });
@@ -552,7 +556,7 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       data: updated,
     });
   } catch (error) {
-    console.log('error: ', error);
+    console.log("error: ", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
@@ -580,7 +584,6 @@ exports.deleteAnimalParent = asyncHandler(async (req, res) => {
         message: "Cannot delete parent. It has child records associated.",
       });
     }
-
 
     // If no children exist, delete the parent
     await Animal.deleteOne({ uniqueId });

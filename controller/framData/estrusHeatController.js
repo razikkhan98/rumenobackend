@@ -13,7 +13,7 @@ const { calculateDateToDays } = require("../../utils/helper");
  */
 exports.createEstrusHeat = async (req, res) => {
   try {
-    const { tagId, heatDate, uId } = req.body;
+    const { tagId, heatDate, uid } = req.body;
     if (!tagId)
       return res
         .status(400)
@@ -29,7 +29,7 @@ exports.createEstrusHeat = async (req, res) => {
       tagId,
       heatDate,
       heatNextDate: nextDate,
-      uId,
+      uid,
     });
 
     const savedEstrusHeat = await newEstrusHeat.save();
@@ -53,7 +53,7 @@ exports.createEstrusHeat = async (req, res) => {
 exports.getAllEstrusHeats = async (req, res) => {
   try {
     const estrusHeats = await AnimalEstrusHea.find({
-      uId: req?.query.uId,
+      uid: req?.query.uid,
     }).sort({
       createdAt: -1,
     });

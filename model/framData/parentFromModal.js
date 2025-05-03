@@ -48,7 +48,7 @@ const animalSchema = new mongoose.Schema(
     uid: { type: String, required: true },
     parentId: {
       type: String,
-      // required: true
+      
     },
     uniqueId: { type: String, required: true, unique: true },
     animalName: { type: String, required: true },

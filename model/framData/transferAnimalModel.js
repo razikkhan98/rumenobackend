@@ -47,7 +47,6 @@ const transferAnimalSchema = new mongoose.Schema(
     currentPregnancyMonth: Number,
     failed: String,
     mothersWeanDate: String,
-
     parents: [
       {
         parentUniqueId: String,

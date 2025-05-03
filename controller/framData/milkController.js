@@ -18,7 +18,7 @@ const Animal = require("../../model/framData/parentFromModal");
       milkvolume,
       numberOfKidsSuckingMilk,
       kiddingDeliveryDate,
-      uId,
+      uid,
     } = req.body;
 
     if (!tagId) {
@@ -32,7 +32,7 @@ const Animal = require("../../model/framData/parentFromModal");
       milkvolume,
       numberOfKidsSuckingMilk,
       kiddingDeliveryDate,
-      uId,
+      uid,
     });
 
     const savedMilk = await newMilk.save();
@@ -56,7 +56,7 @@ const Animal = require("../../model/framData/parentFromModal");
  */
   (exports.getAllMilkRecord = async (req, res) => {
     try {
-      const milk = await AnimalMilk.find({uId: req?.query.uId}).sort({ createdAt: -1 }); // Sort by newest first
+      const milk = await AnimalMilk.find({uid: req?.query.uid}).sort({ createdAt: -1 }); // Sort by newest first
 
       res.status(200).json({ success: true, count: milk.length, data: milk });
     } catch (error) {
@@ -81,7 +81,7 @@ exports.getMilkRecordById = async (req, res) => {
     const { uid } = req.params;
     console.log('req.params:', req.params);
 
-    const milk = await AnimalMilk.findOne({uid});
+    const milk = await AnimalMilk.find({uid});
     console.log('milk:', milk);
 
     if (!milk) {

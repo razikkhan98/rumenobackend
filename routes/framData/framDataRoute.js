@@ -49,14 +49,12 @@ router.get(
 // );
 
 // Update new entity
-
 router.put(
   "/user/animaldata/newEntity/update/:uniqueId",
   animalParentController.updateAnimalParentDetail
 );
 
 // Delete parent (if no children)
-
 router.delete(
   "/user/animaldata/newEntity/delete/:uniqueId",
   animalParentController.deleteAnimalParent
@@ -74,7 +72,7 @@ router.get(
 );
 
 router.get(
-  "/user/animaldata/getAllTransferAnimal/:uniqueId",
+  "/user/animaldata/getAllTransferAnimal/:uid",
   transferAnimalController.getTransferAnimalByUniqueId
 );
 
@@ -271,12 +269,20 @@ router.put("/vaccine/:vaccineId/pause", vaccineController.pauseReminders);
  */
 router.get("/vaccine/reminders/:userId", vaccineController.checkReminders);
 
+// /**
+//  * @route GET /api/vaccines/animal/:tagId
+//  * @desc Get all vaccine records for a specific animal
+//  * @access Private
+//  */
+// router.get("/animal/:tagId", vaccineController.getAnimalVaccines);
+
 /**
- * @route GET /api/vaccines/animal/:tagId
- * @desc Get all vaccine records for a specific animal
+ * @route GET  /api/vaccines/animal/:uid
+ * @desc Get all vaccine records
  * @access Private
  */
-// router.get("/animal/:tagId", vaccineController.getAnimalVaccines);
+router.get("/vaccine/get-all-vaccine", vaccineController.getAllVaccine);
+
 
 /**
  * @route GET /api/vaccines/due/:userId

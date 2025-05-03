@@ -4,7 +4,7 @@ const registerSchema = new mongoose.Schema({
   uid:{
     type: String,
     required: true,
-    unique: true
+     
   },
   firstName: {
     type: String,
@@ -14,7 +14,7 @@ const registerSchema = new mongoose.Schema({
   },
   lastName: {
     type: String,
-    unique: true,
+   
     trim: true,
     match: /^[a-zA-Z]+$/,
     minlength: 2,
@@ -22,7 +22,7 @@ const registerSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+   
     trim: true,
     match: /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/,
   },

@@ -2,16 +2,15 @@
 // POST /rumeno/user/animaldata/parent
 
 const asyncHandler = require("express-async-handler");
-// const generateParentCode = require("../../utils/parentCode");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
 const generateUniqueFarmId = require("../../utils/uniqueId");
-const milkModall = require("../../model/framData/milkModall");
-const postWeanModal = require("../../model/framData/postWeanModal");
-const vaccineModal = require("../../model/framData/vaccineModal");
-const estrusHeatModal = require("../../model/framData/estrusHeatModal");
-const sanitationModal = require("../../model/framData/sanitationModal");
-const dewormModal = require("../../model/framData/dewormModal");
+// const milkModall = require("../../model/framData/milkModall");
+// const postWeanModal = require("../../model/framData/postWeanModal");
+// const vaccineModal = require("../../model/framData/vaccineModal");
+// const estrusHeatModal = require("../../model/framData/estrusHeatModal");
+// const sanitationModal = require("../../model/framData/sanitationModal");
+// const dewormModal = require("../../model/framData/dewormModal");
 
 // Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
@@ -47,9 +46,6 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       vaccineName,
       farmHouseName,
       isPregnant,
-      // siblingDetails,
-      // childWeanWeight,
-      // childWeanDate,
       lastVaccineDate,
       lastVaccineName,
     } = req.body;
@@ -71,15 +67,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     //GEnerate unique Id
     const uniqueId = generateUniqueFarmId(farmHouseName);
 
-    // Check if Unique ID exists or not
-    // const existID = await Animal.findOne({ uniqueId })
-    // if (existID) {
-    //   return res.status(400).json({ message: "Unique ID already exists." })
-    // }
 
     // Check if Tag ID exists or not
-
-
     const existID = await Animal.findOne({ tagId, uid });
 
     if (existID) {
@@ -164,9 +153,6 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       vaccineDate,
       farmHouseName,
       isPregnant: gender === "Female" ? isPregnant : false,
-      // siblingDetails,
-      // childWeanWeight,
-      // childWeanDate,
       lastVaccineDate,
       lastVaccineName,
       parents: parents, // Add parents array to the animal record
@@ -199,103 +185,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
   }
 });
 
-// exports.animalDetail = asyncHandler(async (req, res) => {
-// // Validate request body
 
-// if (!req.body) {
-//   return res.status(400).json({ message: "No data provided" });
-// }
-// try {
-//   const {
-//     uid,
-//     animalName,
-//     uniqueName,
-//     ageMonth,
-//     ageYear,
-//     height,
-//     // heightDate,
-//     purchasDate,
-//     gender,
-//     weightKg,
-//     weightGm,
-//     pregnancyDetail,
-//     maleDetail,
-//     bodyScore,
-//     anyComment,
-//   } = req.body;
-
-//   // Validate required fields
-//   const requiredFields = { uid, uniqueName, gender };
-//   for (const [key, value] of Object.entries(requiredFields)) {
-//     if (!value) {
-//       return res.status(400).json({ message: `${key} is a required field.` });
-//     }
-//   }
-
-//   // Check if UID exists in User model
-//   const existingUser = await User.findOne({ uid });
-//   if (!existingUser) {
-//     return res.status(400).json({ message: "UID does not exist." });
-//   }
-
-//   // Check uniqueName exists in User model
-//   const existingAnimal = await Animal.findOne({ uniqueName });
-//   if (existingAnimal) {
-//     return res.status(400).json({ message: "Unique Name already exists." });
-//   }
-
-//   // Generate Parent Code
-//   const parentCode = generateParentCode(animalName);
-
-//   // Ensure unique parentCode by checking existing records
-//   let counter = 1;
-//   while (await Animal.findOne({ uniqueId: parentCode })) {
-//     parentCode = `${generateParentCode(animalName)}-${counter++}`;
-//     counter++;
-//   }
-
-//   // Generate UniqueId
-//   const uniqueId = generateUniqueldId(animalName);
-
-//   // Create new Parent Animal
-//   const newParent = new Animal({
-//     uid,
-//     parentId: parentCode,
-//     uniqueId,
-//     animalName,
-//     uniqueName,
-//     ageMonth,
-//     ageYear,
-//     height,
-//     // heightDate,
-//     purchasDate,
-//     gender,
-//     weightKg,
-//     weightGm,
-//     pregnancyDetail,
-//     maleDetail,
-//     bodyScore,
-//     anyComment,
-//     children: [], // No children initially
-//     milk: [],
-//   });
-
-//     // Save the new Parent to the database
-
-//     await newParent.save();
-//     // Send a success response
-
-//     res.status(201).json({
-//       message: "success",
-//       data: newParent,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       message: "Server Error. Failed to add parent animal.",
-//       error: error.message,
-//     });
-//   }
-// });
 
 // Get all animal Data
 
@@ -376,9 +266,6 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       otherDisease: parent.otherDisease,
       vaccineDate: parent.vaccineDate,
       vaccineName: parent.vaccineName,
-      // siblingDetails: parent.siblingDetails,
-      // childWeanWeight: parent.childWeanWeight,
-      // childWeanDate: parent.childWeanDate,
       lastVaccineDate: parent.lastVaccineDate,
       lastVaccineName: parent.lastVaccineName,
       farmName: parent.farmName,
@@ -503,9 +390,6 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       otherDisease,
       vaccineName,
       vaccineDate,
-      // siblingDetails,
-      // childWeanDate,
-      // childWeanWeight,
       lastVaccineDate,
       lastVaccineName,
       farmHouseName,
@@ -534,9 +418,6 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       otherDisease,
       vaccineDate,
       vaccineName,
-      // siblingDetails,
-      // childWeanDate,
-      // childWeanWeight,
       lastVaccineDate,
       lastVaccineName,
       farmHouseName,

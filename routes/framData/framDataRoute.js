@@ -25,10 +25,7 @@ router.post("/user/farmdata", framDetailController.farmDetail);
 
 // Add unique Entity
 router.post("/user/animaldata/newEntity", animalParentController.animalDetail);
-// router.get(
-//   "/user/animaldata/newEntity/getAll",
-//   animalParentController.getAllParents
-// );
+
 
 // Get only single Entity
 router.get(
@@ -42,11 +39,7 @@ router.get(
   animalParentController.getAllParents
 );
 
-// // Get only single
-// router.get(
-//   "/user/animaldata/newEntity/getAll/:uniqueId",
-//   animalParentController.animalAllDetail
-// );
+
 
 // Update new entity
 router.put(
@@ -54,12 +47,13 @@ router.put(
   animalParentController.updateAnimalParentDetail
 );
 
-// Delete parent (if no children)
+// Delete animal (if no children)
 router.delete(
   "/user/animaldata/newEntity/delete/:uniqueId",
   animalParentController.deleteAnimalParent
 );
 
+// -------------------------------------------------------------------------------------------
 // transfer Animals
 router.post(
   "/user/animaldata/transferAnimal",
@@ -75,6 +69,8 @@ router.get(
   "/user/animaldata/getAllTransferAnimal/:uid",
   transferAnimalController.getTransferAnimalByUniqueId
 );
+
+// ----------------------------------------------------------------------
 
 // // Add Child
 // router.post("/user/animaldata/child", animalchildController.animalChildDetail);
@@ -115,87 +111,6 @@ router.get(
 
 
 
-// Post Wean
-// ============
-
-// // Add Post Wean Parent and Child
-// router.post("/user/animal/postweandata/add", postweanController.createPostWean);
-
-// // Update Post Wean Parent and Child
-// router.put(
-//   "/user/animal/postweandata/update/:postWeanId",
-//   postweanController.updatePostWean
-// );
-
-// // Delete Post Wean Parent and Child
-// router.delete(
-//   "/user/animal/postweandata/delete/:postWeanId",
-//   postweanController.deletePostWean
-// );
-
-// =============
-//  Milk Routes
-// =============
-
-// // Add Milk Parent and Child
-// router.post("/user/animal/milkdata/add", milkController.addMilk);
-
-// // Update Milk Parent and Child
-// router.put("/user/animal/milkdata/update/:milkId", milkController.updateMilk);
-
-// // Delete Milk Parent and Child
-// router.delete(
-//   "/user/animal/milkdata/delete/:milkId",
-//   milkController.deleteMilk
-// );
-
-// ===========
-// Vaccine Routes
-// ===========
-// -----------------------------------------------------------------------------------------------
-// Add Vaccine Parent and Child
-router.post("/user/animal/vaccinedata/add", vaccineController.addVaccine);
-
-// Check Reminders Vaccine
-router.get(
-  "/user/animal/check-reminders/:userId",
-  vaccineController.checkReminders
-);
-// -----------------------------------------------------------------------------------------------
-
-// // Update Vaccine Parent and Child
-// router.put(
-//   "/user/animal/vaccinedata/update/:vaccine",
-//   vaccineController.updateVaccine
-// );
-
-// // Delete Vaccine Parent and Child
-// router.delete(
-//   "/user/animal/vaccinedata/delete/:vaccineId",
-//   vaccineController.deleteVaccine
-// );
-
-
-
-// =============
-// Estrus Heat
-// =============
-
-// // Add Estrus Heat Parent and Child
-// router.post("/user/animal/estrusdata/add", estrusHeatController.addEstrusHeat);
-
-// // Update Estrus Heat Parent and Child
-// router.put(
-//   "/user/animal/estrusdata/update/:heatId",
-//   estrusHeatController.updateEstrusHeat
-// );
-
-// // Delete Estrus Heat Parent and Child
-// router.delete(
-//   "/user/animal/estrusdata/delete/:heatId",
-//   estrusHeatController.deleteEstrusHeat
-// );
-
 // =============
 // Sanitation Routes
 // =============
@@ -207,7 +122,6 @@ router.post(
 );
 
 // Update Sanitation Parent and Child
-
 router.put(
   "/user/animal/sanitationdata/update/:sanitationId",
   sanitationController.updateSanitation
@@ -230,7 +144,7 @@ router.get(
   animalchildController.getTotalCount
 );
 
-// ------------------------------------------------------------------------------------------
+// ---------------------------- Vaccines routes --------------------------------------------------------------
 /**
  * @route POST /api/vaccines/register-animal
  * @desc Register a new animal and set up its vaccination schedule
@@ -473,10 +387,8 @@ router.delete(
 
 
 
-//--------------------------------------------------------------------------------------------
+//--------------------------------- Deworm start -----------------------------------------------------------
                          
-
-
 // Add Deworm Animal
 router.post("/dewormdata/addDeworm", dewormController.addDeworm);
 

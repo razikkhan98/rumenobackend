@@ -1,7 +1,6 @@
+// dewormController
 const asyncHandler = require("express-async-handler");
 const AnimalDeworm = require("../../model/framData/dewormModal");
-// const Animal = require("../../model/framData/parentFromModal");
-// const ChildAnimal = require("../../model/framData/childFromModal");
 
 exports.addDeworm = asyncHandler(async (req, res) => {
   // Validate request body
@@ -13,7 +12,6 @@ exports.addDeworm = asyncHandler(async (req, res) => {
     const {
       tagId,
       uid,
-      // uniqueId,
       report,
       date,
       endoName,
@@ -31,32 +29,11 @@ exports.addDeworm = asyncHandler(async (req, res) => {
       });
     }
 
-    // let parentExists = null;
-    // let childExists = null;
-
-    // // Check if Parent exists
-    // if (parentUniqueId) {
-    //   animalExists = await Animal.findOne({ uniqueId: parentUniqueId });
-    //   if (!animalExists) {
-    //     return res.status(404).json({ message: "Animal not found." });
-    //   }
-    // }
-
-    // // Check if Child exists
-    // if (childUniqueId) {
-    //   childExists = await ChildAnimal.findOne({ uniqueId: childUniqueId });
-    //   if (!childExists) {
-    //     return res.status(404).json({ message: "Child not found." });
-    //   }
-    // }
-
-    // const dewormId = parentUniqueId || childUniqueId;
 
     // Create new Post WEAN data
     const AnimalDewornData = await AnimalDeworm.create({
       tagId,
       uid,
-      // uniqueId,
       report,
       date,
       endoName,
@@ -68,20 +45,6 @@ exports.addDeworm = asyncHandler(async (req, res) => {
       animalDate,
     });
     const saveDeworm = await AnimalDewornData.save();
-
-    // // Push Milk Data into Parent Record
-    // const updatedParent = await Animal.findOneAndUpdate(
-    //   { uniqueId: parentUniqueId },
-    //   { $push: { deworm: AnimalDewornData } }, 
-    //   { new: true }
-    // );
-
-    // // Push Child Data into Parent Record
-    // const updatedChild = await ChildAnimal.findOneAndUpdate(
-    //   { uniqueId: childUniqueId },
-    //   { $push: { deworm: AnimalDewornData } }, 
-    //   { new: true }
-    // );
 
     res.status(201).json({
       message: "Deworn added successfully",
@@ -192,17 +155,3 @@ exports.deleteDeworm = asyncHandler(async (req, res) => {
     res.status(500).json({ status: false, message: "Server error", error: error.message });
   }
 });
-
-
-// // Remove references from Parent & Child
-// await Animal.updateMany(
-//   { uniqueId: dewormId },
-//   { $pull: { dewormId: dewormId } }
-// );
-// await ChildAnimal.updateMany(
-//   { uniqueId: dewormId },
-//   { $pull: { dewormId: dewormId } }
-// );
-
-// // Delete Post Wean Entry
-// await AnimalDeworn.deleteOne({ dewormId: dewormId });

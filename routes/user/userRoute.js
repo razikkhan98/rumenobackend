@@ -27,8 +27,6 @@ const transactionIssueController = require("../../controller/user/transactionIss
 // register
 router.post("/user/register", registerController.userRegister);
 
-// router.get("/user/getAllUsers", registerController.getAllUsers);
-
 
 // login
 router.post("/user/login", loginController.userLogin);

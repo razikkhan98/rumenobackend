@@ -80,7 +80,7 @@ router.post("/user/transactionIssue", transactionIssueController.userTransaction
 // ========
 
 // // add to cart
-// router.post("/addtocart", validateToken, addToCartController.addToCart);
+router.post("/addtocart", addToCartController.addToCart);
 
 // // get cart items
 // router.get("/getcartitems", validateToken, addToCartController.getCartItems);

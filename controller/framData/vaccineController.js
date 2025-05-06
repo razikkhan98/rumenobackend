@@ -305,7 +305,6 @@ exports.updateVaccineById = asyncHandler(async (req, res) => {
   }
 });
 
-
 exports.getAllVaccine = async (req, res) => {
   try {
     const { uid, tagId } = req.query;
@@ -317,11 +316,15 @@ exports.getAllVaccine = async (req, res) => {
     const vaccine = await AnimalVaccine.find({ uid, tagId }).sort({
       createdAt: -1,
     });
-    res.status(200).json({success:true, data:vaccine});
+    res.status(200).json({ success: true, data: vaccine });
   } catch (error) {
     console.error("Error fetching postwean records:", error);
-    res.status(500).json({success: false,
-      message: "Failed to fetch postwean records",
-       error: error.message });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Failed to fetch postwean records",
+        error: error.message,
+      });
   }
 };

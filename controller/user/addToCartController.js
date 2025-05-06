@@ -13,10 +13,12 @@ exports.addToCart = expressAsyncHandler(async (req, res) => {
   }
 
   try {
-    const { uid, name, img, amount, price, stock } = req.body;
+    const { uid, name, img, amount, price } = req.body;
+    console.log('uid, name, img, amount, price: ', uid, name, img, amount, price);
+    console.log('req.body: ', req.body);
 
     // Validate required fields
-    if (!uid || !name || !img || !amount || !price || !stock) {
+    if (!uid || !name || !img || !amount || !price ) {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
@@ -33,20 +35,13 @@ exports.addToCart = expressAsyncHandler(async (req, res) => {
       img,
       amount,
       price,
-      stock,
     });
 
     // Save user to the database
     await cartItem.save();
     res.status(201).json({ message: "Item added to cart" });
 
-    // Decrement stock if item is added to cart
-    if (stock > 0) {
-      await cartModel.updateOne({ uid, name }, { stock: stock - amount });
-    }
-     else {
-      return res.status(400).json({ message: "Out of stock" });
-    }
+   
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

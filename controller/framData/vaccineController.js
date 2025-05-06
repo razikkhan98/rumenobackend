@@ -308,7 +308,13 @@ exports.updateVaccineById = asyncHandler(async (req, res) => {
 
 exports.getAllVaccine = async (req, res) => {
   try {
-    const vaccine = await AnimalVaccine.find({ uid: req?.query.uid }).sort({
+    const { uid, tagId } = req.query;
+    if (!uid || !tagId)
+      return res.status(400).json({
+        success: false,
+        message: "uid and tagId are required",
+      });
+    const vaccine = await AnimalVaccine.find({ uid, tagId }).sort({
       createdAt: -1,
     });
     res.status(200).json({success:true, data:vaccine});

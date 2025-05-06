@@ -199,6 +199,30 @@ exports.animalDetail = asyncHandler(async (req, res) => {
   }
 });
 
+exports.getTagIdsByGender = async (req, res) => {
+  try {
+  const { animalName, uid } = req.query;
+   
+  const animals = await Animal.find({ animalName, uid }, "tagId gender");
+   
+  const maleTagIds = animals
+  .filter((a) => a.gender?.toLowerCase() === "male")
+  .map((a) => a.tagId);
+   
+  const femaleTagIds = animals
+  .filter((a) => a.gender?.toLowerCase() === "female")
+  .map((a) => a.tagId);
+   
+  res.status(200).json({
+  maleTagIds,
+  femaleTagIds,
+  });
+  } catch (error) {
+  console.error("Error fetching tag IDs by gender:", error);
+  res.status(500).json({ message: "Server error" });
+  }
+  };
+
 // exports.animalDetail = asyncHandler(async (req, res) => {
 // // Validate request body
 

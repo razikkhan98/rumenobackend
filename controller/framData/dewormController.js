@@ -72,14 +72,14 @@ exports.addDeworm = asyncHandler(async (req, res) => {
     // // Push Milk Data into Parent Record
     // const updatedParent = await Animal.findOneAndUpdate(
     //   { uniqueId: parentUniqueId },
-    //   { $push: { deworm: AnimalDewornData } }, 
+    //   { $push: { deworm: AnimalDewornData } },
     //   { new: true }
     // );
 
     // // Push Child Data into Parent Record
     // const updatedChild = await ChildAnimal.findOneAndUpdate(
     //   { uniqueId: childUniqueId },
-    //   { $push: { deworm: AnimalDewornData } }, 
+    //   { $push: { deworm: AnimalDewornData } },
     //   { new: true }
     // );
 
@@ -95,11 +95,17 @@ exports.addDeworm = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 exports.getAllDeworm = async (req, res) => {
   try {
-    const deworm = await AnimalDeworm.find({ uid: req?.query.uid }).sort({ createdAt: -1 }); // Sort by newest first
+    const { uid, tagId } = req.query;
+    if (!uid || !tagId)
+      return res.status(400).json({
+        success: false,
+        message: "uid and tagId are required",
+      });
+    const deworm = await AnimalDeworm.find({ uid, tagId }).sort({
+      createdAt: -1,
+    }); // Sort by newest first
 
     res.status(200).json({ success: true, count: deworm.length, data: deworm });
   } catch (error) {
@@ -112,8 +118,6 @@ exports.getAllDeworm = async (req, res) => {
   }
 };
 
-
-
 // Update Deworn Parent and Child
 
 exports.updateDeworm = asyncHandler(async (req, res) => {
@@ -125,7 +129,7 @@ exports.updateDeworm = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({ message: "Id is required" })
+      return res.status(400).json({ message: "Id is required" });
     }
 
     const {
@@ -149,10 +153,11 @@ exports.updateDeworm = asyncHandler(async (req, res) => {
       ectoDate,
       endoType,
       ectoType,
-      animalDate
+      animalDate,
     };
 
-    const updatedDeworm = await AnimalDeworm.findByIdAndUpdate(id, // Ensure you pass Id properly
+    const updatedDeworm = await AnimalDeworm.findByIdAndUpdate(
+      id, // Ensure you pass Id properly
       { $set: deworm },
       { new: true }
     );
@@ -170,8 +175,6 @@ exports.updateDeworm = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 // Delete Deworm data
 exports.deleteDeworm = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -186,13 +189,16 @@ exports.deleteDeworm = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "Deworn not found" });
     }
 
-    res.status(200).json({ success: true, message: "deworm deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "deworm deleted successfully" });
   } catch (error) {
     console.error("Error deleting deworm record", error);
-    res.status(500).json({ status: false, message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ status: false, message: "Server error", error: error.message });
   }
 });
-
 
 // // Remove references from Parent & Child
 // await Animal.updateMany(

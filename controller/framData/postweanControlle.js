@@ -45,7 +45,14 @@ exports.createPostWean = async (req, res) => {
 
 exports.getAllPostWeans = async (req, res) => {
   try {
-    const posts = await AnimalPostWean.find({ uid: req?.query.uid }).sort({
+    const { uid, tagId } = req.query;
+    if (!uid || !tagId)
+      return res.status(400).json({
+        success: false,
+        message: "uid and tagId are required",
+      });
+      
+    const posts = await AnimalPostWean.find({ uid, tagId }).sort({
       createdAt: -1,
     });
     res.status(200).json({success:true, data:posts});

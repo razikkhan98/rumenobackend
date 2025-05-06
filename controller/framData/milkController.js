@@ -56,8 +56,15 @@ const Animal = require("../../model/framData/parentFromModal");
  */
   (exports.getAllMilkRecord = async (req, res) => {
     try {
-      const milk = await AnimalMilk.find({uid: req?.query.uid}).sort({ createdAt: -1 }); // Sort by newest first
-
+      const { uid, tagId } = req.query;
+      if (!uid || !tagId)
+        return res.status(400).json({
+          success: false,
+          message: "uid and tagId are required",
+        });
+      const milk = await AnimalMilk.find({ uid, tagId }).sort({
+        createdAt: -1,
+      }); // Sort by newest first
       res.status(200).json({ success: true, count: milk.length, data: milk });
     } catch (error) {
       console.error("Error fetching milk records:", error);
@@ -79,10 +86,10 @@ const Animal = require("../../model/framData/parentFromModal");
 exports.getMilkRecordById = async (req, res) => {
   try {
     const { uid } = req.params;
-    console.log('req.params:', req.params);
+    console.log("req.params:", req.params);
 
-    const milk = await AnimalMilk.find({uid});
-    console.log('milk:', milk);
+    const milk = await AnimalMilk.find({ uid });
+    console.log("milk:", milk);
 
     if (!milk) {
       return res

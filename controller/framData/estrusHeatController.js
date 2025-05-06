@@ -52,9 +52,13 @@ exports.createEstrusHeat = async (req, res) => {
  */
 exports.getAllEstrusHeats = async (req, res) => {
   try {
-    const estrusHeats = await AnimalEstrusHea.find({
-      uid: req?.query.uid,
-    }).sort({
+    const { uid, tagId } = req.query;
+    if (!uid || !tagId)
+      return res.status(400).json({
+        success: false,
+        message: "uid and tagId are required",
+      });
+    const estrusHeats = await AnimalEstrusHea.find({ uid, tagId }).sort({
       createdAt: -1,
     });
 
@@ -143,11 +147,13 @@ exports.updateEstrusHeat = async (req, res) => {
     const heatNextDate = await calculateDateToDays(heatDate, 18);
     const updatedEstrusHeat = await AnimalEstrusHea.findByIdAndUpdate(
       id,
-      heatDate,
-      heatNextDate,
+      {
+        heatDate,
+        heatNextDate,
+      },
       { new: true, runValidators: true }
     );
-
+    console.log(updatedEstrusHeat);
     if (!updatedEstrusHeat)
       return res
         .status(404)

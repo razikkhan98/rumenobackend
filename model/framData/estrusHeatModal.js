@@ -7,7 +7,7 @@ const EstrusHeatSchema = new mongoose.Schema(
       required: true,
     },
     heatDate: {
-      type: Date,
+      type: String,
       default: null,
     },
     heatNextDate: {

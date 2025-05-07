@@ -115,8 +115,6 @@ router.get(
 //   animalchildController.promoteChildToParent
 // );
 
-
-
 // Post Wean
 // ============
 
@@ -176,8 +174,6 @@ router.get(
 //   "/user/animal/vaccinedata/delete/:vaccineId",
 //   vaccineController.deleteVaccine
 // );
-
-
 
 // =============
 // Estrus Heat
@@ -249,6 +245,18 @@ router.post(
  * @access Private
  */
 router.post("/vaccine/add-vaccine", vaccineController.addVaccine);
+
+/**
+ * @route POST /api/vaccines
+ * @desc Add a new vaccine to animal record
+ * @access Private
+ */
+router.post(
+  "/vaccine/add-vaccine-to-animal",
+  vaccineController.addVaccineToAnimal
+);
+
+router.get("/vaccine/alert-vaccine", vaccineController.sendVaccineAlerts);
 
 /**
  * @route PUT /vaccines/:vaccineId/complete
@@ -465,11 +473,7 @@ router.delete(
 
 // ----------------------------- Estrus heat end -----------------------------------------
 
-
-
 //--------------------------------------------------------------------------------------------
-                         
-
 
 // Add Deworm Animal
 router.post("/dewormdata/addDeworm", dewormController.addDeworm);
@@ -482,11 +486,5 @@ router.put("/dewormdata/update/:id", dewormController.updateDeworm);
 
 // Delete Deworm Animal
 router.delete("/dewormdata/delete/:id", dewormController.deleteDeworm);
-
-
-
-
-
-
 
 module.exports = router;

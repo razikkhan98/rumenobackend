@@ -6,6 +6,8 @@ const {
   getSchedule_final,
   calculateVaccineSchedule,
 } = require("../../utils/helper");
+const Animal = require("../../model/framData/parentFromModal");
+const vaccineModal = require("../../model/framData/vaccineModal");
 
 // -------------------------------------- updated code -----------------------------------------------------------
 
@@ -302,5 +304,187 @@ exports.updateVaccineById = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ===================================================================================================================
+exports.addVaccineToAnimal = asyncHandler(async (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({ message: "No data provided" });
+  }
+
+  try {
+    const {
+      uid,
+      animalUniqueId,
+      vaccineName,
+      vaccineDate,
+      boosterName,
+      boosterDate,
+    } = req.body;
+
+    if (!uid)
+      return res.status(400).json({ message: "uid is a required field" });
+
+    if (!vaccineName)
+      return res
+        .status(400)
+        .json({ message: "Either vaccineName or boosterName is required" });
+
+    if (vaccineName && !vaccineDate)
+      return res.status(400).json({
+        message: "Date is required when providing a vaccine or booster name",
+      });
+
+    const animal = await Animal.findOne({ uniqueId: animalUniqueId });
+    if (!animal) return res.status(404).json({ message: "Animal not found" });
+
+    const vaccineRecord = await vaccineModal.findOne({ animalUniqueId });
+
+    if (vaccineName && vaccineDate) {
+      const vaccineExists = vaccineRecord.vaccineData.some((vaccine) => {
+        if (Array.isArray(vaccine)) {
+          return (
+            vaccine[0].toLowerCase() === vaccineName.toLowerCase() &&
+            vaccine[1] === vaccineDate
+          );
+        } else if (typeof vaccine === "object") {
+          return (
+            vaccine.vaccineName.toLowerCase() === vaccineName.toLowerCase() &&
+            vaccine.vaccineDate === vaccineDate
+          );
+        }
+        return false;
+      });
+
+      if (vaccineExists)
+        return res.status(400).json({
+          message: `Vaccine ${vaccineName} already exists for this date (${vaccineDate})`,
+        });
+
+      vaccineRecord.vaccineData.push({
+        vaccineName,
+        vaccineDate,
+      });
+
+      // animal.lastVaccineName = vaccineName;
+      // animal.lastVaccineDate = vaccineDate;
+      // await animal.save();
+    }
+
+    if (boosterName && boosterDate) {
+      const boosterExists = vaccineRecord.boosterData.some((booster) => {
+        if (Array.isArray(booster)) {
+          return (
+            booster[0].toLowerCase() === boosterName.toLowerCase() &&
+            booster[1] === boosterDate
+          );
+        } else if (typeof booster === "object") {
+          return (
+            booster.boosterName.toLowerCase() === boosterName.toLowerCase() &&
+            booster.boosterDate === boosterDate
+          );
+        }
+        return false;
+      });
+
+      if (boosterExists)
+        return res.status(400).json({
+          message: `Booster ${boosterName} already exists for this date (${boosterDate})`,
+        });
+
+      vaccineRecord.boosterData.push({
+        boosterName,
+        boosterDate,
+      });
+    }
+
+    await vaccineRecord.save();
+
+    res.status(200).json({
+      message: "Vaccine data added successfully",
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to add vaccine data.",
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * Check and log vaccine alerts for animals
+ * @param {Array} animals - List of animal objects with vaccineData
+ */
+exports.sendVaccineAlerts = asyncHandler(async (req, res) => {
+  try {
+    const today = moment();
+
+    const animals = await vaccineModal.find({ uid });
+
+    animals.forEach((animal) => {
+      const { uid, animalUniqueId, dateOfBrith, vaccineData } = animal;
+      const dob = moment(dateOfBrith);
+      const daysSinceDOB = today.diff(dob, "days");
+
+      const deworming = vaccineData.find(
+        (v) => v.vaccineName.toLowerCase() === "deworming"
+      );
+      const ppr = vaccineData.find(
+        (v) => v.vaccineName.toLowerCase() === "ppr"
+      );
+
+      //  Step 1: Deworming Alert — 75 days after DOB if not done
+      if (!deworming && daysSinceDOB === 75) {
+        console.log(` ${uid}: Alert — Give *Deworming* (75 days after DOB)`);
+      }
+
+      //  Step 2: PPR Alert — 85 days after Deworming or DOB if not done
+      if (!ppr) {
+        if (deworming) {
+          const dewormingDate = moment(deworming.vaccineDate);
+          const daysSinceDeworming = today.diff(dewormingDate, "days");
+          if (daysSinceDeworming === 85) {
+            console.log(
+              ` ${uid}: Alert — Give *PPR* (85 days after Deworming)`
+            );
+          }
+        } else if (daysSinceDOB === 85) {
+          console.log(
+            ` ${uid}: Alert — Give *PPR* (85 days after DOB, Deworming not found)`
+          );
+        }
+      }
+
+      //  Step 3: After PPR — Send alerts for each vaccine 15 days after its date
+      if (ppr) {
+        const pprDate = moment(ppr.vaccineDate);
+        const vaccinesAfterPPR = vaccineData.filter((v) =>
+          moment(v.vaccineDate).isAfter(pprDate)
+        );
+
+        vaccinesAfterPPR.forEach((vaccine) => {
+          const vaccineDate = moment(vaccine.vaccineDate);
+          const daysSinceVaccine = today.diff(vaccineDate, "days");
+
+          if (daysSinceVaccine > 0 && daysSinceVaccine % 15 === 0) {
+            console.log(
+              ` ${uid}: Follow-up alert — ${vaccine.vaccineName} booster due (15 days after ${vaccine.vaccineDate})`
+            );
+          }
+        });
+      }
+    });
+
+    res.status(200).json({
+      message: "Vaccine alert successfully",
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error. Failed to alert vaccine data.",
+      error: error.message,
+    });
   }
 });

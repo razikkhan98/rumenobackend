@@ -256,7 +256,7 @@ router.post(
   vaccineController.addVaccineToAnimal
 );
 
-router.get("/vaccine/alert-vaccine", vaccineController.sendVaccineAlerts);
+router.get("/vaccine/alert-vaccine", vaccineController.checkAndSendVaccineAlerts);
 
 /**
  * @route PUT /vaccines/:vaccineId/complete

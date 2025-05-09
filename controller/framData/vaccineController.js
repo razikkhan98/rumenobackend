@@ -1233,278 +1233,279 @@ exports.checkAndSendVaccineAlerts = asyncHandler(async () => {
   //   };
   // }
 
-  try {
-    // Get all animals with their vaccine records
-    const animals = await Animal.find({}).select("uniqueId name birthDate uid");
+  // try {
+  //   // Get all animals with their vaccine records
+  //   const animals = await Animal.find({}).select("uniqueId name birthDate uid");
 
-    // Current date for comparison
-    const currentDate = moment("2021-05-06");
+  //   // Current date for comparison
+  //   const currentDate = moment("2021-05-06");
 
-    // Track alerts to send
-    const alertsToSend = [];
+  //   // Track alerts to send
+  //   const alertsToSend = [];
 
-    // Process each animal
-    for (const animal of animals) {
-      // Skip if no date of birth
-      if (!animal.birthDate) continue;
+  //   // Process each animal
+  //   for (const animal of animals) {
+  //     // Skip if no date of birth
+  //     if (!animal.birthDate) continue;
 
-      const birthDate = moment(animal.birthDate);
-      const ageInDays = currentDate.diff(birthDate, "days");
+  //     const birthDate = moment(animal.birthDate);
+  //     const ageInDays = currentDate.diff(birthDate, "days");
 
-      // Get vaccine record for this animal
-      const vaccineRecord = await vaccineModal.findOne({
-        animalUniqueId: animal.uniqueId,
-      });
+  //     // Get vaccine record for this animal
+  //     const vaccineRecord = await vaccineModal.findOne({
+  //       animalUniqueId: animal.uniqueId,
+  //     });
 
-      if (!vaccineRecord) {
-        // No vaccine record found, check if first deworming is due
-        if (ageInDays >= 80 && ageInDays <= 85) {
-          alertsToSend.push({
-            userId: animal.uid,
-            animalId: animal.uniqueId,
-            animalName: animal.name,
-            alertType: "First Deworming",
-            message: `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`,
-            dueDate: birthDate.clone().add(85, "days").toDate(),
-          });
-          console.log(
-            `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`
-          );
-        }
-        continue;
-      }
+  //     if (!vaccineRecord) {
+  //       // No vaccine record found, check if first deworming is due
+  //       if (ageInDays >= 80 && ageInDays <= 85) {
+  //         alertsToSend.push({
+  //           userId: animal.uid,
+  //           animalId: animal.uniqueId,
+  //           animalName: animal.name,
+  //           alertType: "First Deworming",
+  //           message: `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`,
+  //           dueDate: birthDate.clone().add(85, "days").toDate(),
+  //         });
+  //         console.log(
+  //           `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`
+  //         );
+  //       }
+  //       continue;
+  //     }
 
-      // Ensure vaccineData exists and is an array
-      const vaccineData = Array.isArray(vaccineRecord.vaccineData)
-        ? vaccineRecord.vaccineData
-        : [];
+  //     // Ensure vaccineData exists and is an array
+  //     const vaccineData = Array.isArray(vaccineRecord.vaccineData)
+  //       ? vaccineRecord.vaccineData
+  //       : [];
 
-      // ========================
-      // DEWORMING CHECKS (FIRST)
-      // ========================
+  //     // ========================
+  //     // DEWORMING CHECKS (FIRST)
+  //     // ========================
 
-      // Check deworming status
-      const dewormingEntries = vaccineData.filter((vaccine) => {
-        if (Array.isArray(vaccine)) {
-          return vaccine[0]?.toLowerCase().includes("deworming");
-        } else if (typeof vaccine === "object") {
-          return vaccine.vaccineName?.toLowerCase().includes("deworming");
-        }
-        return false;
-      });
+  //     // Check deworming status
+  //     const dewormingEntries = vaccineData.filter((vaccine) => {
+  //       if (Array.isArray(vaccine)) {
+  //         return vaccine[0]?.toLowerCase().includes("deworming");
+  //       } else if (typeof vaccine === "object") {
+  //         return vaccine.vaccineName?.toLowerCase().includes("deworming");
+  //       }
+  //       return false;
+  //     });
 
-      // Check for deworming based on age if no deworming records exist
-      if (ageInDays >= 80 && ageInDays <= 85) {
-        // Either no deworming records found or the array is empty
-        if (dewormingEntries.length === 0) {
-          alertsToSend.push({
-            userId: animal.uid,
-            animalId: animal.uniqueId,
-            animalName: animal.name,
-            alertType: "First Deworming",
-            message: `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`,
-            dueDate: birthDate.clone().add(85, "days").toDate(),
-          });
-          console.log(
-            `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`
-          );
-        }
-      }
+  //     // Check for deworming based on age if no deworming records exist
+  //     if (ageInDays >= 80 && ageInDays <= 85) {
+  //       // Either no deworming records found or the array is empty
+  //       if (dewormingEntries.length === 0) {
+  //         alertsToSend.push({
+  //           userId: animal.uid,
+  //           animalId: animal.uniqueId,
+  //           animalName: animal.name,
+  //           alertType: "First Deworming",
+  //           message: `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`,
+  //           dueDate: birthDate.clone().add(85, "days").toDate(),
+  //         });
+  //         console.log(
+  //           `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`
+  //         );
+  //       }
+  //     }
 
-      // Second deworming (only check if first deworming exists)
-      if (dewormingEntries.length === 1 && ageInDays >= 70 && ageInDays <= 75) {
-        alertsToSend.push({
-          userId: animal.uid,
-          animalId: animal.uniqueId,
-          animalName: animal.name,
-          alertType: "Second Deworming",
-          message: `Your animal ${animal.name} is due for second deworming. It should be done at 75 days of age.`,
-          dueDate: birthDate.clone().add(75, "days").toDate(),
-        });
-        console.log(
-          `Your animal ${animal.name} is due for second deworming. It should be done at 75 days of age.`
-        );
-      }
+  //     // Second deworming (only check if first deworming exists)
+  //     if (dewormingEntries.length === 1 && ageInDays >= 70 && ageInDays <= 75) {
+  //       alertsToSend.push({
+  //         userId: animal.uid,
+  //         animalId: animal.uniqueId,
+  //         animalName: animal.name,
+  //         alertType: "Second Deworming",
+  //         message: `Your animal ${animal.name} is due for second deworming. It should be done at 75 days of age.`,
+  //         dueDate: birthDate.clone().add(75, "days").toDate(),
+  //       });
+  //       console.log(
+  //         `Your animal ${animal.name} is due for second deworming. It should be done at 75 days of age.`
+  //       );
+  //     }
 
-      // ===================
-      // PPR VACCINE CHECKS
-      // ===================
+  //     // ===================
+  //     // PPR VACCINE CHECKS
+  //     // ===================
 
-      // PPR vaccine check - handle case where vaccineData may not exist
-      const pprEntries = (vaccineRecord.vaccineData || []).filter((vaccine) => {
-        if (Array.isArray(vaccine)) {
-          return vaccine[0]?.toLowerCase().includes("ppr");
-        } else if (typeof vaccine === "object") {
-          return vaccine.vaccineName?.toLowerCase().includes("ppr");
-        }
-        return false;
-      });
+  //     // PPR vaccine check - handle case where vaccineData may not exist
+  //     const pprEntries = (vaccineRecord.vaccineData || []).filter((vaccine) => {
+  //       if (Array.isArray(vaccine)) {
+  //         return vaccine[0]?.toLowerCase().includes("ppr");
+  //       } else if (typeof vaccine === "object") {
+  //         return vaccine.vaccineName?.toLowerCase().includes("ppr");
+  //       }
+  //       return false;
+  //     });
 
-      // Check for first PPR vaccine
-      const hasPPR = pprEntries.length > 0;
+  //     // Check for first PPR vaccine
+  //     const hasPPR = pprEntries.length > 0;
 
-      // Check if second PPR vaccine is needed (15 days after first PPR)
-      if (hasPPR && pprEntries.length === 1) {
-        let firstPPRDate = null;
+  //     // Check if second PPR vaccine is needed (15 days after first PPR)
+  //     if (hasPPR && pprEntries.length === 1) {
+  //       let firstPPRDate = null;
 
-        // Get the date of the first PPR vaccine
-        if (Array.isArray(pprEntries[0])) {
-          firstPPRDate = moment(pprEntries[0][1]);
-        } else if (typeof pprEntries[0] === "object") {
-          firstPPRDate = moment(pprEntries[0].vaccineDate);
-        }
+  //       // Get the date of the first PPR vaccine
+  //       if (Array.isArray(pprEntries[0])) {
+  //         firstPPRDate = moment(pprEntries[0][1]);
+  //       } else if (typeof pprEntries[0] === "object") {
+  //         firstPPRDate = moment(pprEntries[0].vaccineDate);
+  //       }
 
-        if (firstPPRDate) {
-          const daysSinceFirstPPR = currentDate.diff(firstPPRDate, "days");
+  //       if (firstPPRDate) {
+  //         const daysSinceFirstPPR = currentDate.diff(firstPPRDate, "days");
 
-          // Alert if between 13-15 days since first PPR
-          if (daysSinceFirstPPR >= 13 && daysSinceFirstPPR <= 15) {
-            alertsToSend.push({
-              userId: animal.uid,
-              animalId: animal.uniqueId,
-              animalName: animal.name,
-              alertType: "Second PPR Vaccine",
-              message: `Your animal ${animal.name} is due for the second PPR vaccine. It should be done 15 days after the first PPR vaccine.`,
-              dueDate: firstPPRDate.clone().add(15, "days").toDate(),
-            });
-            console.log(
-              `Your animal ${animal.name} is due for the second PPR vaccine. It should be done 15 days after the first PPR vaccine.`
-            );
-          }
-        }
-      }
+  //         // Alert if between 13-15 days since first PPR
+  //         if (daysSinceFirstPPR >= 13 && daysSinceFirstPPR <= 15) {
+  //           alertsToSend.push({
+  //             userId: animal.uid,
+  //             animalId: animal.uniqueId,
+  //             animalName: animal.name,
+  //             alertType: "Second PPR Vaccine",
+  //             message: `Your animal ${animal.name} is due for the second PPR vaccine. It should be done 15 days after the first PPR vaccine.`,
+  //             dueDate: firstPPRDate.clone().add(15, "days").toDate(),
+  //           });
+  //           console.log(
+  //             `Your animal ${animal.name} is due for the second PPR vaccine. It should be done 15 days after the first PPR vaccine.`
+  //           );
+  //         }
+  //       }
+  //     }
 
-      // Check if animal needs first PPR vaccine
-      let lastVaccineDate = null;
-      if (
-        vaccineRecord.vaccineData &&
-        Array.isArray(vaccineRecord.vaccineData) &&
-        vaccineRecord.vaccineData.length > 0
-      ) {
-        const vaccineDates = vaccineRecord.vaccineData
-          .map((vaccine) => {
-            if (Array.isArray(vaccine) && vaccine.length > 1) {
-              return moment(vaccine[1]);
-            } else if (typeof vaccine === "object" && vaccine.vaccineDate) {
-              return moment(vaccine.vaccineDate);
-            }
-            return null;
-          })
-          .filter((date) => date && date.isValid());
+  //     // Check if animal needs first PPR vaccine
+  //     let lastVaccineDate = null;
+  //     if (
+  //       vaccineRecord.vaccineData &&
+  //       Array.isArray(vaccineRecord.vaccineData) &&
+  //       vaccineRecord.vaccineData.length > 0
+  //     ) {
+  //       const vaccineDates = vaccineRecord.vaccineData
+  //         .map((vaccine) => {
+  //           if (Array.isArray(vaccine) && vaccine.length > 1) {
+  //             return moment(vaccine[1]);
+  //           } else if (typeof vaccine === "object" && vaccine.vaccineDate) {
+  //             return moment(vaccine.vaccineDate);
+  //           }
+  //           return null;
+  //         })
+  //         .filter((date) => date && date.isValid());
 
-        if (vaccineDates.length > 0) {
-          lastVaccineDate = moment.max(vaccineDates);
-        }
-      }
+  //       if (vaccineDates.length > 0) {
+  //         lastVaccineDate = moment.max(vaccineDates);
+  //       }
+  //     }
 
-      if (lastVaccineDate && !hasPPR) {
-        const daysSinceLastVaccine = currentDate.diff(lastVaccineDate, "days");
+  //     if (lastVaccineDate && !hasPPR) {
+  //       const daysSinceLastVaccine = currentDate.diff(lastVaccineDate, "days");
 
-        if (daysSinceLastVaccine >= 80 && daysSinceLastVaccine <= 85) {
-          alertsToSend.push({
-            userId: animal.uid,
-            animalId: animal.uniqueId,
-            animalName: animal.name,
-            alertType: "PPR Vaccine",
-            message: `Your animal ${animal.name} is due for PPR vaccine. It should be done 85 days after the last vaccine.`,
-            dueDate: lastVaccineDate.clone().add(85, "days").toDate(),
-          });
-          console.log(
-            `Your animal ${animal.uniqueId} is due for PPR vaccine. It should be done 85 days after the last vaccine.`
-          );
-        }
-      }
+  //       if (daysSinceLastVaccine >= 80 && daysSinceLastVaccine <= 85) {
+  //         alertsToSend.push({
+  //           userId: animal.uid,
+  //           animalId: animal.uniqueId,
+  //           animalName: animal.name,
+  //           alertType: "PPR Vaccine",
+  //           message: `Your animal ${animal.name} is due for PPR vaccine. It should be done 85 days after the last vaccine.`,
+  //           dueDate: lastVaccineDate.clone().add(85, "days").toDate(),
+  //         });
+  //         console.log(
+  //           `Your animal ${animal.uniqueId} is due for PPR vaccine. It should be done 85 days after the last vaccine.`
+  //         );
+  //       }
+  //     }
 
-      // ===============================
-      // OTHER VACCINES (CHECKED LAST)
-      // ===============================
+  //     // ===============================
+  //     // OTHER VACCINES (CHECKED LAST)
+  //     // ===============================
 
-      // Define list of known vaccines we already checked
-      const knownVaccineTypes = ["ppr", "deworming"];
+  //     // Define list of known vaccines we already checked
+  //     const knownVaccineTypes = ["ppr", "deworming"];
 
-      // Find any other vaccines that might need boosters
-      const otherVaccines = (vaccineRecord.vaccineData || []).filter(
-        (vaccine) => {
-          const vaccineName = Array.isArray(vaccine)
-            ? (vaccine[0] || "").toLowerCase()
-            : ((vaccine && vaccine.vaccineName) || "").toLowerCase();
+  //     // Find any other vaccines that might need boosters
+  //     const otherVaccines = (vaccineRecord.vaccineData || []).filter(
+  //       (vaccine) => {
+  //         const vaccineName = Array.isArray(vaccine)
+  //           ? (vaccine[0] || "").toLowerCase()
+  //           : ((vaccine && vaccine.vaccineName) || "").toLowerCase();
 
-          // Filter out vaccines we've already handled
-          return (
-            vaccineName &&
-            !knownVaccineTypes.some((type) => vaccineName.includes(type))
-          );
-        }
-      );
+  //         // Filter out vaccines we've already handled
+  //         return (
+  //           vaccineName &&
+  //           !knownVaccineTypes.some((type) => vaccineName.includes(type))
+  //         );
+  //       }
+  //     );
 
-      // Process other vaccines
-      for (const vaccine of otherVaccines) {
-        const vaccineName = Array.isArray(vaccine)
-          ? vaccine[0]
-          : vaccine.vaccineName;
+  //     // Process other vaccines
+  //     for (const vaccine of otherVaccines) {
+  //       const vaccineName = Array.isArray(vaccine)
+  //         ? vaccine[0]
+  //         : vaccine.vaccineName;
 
-        const vaccineDate = Array.isArray(vaccine)
-          ? moment(vaccine[1])
-          : moment(vaccine.vaccineDate);
+  //       const vaccineDate = Array.isArray(vaccine)
+  //         ? moment(vaccine[1])
+  //         : moment(vaccine.vaccineDate);
 
-        if (vaccineDate && vaccineDate.isValid()) {
-          // Default booster interval of 180 days (6 months) for other vaccines
-          // You might want to customize this based on specific vaccine types
-          const boosterDueDate = vaccineDate.clone().add(180, "days");
-          const daysUntilBooster = boosterDueDate.diff(currentDate, "days");
+  //       if (vaccineDate && vaccineDate.isValid()) {
+  //         // Default booster interval of 180 days (6 months) for other vaccines
+  //         // You might want to customize this based on specific vaccine types
+  //         const boosterDueDate = vaccineDate.clone().add(180, "days");
+  //         const daysUntilBooster = boosterDueDate.diff(currentDate, "days");
 
-          // Alert if booster is due within the next 7 days
-          if (daysUntilBooster >= 0 && daysUntilBooster <= 7) {
-            alertsToSend.push({
-              userId: animal.uid,
-              animalId: animal.uniqueId,
-              animalName: animal.name,
-              alertType: `${vaccineName} Booster`,
-              message: `Your animal ${animal.name} is due for ${vaccineName} booster. It should be done 180 days after the previous dose.`,
-              dueDate: boosterDueDate.toDate(),
-            });
-            console.log(
-              `Your animal ${animal.name} is due for ${vaccineName} booster. It should be done 180 days after the previous dose.`
-            );
-          }
-        }
-      }
-    }
+  //         // Alert if booster is due within the next 7 days
+  //         if (daysUntilBooster >= 0 && daysUntilBooster <= 7) {
+  //           alertsToSend.push({
+  //             userId: animal.uid,
+  //             animalId: animal.uniqueId,
+  //             animalName: animal.name,
+  //             alertType: `${vaccineName} Booster`,
+  //             message: `Your animal ${animal.name} is due for ${vaccineName} booster. It should be done 180 days after the previous dose.`,
+  //             dueDate: boosterDueDate.toDate(),
+  //           });
+  //           console.log(
+  //             `Your animal ${animal.name} is due for ${vaccineName} booster. It should be done 180 days after the previous dose.`
+  //           );
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // Send alerts to users
-    for (const alert of alertsToSend) {
-      const user = await registerModel.findOne({ uid: alert.userId });
-      if (!user) continue;
+  //   // Send alerts to users
+  //   for (const alert of alertsToSend) {
+  //     const user = await registerModel.findOne({ uid: alert.userId });
+  //     if (!user) continue;
 
-      // Store alert in DB (optional)
-      // await Alert.create({
-      //   userId: alert.userId,
-      //   animalId: alert.animalId,
-      //   alertType: alert.alertType,
-      //   message: alert.message,
-      //   dueDate: alert.dueDate,
-      //   isRead: false,
-      //   createdAt: new Date(),
-      // });
+  //     // Store alert in DB (optional)
+  //     // await Alert.create({
+  //     //   userId: alert.userId,
+  //     //   animalId: alert.animalId,
+  //     //   alertType: alert.alertType,
+  //     //   message: alert.message,
+  //     //   dueDate: alert.dueDate,
+  //     //   isRead: false,
+  //     //   createdAt: new Date(),
+  //     // });
 
-      // Send notification
-      console.log("alert.message: ", alert.userId);
+  //     // Send notification
+  //     console.log("alert.message: ", alert.userId);
 
-      // Optional: send via email, SMS, push if required
-    }
+  //     // Optional: send via email, SMS, push if required
+  //   }
 
-    return {
-      success: true,
-      alertsSent: alertsToSend.length,
-      message: `Successfully checked and sent ${alertsToSend.length} vaccination alerts`,
-    };
-  } catch (error) {
-    console.error("Error sending vaccine alerts:", error);
-    return {
-      success: false,
-      message: `Failed to send vaccination alerts: ${error.message}`,
-    };
-  }
+  //   return {
+  //     success: true,
+  //     alertsSent: alertsToSend.length,
+  //     message: `Successfully checked and sent ${alertsToSend.length} vaccination alerts`,
+  //   };
+  // } catch (error) {
+  //   console.error("Error sending vaccine alerts:", error);
+  //   return {
+  //     success: false,
+  //     message: `Failed to send vaccination alerts: ${error.message}`,
+  //   };
+  // }
+  await processAlerts();
 });
 
 // Function to manually trigger alerts for a specific animal
@@ -1709,3 +1710,334 @@ exports.sendVaccineAlertForAnimal = asyncHandler(async (req, res) => {
     });
   }
 });
+
+// Mock data: animals
+const animals = [
+  {
+    uniqueId: "gree-01",
+    name: "Bessie",
+    birthDate: "2025-01-01",
+    uid: "RAZ1234",
+  },
+  // {
+  //   uniqueId: "gree-02",
+  //   name: "Daisy",
+  //   birthDate: "2021-03-22",
+  //   uid: "RAZ1233",
+  // },
+  // {
+  //   uniqueId: "gree-03",
+  //   name: "MooMoo",
+  //   birthDate: "2021-04-10",
+  //   uid: "RAZ1235",
+  // },
+  // {
+  //   uniqueId: "gree-04",
+  //   name: "Lulu",
+  //   birthDate: "2021-01-01",
+  //   uid: "RAZ1236",
+  // },
+  // {
+  //   uniqueId: "gree-05",
+  //   name: "Bella",
+  //   birthDate: null,
+  //   uid: "RAZ1237",
+  // },
+  // {
+  //   uniqueId: "gree-06",
+  //   name: "Tommy",
+  //   birthDate: "2021-02-15",
+  //   uid: "RAZ1238",
+  // },
+];
+
+// Mock vaccine records
+// const vaccineRecords = [
+//   {
+//     animalUniqueId: "gree-01",
+//     vaccineData: [],
+//   },
+//   {
+//     animalUniqueId: "gree-02",
+//     vaccineData: [
+//       { vaccineName: "PPR", vaccineDate: "2023-08-15" },
+//       { vaccineName: "Hepatitis", vaccineDate: "2022-11-01" },
+//     ],
+//   },
+//   {
+//     animalUniqueId: "gree-03",
+//     vaccineData: [{ vaccineName: "Deworming", vaccineDate: "2021-04-10" }],
+//   },
+//   {
+//     animalUniqueId: "gree-04",
+//     vaccineData: [{ vaccineName: "Deworming", vaccineDate: "2021-01-01" }],
+//   },
+//   {
+//     animalUniqueId: "gree-06",
+//     vaccineData: [{ vaccineName: "Rabies", vaccineDate: "2022-11-01" }],
+//   },
+// ];
+const vaccineRecords = [
+  // {
+  //   animalUniqueId: "gree-01",
+  //   vaccineData: [
+  //     // No vaccines yet, will trigger first deworming alert at ~85 days
+  //   ],
+  // },
+  {
+    animalUniqueId: "gree-01",
+    vaccineData: [
+      { vaccineName: "Deworming", vaccineDate: "2025-03-17" },
+      { vaccineName: "PPR", vaccineDate: "2025-03-24" },
+      { vaccineName: "Rabies", vaccineDate: "2022-04-01" },
+    ],
+  },
+  // {
+  //   animalUniqueId: "gree-03",
+  //   vaccineData: [
+  //     { vaccineName: "Deworming", vaccineDate: "2024-12-30" },
+  //     { vaccineName: "PPR", vaccineDate: "2025-02-01" },
+  //     { vaccineName: "ET + TT", vaccineDate: "2025-03-02" },
+  //     { vaccineName: "HS", vaccineDate: "2025-03-20" },
+  //     { vaccineName: "FMD", vaccineDate: "2025-04-15" },
+  //   ],
+  // },
+  // {
+  //   animalUniqueId: "gree-04",
+  //   vaccineData: [
+  //     { vaccineName: "Deworming", vaccineDate: "2025-01-01" },
+  //     { vaccineName: "PPR", vaccineDate: "2023-05-01" },
+  //     { vaccineName: "ET + TT", vaccineDate: "2023-05-16" },
+  //     // No HS or FMD yet, should trigger booster alerts close to due date
+  //   ],
+  // },
+  // {
+  //   animalUniqueId: "gree-06",
+  //   vaccineData: [
+  //     { vaccineName: "Rabies", vaccineDate: "2022-11-01" },
+  //     { vaccineName: "PPR", vaccineDate: "2023-01-15" },
+  //     // No booster yet, can test booster alerts
+  //   ],
+  // },
+];
+
+// Helper: get vaccine record for an animal
+function getVaccineRecord(animalId) {
+  return (
+    vaccineRecords.find((rec) => rec.animalUniqueId === animalId) || {
+      vaccineData: [],
+    }
+  );
+}
+
+// Main function
+async function processAlerts() {
+  const currentDate = moment("2025-04-06");
+  const alertsToSend = [];
+
+  for (const animal of animals) {
+    if (!animal.birthDate) continue; // skip if no DOB
+    const birthDate = moment(animal.birthDate);
+    const ageInDays = currentDate.diff(birthDate, "days");
+    const vaccineRecord = getVaccineRecord(animal.uniqueId);
+    const vaccineData = Array.isArray(vaccineRecord.vaccineData)
+      ? vaccineRecord.vaccineData
+      : [];
+
+    // Check if vaccine record exists
+    if (vaccineData.length === 0) {
+      // No vaccine record, check for first deworming
+      if (ageInDays >= 75 && ageInDays <= 77) {
+        alertsToSend.push({
+          userId: animal.uid,
+          animalId: animal.uniqueId,
+          animalName: animal.name,
+          alertType: "First Deworming",
+          message: `Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`,
+          dueDate: birthDate.clone().add(85, "days").toDate(),
+        });
+        console.log(
+          `Alert: ${animal.name} due for first deworming at 85 days.`
+        );
+      }
+      continue;
+    }
+
+    // Check deworming
+    const dewormingRecords = vaccineData.filter((v) => {
+      const name = (v.vaccineName || "").toLowerCase();
+      return name.includes("deworming");
+    });
+    // First deworming check
+    if (ageInDays >= 70 && ageInDays <= 75 && dewormingRecords.length === 0) {
+      alertsToSend.push({
+        userId: animal.uid,
+        animalId: animal.uniqueId,
+        animalName: animal.name,
+        alertType: "First Deworming",
+        message: ` Your animal ${animal.name} is due for first deworming. It should be done at 85 days of age.`,
+        dueDate: birthDate.clone().add(85, "days").toDate(),
+      });
+      console.log(`Alert: ${animal.name} due for first deworming at 85 days.`);
+    }
+
+    // PPR vaccine checks
+    const pprRecordsFilter = vaccineData.filter((v) => {
+      const name = (v.vaccineName || "").toLowerCase();
+      return name.includes("ppr");
+    });
+    const hasPPR = pprRecordsFilter.length > 0;
+
+    // Check if animal needs first PPR vaccine (if no PPR yet)
+    if (!hasPPR) {
+      // Use date of birth instead of last vaccine date
+      const birthDate = moment(animal.birthDate);
+      const ageInDays = currentDate.diff(birthDate, "days");
+
+      if (ageInDays >= 82 && ageInDays <= 85) {
+        alertsToSend.push({
+          userId: animal.uid,
+          animalId: animal.uniqueId,
+          animalName: animal.name,
+          alertType: "PPR Vaccine",
+          message: `Your animal ${animal.name} is due for PPR vaccine. It should be done at 85 days of age.`,
+          dueDate: birthDate.clone().add(85, "days").toDate(),
+        });
+        console.log(
+          `Alert: ${animal.name} due for PPR vaccine (85 days after birth).`
+        );
+      }
+    }
+
+    // Find PPR records by name for second PPR check
+    const pprRecords = vaccineData.filter(
+      (record) => record.vaccineName === "PPR"
+    );
+
+    // Loop through all PPR records to check for second PPR vaccine
+    for (const pprRecord of pprRecords) {
+      const pprDate = moment(pprRecord.vaccineDate);
+      const daysSincePPR = currentDate.diff(pprDate, "days");
+
+      if (daysSincePPR >= 13 && daysSincePPR <= 15) {
+        alertsToSend.push({
+          userId: animal.uid,
+          animalId: animal.uniqueId,
+          animalName: animal.name,
+          alertType: "Second PPR Vaccine",
+          message: `Your animal ${animal.name} is due for the second PPR vaccine. It should be done 15 days after the first PPR vaccine.`,
+          dueDate: pprDate.clone().add(15, "days").toDate(),
+        });
+        console.log(
+          `Alert: ${animal.name} due for second PPR vaccine (15 days after first).`
+        );
+      }
+    }
+
+    // Find ET + TT records by name for check after PPR
+    const etTtRecords = vaccineData.filter(
+      (record) => record.vaccineName === "ET + TT"
+    );
+
+    // Check for ET + TT vaccine (should be given 15 days after PPR)
+    for (const pprRecord of pprRecords) {
+      const pprDate = moment(pprRecord.vaccineDate);
+      const daysSincePPR = currentDate.diff(pprDate, "days");
+
+      // Check if ET + TT is already given for this PPR
+      const hasEtTtAfterPpr = etTtRecords.some((record) => {
+        const etTtDate = moment(record.vaccineDate);
+        return (
+          etTtDate.isAfter(pprDate) && etTtDate.diff(pprDate, "days") >= 15
+        );
+      });
+
+      if (!hasEtTtAfterPpr && daysSincePPR >= 13 && daysSincePPR <= 15) {
+        alertsToSend.push({
+          userId: animal.uid,
+          animalId: animal.uniqueId,
+          animalName: animal.name,
+          alertType: "ET + TT Vaccine",
+          message: `Your animal ${animal.name} is due for ET + TT vaccine. It should be done 15 days after the PPR vaccine.`,
+          dueDate: pprDate.clone().add(15, "days").toDate(),
+        });
+        console.log(
+          `Alert: ${animal.name} due for ET + TT vaccine (15 days after PPR)`
+        );
+      }
+    }
+
+    // Find HS records by name for check after ET + TT
+    const hsRecords = vaccineData.filter(
+      (record) => record.vaccineName === "HS"
+    );
+
+    // Check for HS vaccine (should be given 15 days after ET + TT)
+    for (const etTtRecord of etTtRecords) {
+      const etTtDate = moment(etTtRecord.vaccineDate);
+      const daysSinceEtTt = currentDate.diff(etTtDate, "days");
+
+      // Check if HS is already given for this ET + TT
+      const hasHsAfterEtTt = hsRecords.some((record) => {
+        const hsDate = moment(record.vaccineDate);
+        return hsDate.isAfter(etTtDate) && hsDate.diff(etTtDate, "days") >= 15;
+      });
+
+      if (!hasHsAfterEtTt && daysSinceEtTt >= 13 && daysSinceEtTt <= 15) {
+        alertsToSend.push({
+          userId: animal.uid,
+          animalId: animal.uniqueId,
+          animalName: animal.name,
+          alertType: "HS Vaccine",
+          message: `Your animal ${animal.name} is due for HS vaccine. It should be done 15 days after the ET + TT vaccine.`,
+          dueDate: etTtDate.clone().add(15, "days").toDate(),
+        });
+        console.log(
+          `Alert: ${animal.name} due for HS vaccine (15 days after ET + TT).`
+        );
+      }
+    }
+
+    // Find FMD records by name for check after HS
+    const fmdRecords = vaccineData.filter(
+      (record) => record.vaccineName === "FMD"
+    );
+
+    // Check for FMD vaccine (should be given 15 days after HS)
+    for (const hsRecord of hsRecords) {
+      const hsDate = moment(hsRecord.vaccineDate);
+      const daysSinceHs = currentDate.diff(hsDate, "days");
+
+      // Check if FMD is already given for this HS
+      const hasFmdAfterHs = fmdRecords.some((record) => {
+        const fmdDate = moment(record.vaccineDate);
+        return fmdDate.isAfter(hsDate) && fmdDate.diff(hsDate, "days") >= 15;
+      });
+
+      if (!hasFmdAfterHs && daysSinceHs >= 13 && daysSinceHs <= 15) {
+        alertsToSend.push({
+          userId: animal.uid,
+          animalId: animal.uniqueId,
+          animalName: animal.name,
+          alertType: "FMD Vaccine",
+          message: `Your animal ${animal.name} is due for FMD vaccine. It should be done 15 days after the HS vaccine.`,
+          dueDate: hsDate.clone().add(15, "days").toDate(),
+        });
+        console.log(
+          `Alert: ${animal.name} due for FMD vaccine (15 days after HS`
+        );
+      }
+    }
+  }
+
+  // Output all alerts
+  for (const alert of alertsToSend) {
+    console.log(`Sending alert to user ${alert.userId}: ${alert.message}`);
+  }
+
+  return {
+    success: true,
+    alertsCount: alertsToSend.length,
+    message: `Processed ${alertsToSend.length} alerts.`,
+  };
+}

@@ -5,12 +5,12 @@ const asyncHandler = require("express-async-handler");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
 const generateUniqueFarmId = require("../../utils/uniqueId");
-// const milkModall = require("../../model/framData/milkModall");
-// const postWeanModal = require("../../model/framData/postWeanModal");
-// const vaccineModal = require("../../model/framData/vaccineModal");
-// const estrusHeatModal = require("../../model/framData/estrusHeatModal");
-// const sanitationModal = require("../../model/framData/sanitationModal");
-// const dewormModal = require("../../model/framData/dewormModal");
+const milkModall = require("../../model/framData/milkModall");
+const postWeanModal = require("../../model/framData/postWeanModal");
+const vaccineModal = require("../../model/framData/vaccineModal");
+const estrusHeatModal = require("../../model/framData/estrusHeatModal");
+const sanitationModal = require("../../model/framData/sanitationModal");
+const dewormModal = require("../../model/framData/dewormModal");
 
 // Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
@@ -95,11 +95,9 @@ exports.animalDetail = asyncHandler(async (req, res) => {
         gender: "Female",
       });
       if (!mother) {
-        return res
-          .status(400)
-          .json({
-            message: "Mother with provided tag ID not found or not female.",
-          });
+        return res.status(400).json({
+          message: "Mother with provided tag ID not found or not female.",
+        });
       }
       parents.push({
         parentUniqueId: mother.uniqueId,
@@ -111,11 +109,9 @@ exports.animalDetail = asyncHandler(async (req, res) => {
     if (fatherTag) {
       const father = await Animal.findOne({ tagId: fatherTag, gender: "Male" });
       if (!father) {
-        return res
-          .status(400)
-          .json({
-            message: "Father with provided tag ID not found or not male.",
-          });
+        return res.status(400).json({
+          message: "Father with provided tag ID not found or not male.",
+        });
       }
       parents.push({
         parentUniqueId: father.uniqueId,
@@ -171,7 +167,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
         );
       }
     }
-
+    await createVaccineRecord("add", newParent);
     // Send a success response
     res.status(200).json({
       message: "Animal added successfully",
@@ -460,6 +456,7 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
     if (!updated) {
       return res.status(404).json({ message: "No animal found" });
     }
+    await createVaccineRecord("edit", updatedFields);
 
     res.status(200).json({
       message: "success",
@@ -519,3 +516,52 @@ const removeRelatedRecords = async (parent, model, fieldName) => {
     console.error(`Error removing ${fieldName} records:`, error);
   }
 };
+
+const createVaccineRecord = async (type, data) => {
+  try {
+    if (!data?.uid || !data?.uniqueId) {
+      throw new Error("UID and unique ID are required");
+    }
+
+    const vaccineId = `VAC-${data.uid}-${data.birthDate || data.purchaseDate}`;
+
+    if (type === "add") {
+      await vaccineModal.create({
+        uid: data.uid,
+        animalUniqueId: data.uniqueId,
+        dateOfBirth: data.birthDate,
+        purchaseDate: data.purchaseDate,
+        vaccineId,
+      });
+    } else if (type === "edit") {
+      await vaccineModal.findOneAndUpdate(
+        { animalUniqueId: data.uniqueId },
+        {
+          $set: {
+            dateOfBirth: data.birthDate,
+            purchaseDate: data.purchaseDate,
+            vaccineId,
+          },
+        },
+        { new: true }
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+// const vaccineData = [];
+// const boosterData = [];
+
+// // Process each vaccine
+// vaccines.forEach((vaccine) => {
+//   if (vaccine.vaccineName && vaccine.vaccineDate) {
+//     vaccineData.push([vaccine.vaccineName, vaccine.vaccineDate]);
+//   }
+
+//   if (vaccine.boosterName && vaccine.boosterDate) {
+//     boosterData.push([vaccine.boosterName, vaccine.boosterDate]);
+//   }
+// });

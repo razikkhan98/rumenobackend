@@ -28,6 +28,7 @@ exports.contactUs = expressAsyncHandler(async (req, res) => {
     await newContact.save();
     res.status(201).json({ message: "Contact added successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Contact error:", error.message);
+    res.status(500).json({ success : false,message: "Server error", error: error.message });
   }
 });

@@ -39,7 +39,11 @@ router.get(
   animalParentController.getAllParents
 );
 
-
+router.get(
+  "/user/animaldata/newEntity/getTagIdsByGender",
+ animalParentController.getTagIdsByGender
+ );
+ 
 
 // Update new entity
 router.put(

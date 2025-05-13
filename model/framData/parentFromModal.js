@@ -7,9 +7,9 @@
 //     uniqueId: { type: String, required: true, unique: true },
 //     uniqueName: { type: String},
 //     animalName: { type: String },
-//     ageMonth: Number, 
-//     ageYear: Number, 
-//     height: Number, 
+//     ageMonth: Number,
+//     ageYear: Number,
+//     height: Number,
 //     heightDate: Date,
 //     purchasDate: Date,
 //     gender: {
@@ -18,11 +18,11 @@
 //       required: true,
 //     },
 //     weightKg: Number,
-//     weightGm: Number, 
+//     weightGm: Number,
 //     pregnancyDetail: String,
-//     maleDetail: String, 
-//     bodyScore: Number, 
-//     anyComment: String, 
+//     maleDetail: String,
+//     bodyScore: Number,
+//     anyComment: String,
 
 //     children: [{ type: String, ref: "ChildAnimal" }], // References Child,
 //     milk: [{ type: Object, ref: "Milk" }], // References Milk,
@@ -37,9 +37,6 @@
 // );
 
 // module.exports = mongoose.model("Animal", animalSchema);
-
-
-
 
 const mongoose = require("mongoose");
 
@@ -57,57 +54,56 @@ const animalSchema = new mongoose.Schema(
     ageMonth: { type: Number, default: null },
     height: { type: Number, default: null },
     weightKg: { type: Number, default: null },
-    birthDate: { type: String, required: true },
+    birthDate: { type: String },
     motherTag: { type: String, default: null },
     fatherTag: { type: String, default: null },
     gender: {
       type: String,
       enum: ["Male", "Female"],
-      required: true
+      required: true,
     },
     birthType: { type: String, default: null },
     birthWeight: { type: String, default: null },
     mothersWeanDate: { type: String, default: null },
     bodyScore: { type: Number, default: null },
-    purchaseDate: { type: Date, default: null },
+    purchaseDate: { type: String, default: null },
     comments: { type: String, default: null },
     otherDisease: { type: String, default: null },
-    vaccineDate: { type: Date, default: null },
+    vaccineDate: { type: String, default: null },
     vaccineName: { type: String, default: null },
     farmHouseName: { type: String, required: true },
-    dateMading: { type: Date, },
-    currentPregnancyMonth: { type: String, },
-    failed: { type: String, },
-    motherWeanDate: { type: Date, },
-    isPregnant: { type: Boolean, default:false },
-    siblingDetails: { type: String, default:false },
-    childWeanWeight:{ type: String, default:false },
-    childWeanDate:{ type: String, default:false },
-    lastVaccineDate: { type: String, default:false },
-    lastVaccineName: { type: String, default:false },
-
+    dateMading: { type: String },
+    currentPregnancyMonth: { type: String },
+    failed: { type: String },
+    motherWeanDate: { type: String },
+    isPregnant: { type: Boolean, default: null },
+    siblingDetails: { type: String, default: null },
+    childWeanWeight: { type: String, default: null },
+    childWeanDate: { type: String, default: null },
+    lastVaccineDate: { type: String, default: null },
+    lastVaccineName: { type: String, default: null },
 
     // Added parent-child relationship fields
-    parents: [{
-      parentUniqueId: String,
-      parentType: {
-        type: String,
-        enum: ["mother", "father"]
-      }
-    }],
+    parents: [
+      {
+        parentUniqueId: String,
+        parentType: {
+          type: String,
+          enum: ["mother", "father"],
+        },
+      },
+    ],
     children: [{ type: String, ref: "Animal", default: [] }],
-  }, {
-
-
-
-  // children: [{ type: String, ref: "ChildAnimal", default: [] }], // References Child
-  // milk: [{ type: Object, ref: "Milk", default: [] }], // References Milk
-  // postWean: [{ type: Object, ref: "PostWean", default: [] }], // References Post Wean
-  // vaccine: [{ type: Object, ref: "Vaccine", default: [] }], // References Vaccine
-  // deworm: [{ type: Object, ref: "Deworm", default: [] }], // References Deworm
-  // estrusHeat: [{ type: Object, ref: "EstrusHeat", default: [] }], // References EstrusHeat
-  // sanitation: [{ type: Object, ref: "Sanitation", default: [] }], // References FarmSanition
-},
+  },
+  {
+    // children: [{ type: String, ref: "ChildAnimal", default: [] }], // References Child
+    // milk: [{ type: Object, ref: "Milk", default: [] }], // References Milk
+    // postWean: [{ type: Object, ref: "PostWean", default: [] }], // References Post Wean
+    // vaccine: [{ type: Object, ref: "Vaccine", default: [] }], // References Vaccine
+    // deworm: [{ type: Object, ref: "Deworm", default: [] }], // References Deworm
+    // estrusHeat: [{ type: Object, ref: "EstrusHeat", default: [] }], // References EstrusHeat
+    // sanitation: [{ type: Object, ref: "Sanitation", default: [] }], // References FarmSanition
+  },
   { timestamps: true }
 );
 

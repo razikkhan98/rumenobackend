@@ -172,7 +172,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
         );
       }
     }
-    await createVaccineRecord("add", newParent);
+
+    if (newParent) await createVaccineRecord("add", req.body, newParent);
     // Send a success response
     res.status(200).json({
       message: "Animal added successfully",
@@ -440,7 +441,7 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
     if (!updated) {
       return res.status(404).json({ message: "No animal found" });
     }
-    await createVaccineRecord("edit", updatedFields);
+    if (updated) await createVaccineRecord("edit", req.body, updated);
 
     res.status(200).json({
       message: "success",
@@ -500,9 +501,10 @@ const removeRelatedRecords = async (parent, model, fieldName) => {
   }
 };
 
-const createVaccineRecord = async (type, data) => {
+const createVaccineRecord = async (type, data,update) => {
+  console.log("data:--------------------- ", data);
   try {
-    if (!data?.uid || !data?.uniqueId) {
+    if (!data?.uid || !update?.uniqueId) {
       throw new Error("UID and unique ID are required");
     }
 
@@ -511,14 +513,14 @@ const createVaccineRecord = async (type, data) => {
     if (type === "add") {
       await vaccineModal.create({
         uid: data.uid,
-        animalUniqueId: data.uniqueId,
+        animalUniqueId: update.uniqueId,
         dateOfBirth: data.birthDate,
         purchaseDate: data.purchaseDate,
         vaccineId,
       });
     } else if (type === "edit") {
       await vaccineModal.findOneAndUpdate(
-        { animalUniqueId: data.uniqueId },
+        { animalUniqueId: update.uniqueId },
         {
           $set: {
             dateOfBirth: data.birthDate,

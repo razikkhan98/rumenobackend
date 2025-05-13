@@ -154,13 +154,13 @@ router.get(
 // ===========
 // -----------------------------------------------------------------------------------------------
 // Add Vaccine Parent and Child
-router.post("/user/animal/vaccinedata/add", vaccineController.addVaccine);
+// router.post("/user/animal/vaccinedata/add", vaccineController.addVaccine);
 
 // Check Reminders Vaccine
-router.get(
-  "/user/animal/check-reminders/:userId",
-  vaccineController.checkReminders
-);
+// router.get(
+//   "/user/animal/check-reminders/:userId",
+//   vaccineController.checkReminders
+// );
 // -----------------------------------------------------------------------------------------------
 
 // // Update Vaccine Parent and Child
@@ -234,17 +234,17 @@ router.get(
  * @desc Register a new animal and set up its vaccination schedule
  * @access Private
  */
-router.post(
-  "/vaccine/register-animal-vaccine",
-  vaccineController.registerAnimal
-);
+// router.post(
+//   "/vaccine/register-animal-vaccine",
+//   vaccineController.registerAnimal
+// );
 
 /**
  * @route POST /api/vaccines
  * @desc Add a new vaccine record
  * @access Private
  */
-router.post("/vaccine/add-vaccine", vaccineController.addVaccine);
+// router.post("/vaccine/add-vaccine", vaccineController.addVaccine);
 
 /**
  * @route POST /api/vaccines
@@ -263,21 +263,21 @@ router.get("/vaccine/alert-vaccine", vaccineController.checkAndSendVaccineAlerts
  * @desc Mark a vaccine as completed (administered)
  * @access Private
  */
-router.put("/vaccine/:vaccineId/complete", vaccineController.completeVaccine);
+// router.put("/vaccine/:vaccineId/complete", vaccineController.completeVaccine);
 
 /**
  * @route PUT /api/vaccines/:vaccineId/pause
  * @desc Pause reminders for a specific vaccine
  * @access Private
  */
-router.put("/vaccine/:vaccineId/pause", vaccineController.pauseReminders);
+// router.put("/vaccine/:vaccineId/pause", vaccineController.pauseReminders);
 
 /**
  * @route GET /api/vaccines/reminders/:userId
  * @desc Check and process vaccine reminders for a user
  * @access Private
  */
-router.get("/vaccine/reminders/:userId", vaccineController.checkReminders);
+// router.get("/vaccine/reminders/:userId", vaccineController.checkReminders);
 
 /**
  * @route GET /api/vaccines/animal/:tagId

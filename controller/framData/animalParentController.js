@@ -167,7 +167,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
         );
       }
     }
-    await createVaccineRecord("add", newParent);
+    await createVaccineRecord("add", req.body,newParent);
     // Send a success response
     res.status(200).json({
       message: "Animal added successfully",
@@ -358,7 +358,6 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
 exports.getTagIdsByGender = async (req, res) => {
   try {
     const { animalName, uid } = req.query;
- 
     const animals = await Animal.find({ animalName, uid }, "tagId gender");
  
     const maleTagIds = animals
@@ -379,6 +378,7 @@ exports.getTagIdsByGender = async (req, res) => {
   }
 };
  
+ 
 
 
 // Update animal
@@ -391,7 +391,6 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
     if (!uniqueId) {
       return res.status(400).json({ message: "UniqueId is required" });
     }
-
     const {
       animalName,
       ageYear,
@@ -419,7 +418,7 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       lastVaccineName,
       farmHouseName,
     } = req.body;
-
+    
     const updatedFields = {
       animalName,
       ageYear,
@@ -452,11 +451,12 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       { $set: updatedFields },
       { new: true }
     );
-
+    console.log(updated)
+    
     if (!updated) {
       return res.status(404).json({ message: "No animal found" });
     }
-    await createVaccineRecord("edit", updatedFields);
+    await createVaccineRecord("edit", req.body,updated);
 
     res.status(200).json({
       message: "success",
@@ -517,9 +517,9 @@ const removeRelatedRecords = async (parent, model, fieldName) => {
   }
 };
 
-const createVaccineRecord = async (type, data) => {
+const createVaccineRecord = async (type, data,update) => {
   try {
-    if (!data?.uid || !data?.uniqueId) {
+    if (!data?.uid || !update?.uniqueId) {
       throw new Error("UID and unique ID are required");
     }
 
@@ -528,14 +528,14 @@ const createVaccineRecord = async (type, data) => {
     if (type === "add") {
       await vaccineModal.create({
         uid: data.uid,
-        animalUniqueId: data.uniqueId,
+        animalUniqueId: update.uniqueId,
         dateOfBirth: data.birthDate,
         purchaseDate: data.purchaseDate,
         vaccineId,
       });
     } else if (type === "edit") {
       await vaccineModal.findOneAndUpdate(
-        { animalUniqueId: data.uniqueId },
+        { animalUniqueId: update.uniqueId },
         {
           $set: {
             dateOfBirth: data.birthDate,

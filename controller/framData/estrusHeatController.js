@@ -52,15 +52,16 @@ exports.createEstrusHeat = async (req, res) => {
  */
 exports.getAllEstrusHeats = async (req, res) => {
   try {
-    const estrusHeats = await AnimalEstrusHea.find({
-      uid: req?.query.uid,
-    }).sort({
-      createdAt: -1,
-    });
+      const { uid, tagId } = req.query;
+    if (!uid || !tagId)
+      return res.status(400).json({
+        success: false,
+        message: "uid and tagId are required",
+      });
 
-    res
-      .status(200)
-      .json({ success: true, count: estrusHeats.length, data: estrusHeats });
+    const estrusHeats = await AnimalEstrusHea.find({ uid , tagId}).sort({ createdAt: -1,});
+
+    res.status(200).json({ success: true, count: estrusHeats.length, data: estrusHeats });
   } catch (error) {
     console.error("Error fetching estrus heat records:", error);
     res.status(500).json({

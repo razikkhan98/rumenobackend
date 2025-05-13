@@ -97,20 +97,15 @@ exports.transferAnimal = expressAsyncHandler(async (req, res) => {
 
 // Get All Transfer Animals
 exports.getAllTransferAnimal = expressAsyncHandler(async (req, res) => {
-  // try {
-  //   const transfer = await TransferAnimal.find({});
-  //   res.json({
-  //     message: "All transfer animals fetched successfully",
-  //     data: transfer,
-  //   });
-  // } catch (error) {
-  //   res
-  //     .status(500)
-  //     .json({ message: "Server error, failed to fetch transfer animals" });
-  // }
-
   try {
-    const transfer = await TransferAnimal.find({ uid: req?.query.uid }).sort({
+      const { uid, tagId } = req.query;
+    if (!uid || !tagId)
+      return res.status(400).json({
+        success: false,
+        message: "uid and tagId are required",
+      });
+
+    const transfer = await TransferAnimal.find({ uid, tagId }).sort({
       createdAt: -1,
     });
     res.status(200).json({ success: true, data: transfer });

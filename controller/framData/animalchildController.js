@@ -399,6 +399,7 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
   }
 });
 
+
 exports.getTotalCount = asyncHandler(async (req, res) => {
   try {
     const { animalName, uid } = req.query;
@@ -463,14 +464,14 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
 
     const parentDetails = await Animal.find(
       parentFilter,
-      "uid uniqueId parentId animalName"
+      "uid uniqueId parentId animalName tagId"
     ).lean();
 
     const parentIds = parentDetails.map((parent) => parent.parentId);
 
     const childDetails = await ChildAnimal.find(
       { parentId: { $in: parentIds } },
-      "uniqueId kidId parentId kidCode"
+      "uniqueId kidId parentId kidCode tagId"
     ).lean();
 
     // Fetch all records with additional error handling
@@ -485,32 +486,32 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
 
     const allVaccines = await fetchRecordsWithSafety(
       vaccineModal,
-      "vaccineId vaccineName vaccineDate uniqueId"
+      "vaccineId vaccineName vaccineDate uniqueId tagId"
     );
 
     const allPostWean = await fetchRecordsWithSafety(
       postWeanModal,
-      "postWeanId weanDate weightKg weightGm bodyScore weanComment"
+      "postWeanId weanDate weightKg weightGm bodyScore weanComment tagId"
     );
 
     const allMilk = await fetchRecordsWithSafety(
       milkModall,
-      "milkId milkvolume numberKids milkDate uId"
+      "milkId milkvolume numberKids milkDate uId tagId"
     );
 
     const allDeworm = await fetchRecordsWithSafety(
       dewormModal,
-      "dewormId report date endoName ectoName endoDate ectoDate endoType ectoType animalDate"
+      "dewormId report date endoName ectoName endoDate ectoDate endoType ectoType animalDate tagId"
     );
 
     const allHeat = await fetchRecordsWithSafety(
       estrusHeatModal,
-      "heatId heat heatDate heatResult breederName breedDate dueDate"
+      "heatId heat heatDate heatResult breederName breedDate dueDate tagId"
     );
 
     const allSanitation = await fetchRecordsWithSafety(
       sanitationModal,
-      "sanitationId soilDate limesprinkleDate insecticideDate insecticide"
+      "sanitationId soilDate limesprinkleDate insecticideDate insecticide tagId"
     );
 
     // Categorize animals for different records with additional safety checks
@@ -621,6 +622,14 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
       TotalParents: parentDetails.length,
       TotalChildren: childDetails.length,
 
+      TotalAnimalsData : [
+        ...parentDetails.map((item) => ({ ...item, type: "Parent" })),
+        ...childDetails.map((item) => ({ ...item, type: "Child" })),
+      ],
+
+      TotalParentsData : parentDetails.map((item) => ({ ...item, type: "Parent" })),
+      TotalChildrenData : childDetails.map((item) => ({ ...item, type: "Child" })),
+      
       VaccineCount:
         vaccines.parents.unvaccinated.count +
         vaccines.children.unvaccinated.count,

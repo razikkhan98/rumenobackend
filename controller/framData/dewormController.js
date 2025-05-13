@@ -62,7 +62,14 @@ exports.addDeworm = asyncHandler(async (req, res) => {
 
 exports.getAllDeworm = async (req, res) => {
   try {
-    const deworm = await AnimalDeworm.find({ uid: req?.query.uid }).sort({ createdAt: -1 }); // Sort by newest first
+    const { uid, tagId } = req.query;
+    if (!uid || !tagId)
+      return res.status(400).json({
+        success: false,
+        message: "uid and tagId are required",
+      });
+     
+    const deworm = await AnimalDeworm.find({ uid, tagId }).sort({ createdAt: -1 }); // Sort by newest first
 
     res.status(200).json({ success: true, count: deworm.length, data: deworm });
   } catch (error) {

@@ -57,6 +57,13 @@ router.delete(
   animalParentController.deleteAnimalParent
 );
 
+// Get All Count Animals
+// router.get(
+//   "/user/animaldata/parentchild/getAllCount",
+//   animalParentController.getTotalCount
+// );
+
+
 // -------------------------------------------------------------------------------------------
 // transfer Animals
 router.post(

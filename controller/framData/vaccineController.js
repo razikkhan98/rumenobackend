@@ -323,6 +323,7 @@ exports.addVaccineToAnimal = asyncHandler(async (req, res) => {
       boosterName,
       boosterDate,
     } = req.body;
+    console.log('req.body: ', req.body);
 
     if (!uid)
       return res.status(400).json({ message: "uid is a required field" });
@@ -376,6 +377,7 @@ exports.addVaccineToAnimal = asyncHandler(async (req, res) => {
       const isDeworming = vaccineLower.includes("deworming");
       const isPPR = vaccineLower.includes("ppr");
 
+      console.log('isDeworming: ', isDeworming);
       if (isDeworming) {
         // Check if animal has date of birth for deworming validation
         if (!animal.dateOfBirth) {
@@ -646,6 +648,39 @@ exports.sendVaccineAlerts = asyncHandler(async (req, res) => {
     });
   }
 });
+
+
+
+// Get ALL PostWeans 
+exports.getAllVaccine = async (req, res) => {
+  try {
+    const { uid, tagId } = req.query;
+    if (!uid || !tagId)
+      return res.status(400).json({
+        success: false,
+        message: "uid and tagId are required",
+      });
+     
+    const vaccine = await AnimalVaccine.find({ uid, tagId }).sort({ createdAt: -1, });
+    res.status(200).json({success:true, data:vaccine});
+    
+  } catch (error) {
+    console.error("Error fetching postwean records:", error);
+    res.status(500).json({success: false,
+      message: "Failed to fetch postwean records",
+       error: error.message });
+  }
+};
+
+
+
+
+
+
+
+
+
+
 
 // --------------------------------------------------------------------------
 

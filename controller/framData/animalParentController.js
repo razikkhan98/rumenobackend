@@ -518,6 +518,7 @@ const removeRelatedRecords = async (parent, model, fieldName) => {
 };
 
 const createVaccineRecord = async (type, data,update) => {
+  console.log("data:--------------------- ", data);
   try {
     if (!data?.uid || !update?.uniqueId) {
       throw new Error("UID and unique ID are required");

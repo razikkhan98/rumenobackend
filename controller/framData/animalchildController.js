@@ -484,9 +484,14 @@ exports.getTotalCount = asyncHandler(async (req, res) => {
       }
     };
 
+    // const allVaccines = await fetchRecordsWithSafety(
+    //   vaccineModal,
+    //   "vaccineId vaccineName vaccineDate uniqueId"
+    // );
+
     const allVaccines = await fetchRecordsWithSafety(
       vaccineModal,
-      "vaccineId vaccineName vaccineDate uniqueId tagId"
+      "uid dateOfBirth vaccineId animalUniqueId purchase vaccineData boosterData tagId"
     );
 
     const allPostWean = await fetchRecordsWithSafety(

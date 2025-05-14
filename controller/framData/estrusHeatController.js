@@ -143,9 +143,9 @@ exports.updateEstrusHeat = async (req, res) => {
 
     const heatNextDate = await calculateDateToDays(heatDate, 18);
     const updatedEstrusHeat = await AnimalEstrusHea.findByIdAndUpdate(
-      id,
+      id, {
       heatDate,
-      heatNextDate,
+      heatNextDate },
       { new: true, runValidators: true }
     );
 

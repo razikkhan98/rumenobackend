@@ -501,7 +501,7 @@ const removeRelatedRecords = async (parent, model, fieldName) => {
   }
 };
 
-const createVaccineRecord = async (type, data,update) => {
+const createVaccineRecord = async (type, data, update) => {
   console.log("data:--------------------- ", data);
   try {
     if (!data?.uid || !update?.uniqueId) {
@@ -516,6 +516,7 @@ const createVaccineRecord = async (type, data,update) => {
         animalUniqueId: update.uniqueId,
         dateOfBirth: data.birthDate,
         purchaseDate: data.purchaseDate,
+        animalName: data.animalName,
         vaccineId,
       });
     } else if (type === "edit") {

@@ -399,283 +399,196 @@ exports.promoteChildToParent = asyncHandler(async (req, res) => {
   }
 });
 
-exports.getTotalCount = asyncHandler(async (req, res) => {
-  try {
-    const { animalName, uid } = req.query;
+// exports.getTotalCount = asyncHandler(async (req, res) => {
+//   try {
+//     const { animalName, uid } = req.query;
 
-    if (!uid) {
-      return res.status(400).json({ error: "UID is required" });
-    }
+//     if (!uid) {
+//       return res.status(400).json({ error: "UID is required" });
+//     }
 
-    // Create a helper function to filter records based on current month and ID
-    const filterCurrentMonthRecords = (records, idField, dateField) => {
-      const currentMonth = moment().format("YYYY-MM");
-      return records.filter(
-        (record) =>
-          record[dateField] &&
-          typeof record[dateField] === "string" &&
-          record[dateField].startsWith(currentMonth)
-      );
-    };
+//     const categorizeAnimals = (details, records, idField, dateField) => {
 
-    const categorizeAnimals = (details, records, idField, dateField) => {
-      const currentMonth = moment().format("YYYY-MM");
+//       const vaccinated = details
+//         .filter((detail) =>
+//           records.some(
+//             (record) => record[idField] === detail.uniqueId && record[dateField]
+//           )
+//         )
+//         .map((item) => ({ ...item, status: "completed" }));
 
-      const vaccinated = details
-        .filter((detail) =>
-          records.some(
-            (record) =>
-              record[idField] === detail.uniqueId &&
-              record[dateField] &&
-              typeof record[dateField] === "string" &&
-              record[dateField].startsWith(currentMonth)
-          )
-        )
-        .map((item) => ({ ...item, status: "completed" }));
+//       const unvaccinated = details
+//         .filter(
+//           (detail) =>
+//             !records.some(
+//               (record) =>
+//                 record[idField] === detail.uniqueId && record[dateField]
+//             )
+//         )
+//         .map((item) => ({ ...item, status: "pending" }));
 
-      const unvaccinated = details
-        .filter(
-          (detail) =>
-            !records.some(
-              (record) =>
-                record[idField] === detail.uniqueId &&
-                record[dateField] &&
-                typeof record[dateField] === "string" &&
-                record[dateField].startsWith(currentMonth)
-            )
-        )
-        .map((item) => ({ ...item, status: "pending" }));
+//       return {
+//         vaccinated: {
+//           count: vaccinated.length,
+//           data: vaccinated,
+//         },
+//         unvaccinated: {
+//           count: unvaccinated.length,
+//           data: unvaccinated,
+//         },
+//       };
+//     };
 
-      return {
-        vaccinated: {
-          count: vaccinated.length,
-          data: vaccinated,
-        },
-        unvaccinated: {
-          count: unvaccinated.length,
-          data: unvaccinated,
-        },
-      };
-    };
+//     const parentFilter = { uid };
+//     if (animalName) parentFilter.animalName = animalName;
 
-    const parentFilter = { uid };
-    if (animalName) parentFilter.animalName = animalName;
+//     const parentDetails = await Animal.find(
+//       parentFilter,
+//       "uid uniqueId parentId animalName"
+//     ).lean();
 
-    const parentDetails = await Animal.find(
-      parentFilter,
-      "uid uniqueId parentId animalName"
-    ).lean();
+//     const parentIds = parentDetails.map((parent) => parent.parentId);
 
-    const parentIds = parentDetails.map((parent) => parent.parentId);
+//     // Fetch all records with additional error handling
+//     const fetchRecordsWithSafety = async (modal, projection) => {
+//       try {
+//         return await modal.find({}, projection).lean();
+//       } catch (error) {
+//         console.error(`Error fetching records: ${error.message}`);
+//         return [];
+//       }
+//     };
 
-    const childDetails = await ChildAnimal.find(
-      { parentId: { $in: parentIds } },
-      "uniqueId kidId parentId kidCode"
-    ).lean();
+//     // const allVaccines = await fetchRecordsWithSafety(
+//     //   vaccineModal,
+//     //   "vaccineId vaccineName vaccineDate uniqueId"
+//     // );
 
-    // Fetch all records with additional error handling
-    const fetchRecordsWithSafety = async (modal, projection) => {
-      try {
-        return await modal.find({}, projection).lean();
-      } catch (error) {
-        console.error(`Error fetching records: ${error.message}`);
-        return [];
-      }
-    };
+//     const allVaccines = await fetchRecordsWithSafety(
+//       vaccineModal,
+//       "uid dateOfBirth vaccineId animalUniqueId purchase vaccineData boosterData"
+//     );
 
-    // const allVaccines = await fetchRecordsWithSafety(
-    //   vaccineModal,
-    //   "vaccineId vaccineName vaccineDate uniqueId"
-    // );
+//     const allPostWean = await fetchRecordsWithSafety(
+//       postWeanModal,
+//       "postWeanId weanDate weightKg weightGm bodyScore weanComment"
+//     );
 
-    const allVaccines = await fetchRecordsWithSafety(
-      vaccineModal,
-      "uid dateOfBirth vaccineId animalUniqueId purchase vaccineData boosterData"
-    );
+//     const allMilk = await fetchRecordsWithSafety(
+//       milkModall,
+//       "milkId milkvolume numberKids milkDate uId"
+//     );
 
-    const allPostWean = await fetchRecordsWithSafety(
-      postWeanModal,
-      "postWeanId weanDate weightKg weightGm bodyScore weanComment"
-    );
+//     const allDeworm = await fetchRecordsWithSafety(
+//       dewormModal,
+//       "dewormId report date endoName ectoName endoDate ectoDate endoType ectoType animalDate"
+//     );
 
-    const allMilk = await fetchRecordsWithSafety(
-      milkModall,
-      "milkId milkvolume numberKids milkDate uId"
-    );
+//     const allHeat = await fetchRecordsWithSafety(
+//       estrusHeatModal,
+//       "heatId heat heatDate heatResult breederName breedDate dueDate"
+//     );
 
-    const allDeworm = await fetchRecordsWithSafety(
-      dewormModal,
-      "dewormId report date endoName ectoName endoDate ectoDate endoType ectoType animalDate"
-    );
+//     const allSanitation = await fetchRecordsWithSafety(
+//       sanitationModal,
+//       "sanitationId soilDate limesprinkleDate insecticideDate insecticide"
+//     );
 
-    const allHeat = await fetchRecordsWithSafety(
-      estrusHeatModal,
-      "heatId heat heatDate heatResult breederName breedDate dueDate"
-    );
+//     // Categorize animals for different records with additional safety checks
+//     const createSafeCategorization = (details, records, idField, dateField) => {
+//       try {
+//         return categorizeAnimals(details, records, idField, dateField);
+//       } catch (error) {
+//         console.error(`Error categorizing ${idField}: ${error.message}`);
+//         return {
+//           vaccinated: { count: 0, data: [] },
+//           unvaccinated: { count: details.length, data: details },
+//         };
+//       }
+//     };
 
-    const allSanitation = await fetchRecordsWithSafety(
-      sanitationModal,
-      "sanitationId soilDate limesprinkleDate insecticideDate insecticide"
-    );
+//     const vaccines = {
+//       parents: createSafeCategorization(
+//         parentDetails,
+//         allVaccines,
+//         "animalUniqueId",
+//         "vaccineDate"
+//       ),
+//     };
 
-    // Categorize animals for different records with additional safety checks
-    const createSafeCategorization = (details, records, idField, dateField) => {
-      try {
-        return categorizeAnimals(details, records, idField, dateField);
-      } catch (error) {
-        console.error(`Error categorizing ${idField}: ${error.message}`);
-        return {
-          vaccinated: { count: 0, data: [] },
-          unvaccinated: { count: details.length, data: details },
-        };
-      }
-    };
+//     const postWean = {
+//       parents: createSafeCategorization(
+//         parentDetails,
+//         allPostWean,
+//         "postWeanId",
+//         "weanDate"
+//       ),
+//     };
 
-    const vaccines = {
-      parents: createSafeCategorization(
-        parentDetails,
-        allVaccines,
-        "vaccineId",
-        "vaccineDate"
-      ),
-      children: createSafeCategorization(
-        childDetails,
-        allVaccines,
-        "vaccineId",
-        "vaccineDate"
-      ),
-    };
+//     const milk = {
+//       parents: createSafeCategorization(
+//         parentDetails,
+//         allMilk,
+//         "milkId",
+//         "milkDate"
+//       ),
+//     };
 
-    const postWean = {
-      parents: createSafeCategorization(
-        parentDetails,
-        allPostWean,
-        "postWeanId",
-        "weanDate"
-      ),
-      children: createSafeCategorization(
-        childDetails,
-        allPostWean,
-        "postWeanId",
-        "weanDate"
-      ),
-    };
+//     const deworm = {
+//       parents: createSafeCategorization(
+//         parentDetails,
+//         allDeworm,
+//         "dewormId",
+//         "date"
+//       ),
+//     };
 
-    const milk = {
-      parents: createSafeCategorization(
-        parentDetails,
-        allMilk,
-        "milkId",
-        "milkDate"
-      ),
-      children: createSafeCategorization(
-        childDetails,
-        allMilk,
-        "milkId",
-        "milkDate"
-      ),
-    };
+//     const heat = {
+//       parents: createSafeCategorization(
+//         parentDetails,
+//         allHeat,
+//         "heatId",
+//         "heatDate"
+//       ),
+//     };
 
-    const deworm = {
-      parents: createSafeCategorization(
-        parentDetails,
-        allDeworm,
-        "dewormId",
-        "date"
-      ),
-      children: createSafeCategorization(
-        childDetails,
-        allDeworm,
-        "dewormId",
-        "date"
-      ),
-    };
+//     const sanitation = {
+//       parents: createSafeCategorization(
+//         parentDetails,
+//         allSanitation,
+//         "sanitationId",
+//         "soilDate"
+//       ),
+//     };
 
-    const heat = {
-      parents: createSafeCategorization(
-        parentDetails,
-        allHeat,
-        "heatId",
-        "heatDate"
-      ),
-      children: createSafeCategorization(
-        childDetails,
-        allHeat,
-        "heatId",
-        "heatDate"
-      ),
-    };
+//     res.json({
+//       TotalAnimals: parentDetails.length + childDetails.length,
+//       TotalParents: parentDetails.length,
 
-    const sanitation = {
-      parents: createSafeCategorization(
-        parentDetails,
-        allSanitation,
-        "sanitationId",
-        "soilDate"
-      ),
-      children: createSafeCategorization(
-        childDetails,
-        allSanitation,
-        "sanitationId",
-        "soilDate"
-      ),
-    };
+//       VaccineCount: vaccines.parents.unvaccinated.count,
 
-    res.json({
-      TotalAnimals: parentDetails.length + childDetails.length,
-      TotalParents: parentDetails.length,
-      TotalChildren: childDetails.length,
+//       VaccineData: [...vaccines.parents.unvaccinated.data],
 
-      VaccineCount:
-        vaccines.parents.unvaccinated.count +
-        vaccines.children.unvaccinated.count,
-      VaccineData: [
-        ...vaccines.parents.unvaccinated.data,
-        ...vaccines.children.unvaccinated.data,
-      ],
+//       PostWeanCount: postWean.parents.unvaccinated.count,
+//       PostWeanData: [...postWean.parents.unvaccinated.data],
 
-      PostWeanCount:
-        postWean.parents.unvaccinated.count +
-        postWean.children.unvaccinated.count,
-      PostWeanData: [
-        ...postWean.parents.unvaccinated.data,
-        ...postWean.children.unvaccinated.data,
-      ],
+//       MilkCount: milk.parents.unvaccinated.count,
+//       MilkData: [...milk.parents.unvaccinated.data],
 
-      MilkCount:
-        milk.parents.unvaccinated.count + milk.children.unvaccinated.count,
-      MilkData: [
-        ...milk.parents.unvaccinated.data,
-        ...milk.children.unvaccinated.data,
-      ],
+//       HeatCount: heat.parents.unvaccinated.count,
+//       HeatData: [...heat.parents.unvaccinated.data],
 
-      HeatCount:
-        heat.parents.unvaccinated.count + heat.children.unvaccinated.count,
-      HeatData: [
-        ...heat.parents.unvaccinated.data,
-        ...heat.children.unvaccinated.data,
-      ],
+//       DewormCount: deworm.parents.unvaccinated.count,
+//       DewormData: [...deworm.parents.unvaccinated.data],
 
-      DewormCount:
-        deworm.parents.unvaccinated.count + deworm.children.unvaccinated.count,
-      DewormData: [
-        ...deworm.parents.unvaccinated.data,
-        ...deworm.children.unvaccinated.data,
-      ],
-
-      SanitationCount:
-        sanitation.parents.unvaccinated.count +
-        sanitation.children.unvaccinated.count,
-      SanitationData: [
-        ...sanitation.parents.unvaccinated.data,
-        ...sanitation.children.unvaccinated.data,
-      ],
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+//       SanitationCount: sanitation.parents.unvaccinated.count,
+//       SanitationData: [...sanitation.parents.unvaccinated.data],
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 exports.deleteChildAnimal = asyncHandler(async (req, res) => {
   try {
@@ -746,3 +659,54 @@ const removeChildFromParent = async (parentId, kidId) => {
     console.error("Error removing child from parent:", error);
   }
 };
+
+exports.getTotalCount = asyncHandler(async (req, res) => {
+  try {
+    const { uid, animalName } = req.query;
+
+    if (!uid) {
+      return res.status(400).json({ error: "UID is required" });
+    }
+
+    const parentFilter = { uid };
+    if (animalName) parentFilter.animalName = animalName;
+
+    const vaccines = await vaccineModal
+      .find(parentFilter, "uid animalUniqueId vaccineDataAlert")
+      .lean();
+
+    const vaccinated = [];
+    const unvaccinated = [];
+
+    vaccines.forEach((entry) => {
+      const alerts = entry.vaccineDataAlert || [];
+
+      alerts.forEach((alert) => {
+        const item = {
+          animalUniqueId: entry.animalUniqueId,
+          name: alert.name,
+          date: alert.date,
+          status: alert.status,
+          alertType: alert.alertType,
+          tagId: alert.tagId,
+        };
+
+        if (alert.status === "completed") {
+          vaccinated.push(item);
+        } else if (alert.status === "pending") {
+          unvaccinated.push(item);
+        }
+      });
+    });
+
+    res.json({
+      totalVaccinated: vaccinated.length,
+      totalUnvaccinated: unvaccinated.length,
+      vaccinated,
+      unvaccinated,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});

@@ -25,11 +25,14 @@ const VaccineSchema = new mongoose.Schema(
   {
     uid: { type: String, required: true },
     animalUniqueId: { type: String, require: true },
+    tagId: { type: String },
     dateOfBirth: { type: String },
     purchase: { type: String },
     vaccineId: { type: String },
     vaccineData: { type: Array },
+    vaccineDataAlert: { type: Array },
     boosterData: { type: Array },
+    animalName: { type: Array },
   },
   { timestamps: true }
 );

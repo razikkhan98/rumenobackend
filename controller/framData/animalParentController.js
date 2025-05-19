@@ -5,12 +5,12 @@ const asyncHandler = require("express-async-handler");
 const Animal = require("../../model/framData/parentFromModal");
 const User = require("../../model/user/registerModel");
 const generateUniqueFarmId = require("../../utils/uniqueId");
-const milkModall = require("../../model/framData/milkModall");
-const postWeanModal = require("../../model/framData/postWeanModal");
+// const milkModall = require("../../model/framData/milkModall");
+// const postWeanModal = require("../../model/framData/postWeanModal");
 const vaccineModal = require("../../model/framData/vaccineModal");
-const estrusHeatModal = require("../../model/framData/estrusHeatModal");
-const sanitationModal = require("../../model/framData/sanitationModal");
-const dewormModal = require("../../model/framData/dewormModal");
+// const estrusHeatModal = require("../../model/framData/estrusHeatModal");
+// const sanitationModal = require("../../model/framData/sanitationModal");
+// const dewormModal = require("../../model/framData/dewormModal");
 
 // Add Uniquie entites Data
 exports.animalDetail = asyncHandler(async (req, res) => {
@@ -48,8 +48,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       isPregnant,
       lastVaccineDate,
       lastVaccineName,
+      isVaccine
     } = req.body;
-
     // Validate required fields
     const requiredFields = { uid, animalName, farmHouseName, gender };
     for (const [key, value] of Object.entries(requiredFields)) {
@@ -140,8 +140,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       purchaseDate,
       comments,
       dateMading: gender === "Female" && isPregnant ? dateMading : null,
-      currentPregnancyMonth:
-      gender === "Female" && isPregnant ? currentPregnancyMonth : null,
+      currentPregnancyMonth: gender === "Female" && isPregnant ? currentPregnancyMonth : null,
       failed: gender === "Female" && isPregnant ? failed : null,
       motherWeanDate: gender === "Female" && isPregnant ? motherWeanDate : null,
       otherDisease,
@@ -153,6 +152,7 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       lastVaccineName,
       parents: parents, // Add parents array to the animal record
       children: [], // Initialize empty children array
+      isVaccine
     });
 
     // Save the new Parent to the database
@@ -354,20 +354,20 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
 
 
 
- // Get animal by gender
+// Get animal by gender
 exports.getTagIdsByGender = async (req, res) => {
   try {
     const { animalName, uid } = req.query;
     const animals = await Animal.find({ animalName, uid }, "tagId gender");
- 
+
     const maleTagIds = animals
       .filter((a) => a.gender?.toLowerCase() === "male")
       .map((a) => a.tagId);
- 
+
     const femaleTagIds = animals
       .filter((a) => a.gender?.toLowerCase() === "female")
       .map((a) => a.tagId);
- 
+
     res.status(200).json({
       maleTagIds,
       femaleTagIds,
@@ -377,8 +377,8 @@ exports.getTagIdsByGender = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
- 
- 
+
+
 
 
 // Update animal
@@ -417,8 +417,9 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       lastVaccineDate,
       lastVaccineName,
       farmHouseName,
+      isVaccine
     } = req.body;
-    
+
     const updatedFields = {
       animalName,
       ageYear,
@@ -445,6 +446,7 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       lastVaccineDate,
       lastVaccineName,
       farmHouseName,
+      isVaccine
     };
     const updated = await Animal.findOneAndUpdate(
       { uniqueId: uniqueId }, // Ensure you pass uniqueId properly
@@ -452,11 +454,11 @@ exports.updateAnimalParentDetail = asyncHandler(async (req, res) => {
       { new: true }
     );
     console.log(updated)
-    
+
     if (!updated) {
       return res.status(404).json({ message: "No animal found" });
     }
-    await createVaccineRecord("edit", req.body,updated);
+    await createVaccineRecord("edit", req.body, updated);
 
     res.status(200).json({
       message: "success",
@@ -517,7 +519,7 @@ const removeRelatedRecords = async (parent, model, fieldName) => {
   }
 };
 
-const createVaccineRecord = async (type, data,update) => {
+const createVaccineRecord = async (type, data, update) => {
   console.log("data:--------------------- ", data);
   try {
     if (!data?.uid || !update?.uniqueId) {

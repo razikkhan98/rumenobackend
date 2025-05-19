@@ -2,7 +2,6 @@
 // Post /rumeno/addtocart
 
 const expressAsyncHandler = require("express-async-handler");
-
 const cartModel = require("../../model/user/addToCartModal");
 
 // Add item to cart
@@ -11,17 +10,17 @@ exports.addToCart = expressAsyncHandler(async (req, res) => {
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
   }
-
   try {
-    const { uid, name, img, amount, price, stock } = req.body;
+    const { uid, name, img, price, totalAmount, stock, quantity, productId , weight} = req.body;
+    console.log(req.body)
 
     // Validate required fields
-    if (!uid || !name || !img || !amount || !price || !stock) {
-      return res.status(400).json({ message: "Please fill in all fields" });
+    if (!uid || !name || !img || !totalAmount || !price || !stock || !quantity || !productId  || !weight) {
+      return res.status(400).json({ message: "All fields are required!" });
     }
 
     // Check if item already exists in cart
-    const existingItem = await cartModel.findOne({ uid, name });
+    const existingItem = await cartModel.findOne({ uid, name, productId });
     if (existingItem) {
       return res.status(400).json({ message: "Item already exists in cart" });
     }
@@ -31,20 +30,24 @@ exports.addToCart = expressAsyncHandler(async (req, res) => {
       uid,
       name,
       img,
-      amount,
+      totalAmount: price * quantity ,
       price,
+      quantity,
       stock,
+      productId,
+      weight
     });
-
+    
     // Save user to the database
     await cartItem.save();
     res.status(201).json({ message: "Item added to cart" });
-
+    
     // Decrement stock if item is added to cart
-    if (stock > 0) {
-      await cartModel.updateOne({ uid, name }, { stock: stock - amount });
+    if (stock >= quantity) {
+       const updatedStock = stock - quantity;
+      await cartModel.updateOne({ uid, name }, { stock: updatedStock });
     }
-     else {
+    else {
       return res.status(400).json({ message: "Out of stock" });
     }
   } catch (error) {
@@ -55,7 +58,13 @@ exports.addToCart = expressAsyncHandler(async (req, res) => {
 // Get cart items
 exports.getCartItems = expressAsyncHandler(async (req, res) => {
   try {
-    const cartItems = await cartModel.find();
+    const { uid } = req.query;
+    
+    if (!uid) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+    
+    const cartItems = await cartModel.find({ uid });
     res.status(200).json(cartItems);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -64,26 +73,35 @@ exports.getCartItems = expressAsyncHandler(async (req, res) => {
 
 // Update cart item
 exports.updateCartItem = expressAsyncHandler(async (req, res) => {
-    // Validate request body
+  // Validate request body
   if (!req.body) {
     return res.status(400).json({ message: "No data provided" });
   }
+  const { id } = req.params;
+  
+  if (!id) {
+    return res.status(400).json({ message: "Id is required" })
+  }
+  
   try {
-    const { uid, name, amount } = req.body;
+    const { uid, name, productId, quantity } = req.body;
     // Validate required fields
-    if (!uid || !name || !amount) {
+    if (!uid || !name  || !productId || !quantity) {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
+    console.log(req.body)
     
     // Check if item exists in cart
-    const existingItem = await cartModel.findOne({ uid, name });
+    const existingItem = await cartModel.findOne({ uid, name, productId });
     if (!existingItem) {
       return res.status(400).json({ message: "Item does not exist in cart" });
     }
     console.log(existingItem);
+    
+    const amount =  existingItem?.totalAmount * quantity ;
 
     // Update item in cart
-    await cartModel.updateOne({ uid, name }, { amount });
+    await cartModel.findOneAndUpdate({ uid, name, productId }, { totalAmount:amount, quantity });
     res.status(200).json({ message: "Item updated" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -93,27 +111,39 @@ exports.updateCartItem = expressAsyncHandler(async (req, res) => {
 
 // Delete cart item
 exports.deleteCartItem = expressAsyncHandler(async (req, res) => {
-    // Validate request body
-  if (!req.body) {
-    return res.status(400).json({ message: "No data provided" });
+  // Validate request body
+
+  if (!req.body || !req.body.id) {
+    return res.status(400).json({ message: "Id is required" })
   }
-  try {
-    const { uid, name } = req.body;
-
-    // Validate required fields
-    if (!uid || !name) {
-      return res.status(400).json({ message: "Please fill in all fields" });
-    }
-
+  
     // Check if item exists in cart
-    const existingItem = await cartModel.findOne({ uid, name });
-    if (!existingItem) {
+    try {
+      const DeleteItem = await cartModel.findByIdAndDelete( req.body.id);
+    if (!DeleteItem) {
       return res.status(400).json({ message: "Item does not exist in cart" });
     }
-    // Delete item from cart
-    await cartModel.deleteOne({ uid, name });
+    
     res.status(200).json({ message: "Item deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

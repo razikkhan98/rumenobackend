@@ -5,6 +5,10 @@ const addToCartSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product",
   },
+  productId: {
+    type: String,
+    required: true,
+  },
   uid: {
     type: String,
     required: true,
@@ -18,7 +22,11 @@ const addToCartSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  amount: {
+  totalAmount: {
+    type: Number,
+    required: true,
+  },
+   quantity: {
     type: Number,
     required: true,
   },

@@ -546,7 +546,7 @@ function hasRepeatBooster(
 }
 
 async function processAlerts() {
-  const currentDate = moment("-2025-05-07");
+  const currentDate = moment("2025-05-07");
   const alertsToSend = [];
 
   const animals = await Animal.find({});

@@ -78,16 +78,16 @@ router.post("/user/transactionIssue", transactionIssueController.userTransaction
 // ========
 
 // // add to cart
-// router.post("/addtocart", validateToken, addToCartController.addToCart);
+router.post("/addtocart",  addToCartController.addToCart);
 
 // // get cart items
-// router.get("/getcartitems", validateToken, addToCartController.getCartItems);
+router.get("/getcartitems",  addToCartController.getCartItems);
 
 // // update cart item
-// router.put("/updatecartitem/:itemId", addToCartController.updateCartItem);
+router.put("/updatecartitem/:id", addToCartController.updateCartItem);
 
 // // remove item from cart
-// router.delete("/removefromcart/:itemId", addToCartController.deleteCartItem);
+router.delete("/removefromcart/:id", addToCartController.deleteCartItem);
 
 
 

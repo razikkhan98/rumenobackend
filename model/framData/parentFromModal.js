@@ -87,6 +87,7 @@ const animalSchema = new mongoose.Schema(
     lastVaccineDate: { type: String, default:false },
     lastVaccineName: { type: String, default:false },
     isVaccine: {type: Boolean},
+    animalValidation: { type: String },
 
 
     // Added parent-child relationship fields

@@ -37,6 +37,11 @@ router.post("/user/googlelogin", loginController.googleLogin);
 // forgot Password
 router.post("/user/forgotpassword", forgotController.forgotPassword);
 
+// Reset password
+router.post("/user/resetpassword",forgotController.resetPassword)
+//....
+
+
 // Feedback
 router.post("/user/feedback", validateToken,feedbackController.feedback);
 

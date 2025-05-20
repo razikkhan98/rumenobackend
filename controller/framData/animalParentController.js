@@ -48,7 +48,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       isPregnant,
       lastVaccineDate,
       lastVaccineName,
-      isVaccine
+      isVaccine,
+      animalValidation
     } = req.body;
     // Validate required fields
     const requiredFields = { uid, animalName, farmHouseName, gender };
@@ -152,7 +153,8 @@ exports.animalDetail = asyncHandler(async (req, res) => {
       lastVaccineName,
       parents: parents, // Add parents array to the animal record
       children: [], // Initialize empty children array
-      isVaccine
+      isVaccine,
+      animalValidation
     });
 
     // Save the new Parent to the database
@@ -265,6 +267,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
       lastVaccineDate: parent.lastVaccineDate,
       lastVaccineName: parent.lastVaccineName,
       farmName: parent.farmName,
+      animalValidation: parent.animalValidation,
       createdAt: parent.createdAt,
       updatedAt: parent.updatedAt,
       // Children
@@ -294,6 +297,7 @@ exports.animalAllDetail = asyncHandler(async (req, res) => {
         vaccineDate: child.vaccineDate,
         vaccineName: child.vaccineName,
         farmName: child.farmName,
+        animalValidation: child.animalValidation,
         lastVaccineDate: child.lastVaccineDate,
         lastVaccineName: child.lastVaccineName,
         createdAt: child.createdAt,
